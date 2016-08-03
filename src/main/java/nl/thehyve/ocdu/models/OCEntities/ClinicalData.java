@@ -38,9 +38,12 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
     private String originalItem;
 
     private String ssid;
+
+    private String personID;
+
     @Column(columnDefinition = "TEXT")
     private String eventName;
-    private Integer eventRepeat;
+    private String eventRepeat;
     @Column(columnDefinition = "TEXT")
     private String crfName;
 
@@ -65,10 +68,11 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
         this.studyProtocolName = studyProtocolName;
     }
 
-    public ClinicalData(String study, String item, String ssid, String eventName, Integer eventRepeat, String crfName, UploadSession submission, String crfVersion, Integer groupRepeat, OcUser owner, String value) {
+    public ClinicalData(String study, String item, String ssid, String personID, String eventName, String eventRepeat, String crfName, UploadSession submission, String crfVersion, Integer groupRepeat, OcUser owner, String value) {
         this.study = study;
         this.item = item;
         this.ssid = ssid;
+        this.personID = personID;
         this.eventName = eventName;
         this.eventRepeat = eventRepeat;
         this.crfName = crfName;
@@ -82,6 +86,14 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
     }
 
     public ClinicalData() {
+    }
+
+    public String getPersonID() {
+        return personID;
+    }
+
+    public void setPersonID(String personID) {
+        this.personID = personID;
     }
 
     public void setId(long id) {
@@ -123,7 +135,7 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
         this.eventName = eventName;
     }
 
-    public void setEventRepeat(Integer eventRepeat) {
+    public void setEventRepeat(String eventRepeat) {
         this.eventRepeat = eventRepeat;
     }
 
@@ -180,7 +192,7 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
         return eventName;
     }
 
-    public Integer getEventRepeat() {
+    public String getEventRepeat() {
         return eventRepeat;
     }
 
@@ -212,6 +224,7 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
                 ", site='" + site + '\'' +
                 ", item='" + item + '\'' +
                 ", ssid='" + ssid + '\'' +
+                ", personID='" + personID + '\'' +
                 ", eventName='" + eventName + '\'' +
                 ", eventRepeat=" + eventRepeat +
                 ", crfName='" + crfName + '\'' +

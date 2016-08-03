@@ -71,6 +71,8 @@ public class ClinicalDataOcChecksTests {
     private static Path emptyMandatory;
     private static Path missingToggle;
     private static Path hiddenVal;
+    private static Path testFileMissingPersonID;
+    private static Path testFileInvalidEventRepeat;
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -101,6 +103,8 @@ public class ClinicalDataOcChecksTests {
             emptyMandatory = Paths.get("docs/exampleFiles/emptyMandatory.txt");
             missingToggle = Paths.get("docs/exampleFiles/missingToggle.txt");
             hiddenVal = Paths.get("docs/exampleFiles/hiddenVal.txt");
+            testFileMissingPersonID = Paths.get("docs/exampleFiles/missingPersonID.txt");
+            testFileInvalidEventRepeat = Paths.get("docs/exampleFiles/eventRepeatInvalid.txt");
 
             MessageFactory messageFactory = MessageFactory.newInstance();
             File testFile = new File("docs/responseExamples/getStudyMetadata2.xml"); //TODO: Replace File with Path
@@ -255,6 +259,17 @@ public class ClinicalDataOcChecksTests {
         assertThat(errors, hasItem(isA(RepeatInNonrepeatingEvent.class)));
     }
 
+
+    @Test
+    public void invalidFormatEventRepeat() throws Exception {
+        List<ClinicalData> incorrectClinicalData = factory.createClinicalData(testFileInvalidEventRepeat);
+        clinicalDataOcChecks = new ClinicalDataOcChecks(metaDataEventfulStudy, incorrectClinicalData, testSubjectWithEventsTypeList);
+        List<ValidationErrorMessage> errors = clinicalDataOcChecks.getErrors();
+        assertEquals(1, errors.size());
+        assertThat(errors, hasItem(isA(EventRepeatFormatError.class)));
+    }
+
+
     @Test
     public void versionMismatchCRF() throws Exception {
         List<ClinicalData> incorrectClinicalData = factory.createClinicalData(testFileMismatchingCRFVersion);
@@ -297,8 +312,8 @@ public class ClinicalDataOcChecksTests {
     public void eventStatusCheck() throws Exception {
         List<StudySubjectWithEventsType> incorrectEventStatus = incorrectEventStatusExample();
         List<ClinicalData> incorrectData = new ArrayList<>();
-        ClinicalData dPoint = new ClinicalData("Eventful", "age", "ssid1",
-                "RepeatingEvent", 1, "MUST-FOR_NON_TTP_STUDY", null, "0.08", null, null, "12");
+        ClinicalData dPoint = new ClinicalData("Eventful", "age", "ssid1", "PersonID_01",
+                "RepeatingEvent", "1", "MUST-FOR_NON_TTP_STUDY", null, "0.08", null, null, "12");
         incorrectData.add(dPoint);
         clinicalDataOcChecks = new ClinicalDataOcChecks(metaDataEventfulStudy, incorrectData, incorrectEventStatus);
 
@@ -394,5 +409,14 @@ public class ClinicalDataOcChecksTests {
         MultipleCrfCrossCheck check = new MultipleCrfCrossCheck();
         ValidationErrorMessage correspondingError = check.getCorrespondingError(incorrectData, null, null, null, null, null);
         assertThat(correspondingError, notNullValue());
+    }
+
+    @Test
+    public void testMissingPersonID() throws Exception {
+        List<ClinicalData> incorrectClinicalData = factory.createClinicalData(testFileMissingPersonID);
+        clinicalDataOcChecks = new ClinicalDataOcChecks(metaDataEventfulStudy, incorrectClinicalData, testSubjectWithEventsTypeList);
+        List<ValidationErrorMessage> errors = clinicalDataOcChecks.getErrors();
+        assertEquals(1, errors.size());
+        assertThat(errors, hasItem(isA(MissingPersonIDError.class)));
     }
 }

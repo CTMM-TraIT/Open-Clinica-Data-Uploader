@@ -40,6 +40,8 @@ public class ClinicalDataOcChecks extends ClinicalDataChecksRunner{
         crossChecks.add(new DataFieldWidthCheck());
         crossChecks.add(new EventStatusCheck());
         crossChecks.add(new EventGapCrossCheck());
+        crossChecks.add(new MissingPersonIDCrossCheck());
+        crossChecks.add(new EventRepeatFormatCheck());
 
         this.setChecks(crossChecks);
     }

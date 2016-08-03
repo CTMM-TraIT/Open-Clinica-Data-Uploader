@@ -1,7 +1,6 @@
 package nl.thehyve.ocdu.factories;
 
 import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
-import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.OcUser;
 import nl.thehyve.ocdu.models.UploadSession;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +24,7 @@ public class ClinicalDataFactory extends UserSubmittedDataFactory {
 
 
     public final static String STUDY_SUBJECT_ID = "StudySubjectID";
+    public final static String PERSON_ID = "PersonID";
     public final static String STUDY = "Study";
     public final static String EventName = "EventName";
     public final static String EventRepeat = "EventRepeat";
@@ -60,6 +60,8 @@ public class ClinicalDataFactory extends UserSubmittedDataFactory {
         HashMap<String, Integer> coreMap = new HashMap<>();
         Integer ssidIndex = getAndRemove(headerMap, STUDY_SUBJECT_ID);
         coreMap.put(STUDY_SUBJECT_ID, ssidIndex);
+        Integer personIDIndex = getAndRemove(headerMap, PERSON_ID);
+        coreMap.put(PERSON_ID, personIDIndex);
         Integer studyIndex = getAndRemove(headerMap, STUDY);
         coreMap.put(STUDY, studyIndex);
         Integer eventNameIndex = getAndRemove(headerMap, EventName);
@@ -86,9 +88,15 @@ public class ClinicalDataFactory extends UserSubmittedDataFactory {
         String[] split = parseLine(line);
 
         String ssid = split[coreColumns.get(STUDY_SUBJECT_ID)];
+        String personID = "";
+        // the null-check is needed because the personID is only a required column if the study has configured it to be
+        // required.
+        if (coreColumns.get(PERSON_ID) != null) {
+            personID = split[coreColumns.get(PERSON_ID)];
+        }
         String study = split[coreColumns.get(STUDY)];
         String eventName = split[coreColumns.get(EventName)];
-        Integer eventRepeat = Integer.parseInt(split[coreColumns.get(EventRepeat)]);
+        String eventRepeat = split[coreColumns.get(EventRepeat)];
         String crf = getOptionalFromArray(split, coreColumns.get(CRFName));
         String crfVer = getOptionalFromArray(split, coreColumns.get(CRFVersion));
         Integer siteInd = coreColumns.get(SITE);
@@ -104,7 +112,7 @@ public class ClinicalDataFactory extends UserSubmittedDataFactory {
             if (groupRepeat == null) item = colName; // Consequences of encoding group repeat in the column name
 
             String value = getOptionalFromArray(split, headerMap.get(colName));
-            ClinicalData dat = new ClinicalData(study, item, ssid, eventName, eventRepeat, crf,
+            ClinicalData dat = new ClinicalData(study, item, ssid, personID, eventName, eventRepeat, crf,
                     getSubmission(), crfVer, groupRepeat, getUser(), value.trim()); // Mind the trim() on value.
             dat.setSite(site);
             if (StringUtils.isNotEmpty(value)) // ignore empty

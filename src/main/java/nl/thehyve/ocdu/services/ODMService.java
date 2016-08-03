@@ -128,7 +128,7 @@ public class ODMService {
             throw new IllegalStateException("No subjectOID present in OpenClinica for subject with label: '" + subjectLabel + "'");
         }
         String eventName = eventNameOIDMap.get(clinicalDataList.get(0).getEventName());
-        Integer eventRepeatOrdinal = clinicalDataList.get(0).getEventRepeat();
+        String eventRepeatOrdinal = clinicalDataList.get(0).getEventRepeat();
         String crfName = clinicalDataList.get(0).getCrfName();
         String crfVersion = clinicalDataList.get(0).getCrfVersion();
         String crfOID = metaData.findFormOID(crfName, crfVersion);
@@ -137,7 +137,7 @@ public class ODMService {
         StrBuilder builder = new StrBuilder(ODM_SUBJECT_SECTION);
         builder.replaceAll(STUDY_SUBJECT_PARAM, subjectOID);
         builder.replaceAll(STUDY_EVENT_DATA_PARAM, eventName);
-        builder.replaceAll(STUDY_EVENT_REPEAT_ORDINAL_PARAM, eventRepeatOrdinal.toString());
+        builder.replaceAll(STUDY_EVENT_REPEAT_ORDINAL_PARAM, eventRepeatOrdinal);
         builder.replaceAll(CRF_OID_PARAM, crfOID);
         builder.replaceAll(STATUS_AFTER_UPLOAD_PARAM, statusAfterUpload);
         StrBuilder itemDataBuilder = new StrBuilder();

@@ -1,0 +1,3 @@
+StudySubjectID	PersonID	Study	Site	EventName	CRFName	CRFVersion	EventRepeat	age	patient_ID	total_length_occluded_segment_in_cm	male0_female1	occluded_artery	site_occlusion_limb_Left1_right2_both3	test_parameterized_link_v2
+EV-00011		Eventful		Non-repeating Event	MUST-FOR_NON_TTP_STUDY	0.10	1	99		AA	0	P. Rabbit	1	3	http://www.example.com
+EV-00010	Broer Konijn	Eventful		Non-repeating Event	MUST-FOR_NON_TTP_STUDY	0.10	1	99	Bugs Bunny	A	0	vena cava	3	http://www.example.com

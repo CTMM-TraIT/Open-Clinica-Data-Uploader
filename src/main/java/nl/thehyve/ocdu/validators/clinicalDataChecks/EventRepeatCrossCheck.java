@@ -22,7 +22,23 @@ public class EventRepeatCrossCheck implements ClinicalDataCrossCheck {
     public ValidationErrorMessage getCorrespondingError(List<ClinicalData> data, MetaData metaData, Map<ClinicalData, ItemDefinition> itemDefMap, List<StudySubjectWithEventsType> studySubjectWithEventsTypeList, Map<ClinicalData, Boolean> shownMap, Map<String, Set<CRFDefinition>> eventMap) {
         // if  there is a non repeating event which has repeat higher than 1 return error
         RepeatInNonrepeatingEvent error = new RepeatInNonrepeatingEvent();
-        Set<String> offenders = data.stream().filter(clinicalData -> clinicalData.getEventRepeat() > 1)
+
+        List<String> repeatList =
+                data.stream().map(ClinicalData::getEventRepeat).collect(Collectors.toList());
+        boolean containsInvalidInt = false;
+        try {
+            for (String intValue : repeatList) {
+                int value = Integer.parseInt(intValue);
+            }
+        }
+        catch (NumberFormatException nfe) {
+            containsInvalidInt = true;
+        }
+        if (containsInvalidInt) {
+            return null;
+        }
+
+        Set<String> offenders = data.stream().filter(clinicalData -> Integer.parseInt(clinicalData.getEventRepeat()) > 1)
                 .filter(clinicalData -> isViolator(clinicalData, metaData))
                 .map(clinicalData -> "Event " + clinicalData.getEventName() + " repeat: " + clinicalData.getEventRepeat())
                 .collect(Collectors.toSet());

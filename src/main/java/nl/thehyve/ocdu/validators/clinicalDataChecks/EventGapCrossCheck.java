@@ -28,25 +28,25 @@ public class EventGapCrossCheck implements ClinicalDataCrossCheck {
     public ValidationErrorMessage getCorrespondingError(List<ClinicalData> data, MetaData metaData, Map<ClinicalData, ItemDefinition> itemDefMap, List<StudySubjectWithEventsType> studySubjectWithEventsTypeList, Map<ClinicalData, Boolean> shownMap, Map<String, Set<CRFDefinition>> eventMap) {
         EventGapError error = new EventGapError();
         // create a map of each subject with the repeats in the data
-        Map<String, Set<Integer>> newSubjectRepeats = data.stream()
+        Map<String, Set<String>> newSubjectRepeats = data.stream()
                                         .filter(clinicalData -> isRepeating(clinicalData.getEventName(), metaData))
                                         .collect(Collectors.groupingBy(ClinicalData::createEventRepeatKey,
                                                 Collectors.mapping(ClinicalData::getEventRepeat, Collectors.toSet())));
 
-        Map<String, Set<Integer>> existingSubjectRepeats = new HashMap<>();
+        Map<String, Set<String>> existingSubjectRepeats = new HashMap<>();
         for (StudySubjectWithEventsType studySubjectWithEventsType : studySubjectWithEventsTypeList) {
             List<ClinicalData> existingClinicalDataListForSubject = createFromStudySubjectWithEventsType(studySubjectWithEventsType, metaData);
-            Map<String, Set<Integer>> subjectRepeats = existingClinicalDataListForSubject.stream()
+            Map<String, Set<String>> subjectRepeats = existingClinicalDataListForSubject.stream()
                     .collect(Collectors.groupingBy(ClinicalData::createEventRepeatKey,
                             Collectors.mapping(ClinicalData::getEventRepeat, Collectors.toSet())));
             existingSubjectRepeats.putAll(subjectRepeats);
         }
 
-        Map<String, Set<Integer>> combinedSubjectRepeats = new HashMap<>();
+        Map<String, Set<String>> combinedSubjectRepeats = new HashMap<>();
         combinedSubjectRepeats.putAll(existingSubjectRepeats);
         for (String subjectID : newSubjectRepeats.keySet()) {
             if (combinedSubjectRepeats.containsKey(subjectID)) {
-                Set<Integer> newRepeatSet = newSubjectRepeats.get(subjectID);
+                Set<String> newRepeatSet = newSubjectRepeats.get(subjectID);
                 combinedSubjectRepeats.get(subjectID).addAll(newRepeatSet);
             }
             else {
@@ -54,13 +54,13 @@ public class EventGapCrossCheck implements ClinicalDataCrossCheck {
             }
         }
 
-        for (Map.Entry<String, Set<Integer>> repeatSetEntryList : combinedSubjectRepeats.entrySet()) {
-            Set<Integer> repeatSet = repeatSetEntryList.getValue();
-            List<Integer> repeatList = new ArrayList<>(repeatSet);
+        for (Map.Entry<String, Set<String>> repeatSetEntryList : combinedSubjectRepeats.entrySet()) {
+            Set<String> repeatSet = repeatSetEntryList.getValue();
+            List<String> repeatList = new ArrayList<>(repeatSet);
             Collections.sort(repeatList);
-            Optional<Integer> maxOptional = repeatList.stream().max(Comparator.naturalOrder());
+            Optional<String> maxOptional = repeatList.stream().max(Comparator.naturalOrder());
             if (maxOptional.isPresent()) {
-                int max = maxOptional.get();
+                int max = Integer.parseInt(maxOptional.get());
                 if (max - repeatList.size() != 0) {
                     String key = repeatSetEntryList.getKey();
                     String[] keyPartList = StringUtils.splitPreserveAllTokens(key, ClinicalData.KEY_SEPARATOR);
@@ -94,12 +94,7 @@ public class EventGapCrossCheck implements ClinicalDataCrossCheck {
                 }
                 clinicalData.setSsid(studySubjectWithEventsType.getLabel());
                 clinicalData.setEventName(metaData.findEventName(eventResponseType.getEventDefinitionOID()));
-                try {
-                    clinicalData.setEventRepeat(Integer.parseInt(eventResponseType.getOccurrence()));
-                } catch (NumberFormatException nfe) {
-                    log.error("Invalid event repeat: " + eventResponseType.getOccurrence() + " for subject " + studySubjectWithEventsType.getLabel());
-                    continue;
-                }
+                clinicalData.setEventRepeat(eventResponseType.getOccurrence());
                 ret.add(clinicalData);
             }
         }

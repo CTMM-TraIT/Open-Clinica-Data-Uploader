@@ -29,10 +29,6 @@ public class CRFVersionMatchCrossCheck implements ClinicalDataCrossCheck {
 
     @Override
     public ValidationErrorMessage getCorrespondingError(List<ClinicalData> data, MetaData metaData, Map<ClinicalData, ItemDefinition> itemDefMap, List<StudySubjectWithEventsType> subjectWithEventsTypeList, Map<ClinicalData, Boolean> shownMap, Map<String, Set<CRFDefinition>> eventMap) {
-
-        if (data.isEmpty()) {
-            return null;
-        }
         // Assumption is that there is only 1 event and 1 CRF in a data file and that the clincalDataList only contains a single subjectID
 
         String studyIdentifier = metaData.getStudyName();
@@ -78,13 +74,14 @@ public class CRFVersionMatchCrossCheck implements ClinicalDataCrossCheck {
                 for (EventResponseType eventResponseType : eventsType.getEvent()) {
                     String eventOID = eventResponseType.getEventDefinitionOID();
                     String eventName = eventOIDNameMap.get(eventOID);
-                    Integer eventOrdinal = Integer.parseInt(eventResponseType.getOccurrence());
+                    String eventOrdinal = eventResponseType.getOccurrence();
                     for (EventCrfInformationList eventCrfInformationList : eventResponseType.getEventCrfInformation()) {
                         List<EventCrfType>  eventCrfTypeList = eventCrfInformationList.getEventCrf();
                         for (EventCrfType eventCrfType : eventCrfTypeList) {
                             ClinicalData clinicalData = new ClinicalData(studyIdentifier,
                                     null,
                                     subjectWithEventsType.getLabel(),
+                                    null,
                                     eventName,
                                     eventOrdinal,
                                     eventCrfType.getName(),
