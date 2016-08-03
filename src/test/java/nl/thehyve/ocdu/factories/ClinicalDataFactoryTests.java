@@ -5,8 +5,8 @@ import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OcUser;
 import nl.thehyve.ocdu.models.UploadSession;
 import nl.thehyve.ocdu.repositories.ClinicalDataRepository;
-import nl.thehyve.ocdu.repositories.UploadSessionRepository;
 import nl.thehyve.ocdu.repositories.OCUserRepository;
+import nl.thehyve.ocdu.repositories.UploadSessionRepository;
 import nl.thehyve.ocdu.services.FileService;
 import org.junit.After;
 import org.junit.Before;
@@ -35,6 +35,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 /**
+ * Unit test for {@link ClinicalDataFactory}.
  * Created by piotrzakrzewski on 16/04/16.
  */
 @RunWith(SpringJUnit4ClassRunner.class)

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Entity for the item group definition, present in metadata returned by OpenClinica.
  * Created by piotrzakrzewski on 01/05/16.
  */
 @Entity
@@ -103,5 +104,21 @@ public class ItemGroupDefinition implements ODMElement {
 
     public void addItem(ItemDefinition item) {
         this.items.add(item);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ItemGroupDefinition that = (ItemGroupDefinition) o;
+
+        return oid != null ? oid.equals(that.oid) : that.oid == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return oid != null ? oid.hashCode() : 0;
     }
 }

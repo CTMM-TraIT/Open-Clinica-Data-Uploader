@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * Entity containing the CRF (Clinical Report Form) definition.
  * Created by piotrzakrzewski on 01/05/16.
  */
 @Entity
@@ -28,7 +29,7 @@ public class CRFDefinition implements ODMElement {
     private List<String> mandatoryUngroupedItems = new ArrayList<>();
 
     @OneToMany(targetEntity = ItemGroupDefinition.class)
-    private List<ItemGroupDefinition> itemGroups = new ArrayList<>();
+    private Set<ItemGroupDefinition> itemGroups = new HashSet<>();
 
     @OneToMany(targetEntity = ItemDefinition.class)
     private List<ItemDefinition> ungroupedItems = new ArrayList<>();
@@ -51,11 +52,11 @@ public class CRFDefinition implements ODMElement {
         this.ungroupedItems = ungroupedItems;
     }
 
-    public List<ItemGroupDefinition> getItemGroups() {
+    public Set<ItemGroupDefinition> getItemGroups() {
         return itemGroups;
     }
 
-    public void setItemGroups(List<ItemGroupDefinition> itemGroups) {
+    public void setItemGroups(Set<ItemGroupDefinition> itemGroups) {
         this.itemGroups = itemGroups;
     }
 
@@ -166,22 +167,26 @@ public class CRFDefinition implements ODMElement {
         ungroupedItems.add(ungroupedItem);
     }
 
-    public Set<String> getMandatoryItemNames() {
-        Set<String> allMandatoryInCRF = new HashSet<>();
-        itemGroups
-                .stream()
-                .filter(itemGroupDefinition -> itemGroupDefinition.isMandatoryInCrf())
-                .forEach(mandatoryGroup -> {
-                    List<ItemDefinition> items = mandatoryGroup.getItems();
-                    items.stream()
-                            .filter(itemDefinition -> itemDefinition.isMandatoryInGroup())
-                            .map(ItemDefinition::getName).forEach(itemName -> {
-                                allMandatoryInCRF.add(itemName);
-                            }
-                    );
-                });
-        Set<String> ungrouped = ungroupedItems.stream().map(ItemDefinition::getName).collect(Collectors.toSet());
-        allMandatoryInCRF.addAll(ungrouped);
-        return ungrouped;
+
+    public Set<String> determineRequiredItemsNames() {
+        Set<String> requiredItemsInCRF = new HashSet<>();
+        for (ItemGroupDefinition itemGroupDefinition : itemGroups) {
+            List<ItemDefinition> itemDefinitionList = itemGroupDefinition.getItems();
+            addRequiredItemsNames(itemDefinitionList, requiredItemsInCRF);
+
+        }
+        addRequiredItemsNames(ungroupedItems, requiredItemsInCRF);
+        return requiredItemsInCRF;
+    }
+
+    private void addRequiredItemsNames(List<ItemDefinition> itemDefinitionList, Set<String> addToSet) {
+        for (ItemDefinition itemDefinition : itemDefinitionList) {
+            for (ItemPresentInForm itemPresentInForm : itemDefinition.getItemPresentInFormList()) {
+                if (itemPresentInForm.getFormOID().equals(this.oid) &&
+                        itemPresentInForm.isRequired()) {
+                    addToSet.add(itemDefinition.getName());
+                }
+            }
+        }
     }
 }

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Entity for the item definition, present in metadata returned by OpenClinica.
  * Created by piotrzakrzewski on 01/05/16.
  */
 @Entity
@@ -23,6 +24,10 @@ public class ItemDefinition implements ODMElement {
 
     @OneToMany(targetEntity = RangeCheck.class)
     private List<DisplayRule> displayRules = new ArrayList<>();
+
+    @OneToMany(targetEntity = ItemPresentInForm.class)
+    private List<ItemPresentInForm> itemPresentInFormList = new ArrayList<>();
+
     private int significantDigits = 0;
     @OneToMany(targetEntity = RangeCheck.class)
     private List<RangeCheck> rangeCheckList;
@@ -37,6 +42,7 @@ public class ItemDefinition implements ODMElement {
         this.length = prototype.getLength();
         this.oid = prototype.getOid();
         this.mandatoryInGroup = prototype.isMandatoryInGroup();
+        this.itemPresentInFormList = prototype.getItemPresentInFormList();
         this.dataType = prototype.getDataType();
         this.rangeCheckList = prototype.getRangeCheckList();
         this.significantDigits = prototype.getSignificantDigits();
@@ -44,6 +50,14 @@ public class ItemDefinition implements ODMElement {
         this.codeListRef = prototype.getCodeListRef();
         this.displayRules = prototype.getDisplayRules();
         this.group = prototype.getGroup();
+    }
+
+    public List<ItemPresentInForm> getItemPresentInFormList() {
+        return itemPresentInFormList;
+    }
+
+    public void setItemPresentInFormList(List<ItemPresentInForm> itemPresentInFormList) {
+        this.itemPresentInFormList = itemPresentInFormList;
     }
 
     public List<DisplayRule> getDisplayRules() {

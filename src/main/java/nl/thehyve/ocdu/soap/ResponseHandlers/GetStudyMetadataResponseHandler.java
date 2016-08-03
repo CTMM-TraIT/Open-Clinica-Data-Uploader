@@ -1,15 +1,6 @@
 package nl.thehyve.ocdu.soap.ResponseHandlers;
 
-import nl.thehyve.ocdu.models.OcDefinitions.CRFDefinition;
-import nl.thehyve.ocdu.models.OcDefinitions.CodeListDefinition;
-import nl.thehyve.ocdu.models.OcDefinitions.CodeListItemDefinition;
-import nl.thehyve.ocdu.models.OcDefinitions.DisplayRule;
-import nl.thehyve.ocdu.models.OcDefinitions.EventDefinition;
-import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
-import nl.thehyve.ocdu.models.OcDefinitions.ItemGroupDefinition;
-import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
-import nl.thehyve.ocdu.models.OcDefinitions.ProtocolFieldRequirementSetting;
-import nl.thehyve.ocdu.models.OcDefinitions.RangeCheck;
+import nl.thehyve.ocdu.models.OcDefinitions.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.w3c.dom.Document;
@@ -550,6 +541,49 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
         return displayRules;
     }
 
+    public static List<ItemPresentInForm> createPresentInCRFList(Node itemDefNode) throws XPathExpressionException {
+        List<ItemPresentInForm> itemPresentInFormList = new ArrayList<>();
+        NodeList itemPresentInFormNode = (NodeList) xpath.evaluate(ITEM_PRESENT_IN_FORM_SELECTOR, itemDefNode, XPathConstants.NODESET);
+        for (int i = 0; i < itemPresentInFormNode.getLength(); i++) {
+            Node item = itemPresentInFormNode.item(i);
+            ItemPresentInForm itemPresentInForm = new ItemPresentInForm();
+            NamedNodeMap namedNodeMap = item.getAttributes();
+            Node attributeValue = namedNodeMap.getNamedItem("FormOID");
+            if (attributeValue != null) {
+                itemPresentInForm.setFormOID(attributeValue.getNodeValue());
+            }
+
+            attributeValue = namedNodeMap.getNamedItem("PageNumber");
+            if (attributeValue != null) {
+                itemPresentInForm.setPageNumber(Integer.parseInt(attributeValue.getNodeValue()));
+            }
+
+            attributeValue = namedNodeMap.getNamedItem("OrderInForm");
+            if (attributeValue != null) {
+                itemPresentInForm.setOrderInForm(Integer.parseInt(attributeValue.getNodeValue()));
+            }
+
+            attributeValue = namedNodeMap.getNamedItem("PHI");
+            if (attributeValue != null) {
+                itemPresentInForm.setPHI("YES".equalsIgnoreCase(attributeValue.getNodeValue()) ? true : false);
+            }
+
+
+            attributeValue = namedNodeMap.getNamedItem("Required");
+            if (attributeValue != null) {
+                itemPresentInForm.setRequired("YES".equalsIgnoreCase(attributeValue.getNodeValue()) ? true : false);
+            }
+
+            attributeValue = namedNodeMap.getNamedItem("ShowItem");
+            if (attributeValue != null) {
+                itemPresentInForm.setShowItem("YES".equalsIgnoreCase(attributeValue.getNodeValue()) ? true : false);
+            }
+
+            itemPresentInFormList.add(itemPresentInForm);
+        }
+        return itemPresentInFormList;
+    }
+
     private static DisplayRule getDisplayRule(Node itemPresentInFormNode) throws XPathExpressionException {
         Node formOIDNode = itemPresentInFormNode.getAttributes().getNamedItem("FormOID");
         Node showItemNode = itemPresentInFormNode.getAttributes().getNamedItem("ShowItem");
@@ -600,9 +634,11 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
         boolean isMultiSelect = isMultiSelect(item);
         String codeListRef = determineCodeListRef(item);
         List<DisplayRule> displayRules = getDisplayRules(item);
+        List<ItemPresentInForm> itemPresentInFormList = createPresentInCRFList(item);
         ItemDefinition itemDef = new ItemDefinition();
         itemDef.setOid(oid);
         itemDef.setName(name);
+        itemDef.setItemPresentInFormList(itemPresentInFormList);
         itemDef.setDataType(dataType);
         itemDef.setLength(Integer.parseInt(length));
         itemDef.setRangeCheckList(rangeChecks);

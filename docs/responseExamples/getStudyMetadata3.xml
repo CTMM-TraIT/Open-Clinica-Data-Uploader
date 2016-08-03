@@ -157,25 +157,25 @@ V8: Added a reg expression to check how WS react</OpenClinica:RevisionNotes>
                     </TranslatedText>
                 </Question>
                 <OpenClinica:ItemDetails ItemOID="I_MUSTF_PATIENT_ID">
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__010" PageNumber="1" PHI="No" ShowItem="Yes" OrderInForm= "1">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__010" PageNumber="1" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "1">
                         <OpenClinica:LeftItemText>patient ID</OpenClinica:LeftItemText>
                         <OpenClinica:RightItemText>0 decimals</OpenClinica:RightItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
                         <OpenClinica:ItemResponse ResponseType="text"/>
                     </OpenClinica:ItemPresentInForm>
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__009" PageNumber="1" PHI="No" ShowItem="Yes" OrderInForm= "1">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__009" PageNumber="1" PHI="No" Required="Yes" ShowItem="Yes" OrderInForm= "1">
                         <OpenClinica:LeftItemText>patient ID</OpenClinica:LeftItemText>
                         <OpenClinica:RightItemText>0 decimals</OpenClinica:RightItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
                         <OpenClinica:ItemResponse ResponseType="text"/>
                     </OpenClinica:ItemPresentInForm>
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__008" PageNumber="1" PHI="No" ShowItem="Yes" OrderInForm= "1">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__008" PageNumber="1" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "1">
                         <OpenClinica:LeftItemText>patient ID</OpenClinica:LeftItemText>
                         <OpenClinica:RightItemText>0 decimals</OpenClinica:RightItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
                         <OpenClinica:ItemResponse ResponseType="text"/>
                     </OpenClinica:ItemPresentInForm>
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__007" PageNumber="1" PHI="No" ShowItem="Yes" OrderInForm= "1">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__007" PageNumber="1" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "1">
                         <OpenClinica:LeftItemText>patient ID</OpenClinica:LeftItemText>
                         <OpenClinica:RightItemText>0 decimals</OpenClinica:RightItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
@@ -190,25 +190,25 @@ V8: Added a reg expression to check how WS react</OpenClinica:RevisionNotes>
                     </TranslatedText>
                 </Question>
                 <OpenClinica:ItemDetails ItemOID="I_MUSTF_MALE0_FEMALE1">
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__010" PageNumber="1" PHI="No" ShowItem="Yes" OrderInForm= "2">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__010" PageNumber="1" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "2">
                         <OpenClinica:LeftItemText>male0_female1</OpenClinica:LeftItemText>
                         <OpenClinica:RightItemText>0 or 1</OpenClinica:RightItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
                         <OpenClinica:ItemResponse ResponseType="text"/>
                     </OpenClinica:ItemPresentInForm>
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__009" PageNumber="1" PHI="No" ShowItem="Yes" OrderInForm= "2">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__009" PageNumber="1" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "2">
                         <OpenClinica:LeftItemText>male0_female1</OpenClinica:LeftItemText>
                         <OpenClinica:RightItemText>0 or 1</OpenClinica:RightItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
                         <OpenClinica:ItemResponse ResponseType="text"/>
                     </OpenClinica:ItemPresentInForm>
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__008" PageNumber="1" PHI="No" ShowItem="Yes" OrderInForm= "2">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__008" PageNumber="1" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "2">
                         <OpenClinica:LeftItemText>male0_female1</OpenClinica:LeftItemText>
                         <OpenClinica:RightItemText>0 or 1</OpenClinica:RightItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
                         <OpenClinica:ItemResponse ResponseType="text"/>
                     </OpenClinica:ItemPresentInForm>
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__007" PageNumber="1" PHI="No" ShowItem="Yes" OrderInForm= "2">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__007" PageNumber="1" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "2">
                         <OpenClinica:LeftItemText>male0_female1</OpenClinica:LeftItemText>
                         <OpenClinica:RightItemText>0 or 1</OpenClinica:RightItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
@@ -224,22 +224,22 @@ V8: Added a reg expression to check how WS react</OpenClinica:RevisionNotes>
                 </Question>
                 <MeasurementUnitRef MeasurementUnitOID="MU_YEARS"/>
                 <OpenClinica:ItemDetails ItemOID="I_MUSTF_AGE">
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__010" PageNumber="1" PHI="No" ShowItem="Yes" OrderInForm= "3">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__010" PageNumber="1" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "3">
                         <OpenClinica:LeftItemText>age</OpenClinica:LeftItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
                         <OpenClinica:ItemResponse ResponseType="text"/>
                     </OpenClinica:ItemPresentInForm>
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__009" PageNumber="1" PHI="No" ShowItem="Yes" OrderInForm= "3">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__009" PageNumber="1" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "3">
                         <OpenClinica:LeftItemText>age</OpenClinica:LeftItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
                         <OpenClinica:ItemResponse ResponseType="text"/>
                     </OpenClinica:ItemPresentInForm>
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__008" PageNumber="1" PHI="No" ShowItem="Yes" OrderInForm= "3">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__008" PageNumber="1" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "3">
                         <OpenClinica:LeftItemText>age</OpenClinica:LeftItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
                         <OpenClinica:ItemResponse ResponseType="text"/>
                     </OpenClinica:ItemPresentInForm>
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__007" PageNumber="1" PHI="No" ShowItem="Yes" OrderInForm= "3">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__007" PageNumber="1" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "3">
                         <OpenClinica:LeftItemText>age</OpenClinica:LeftItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
                         <OpenClinica:ItemResponse ResponseType="text"/>
@@ -253,25 +253,25 @@ V8: Added a reg expression to check how WS react</OpenClinica:RevisionNotes>
                     </TranslatedText>
                 </Question>
                 <OpenClinica:ItemDetails ItemOID="I_MUSTF_SITE_OCCLUSION_LIMB_LEFT1_R">
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__010" PageNumber="1" PHI="No" ShowItem="Yes" OrderInForm= "4">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__010" PageNumber="1" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "4">
                         <OpenClinica:LeftItemText>site_occlusion_limb_Left1_right2_both3</OpenClinica:LeftItemText>
                         <OpenClinica:RightItemText>left1, right2, both3</OpenClinica:RightItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
                         <OpenClinica:ItemResponse ResponseType="text"/>
                     </OpenClinica:ItemPresentInForm>
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__009" PageNumber="1" PHI="No" ShowItem="Yes" OrderInForm= "4">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__009" PageNumber="1" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "4">
                         <OpenClinica:LeftItemText>site_occlusion_limb_Left1_right2_both3</OpenClinica:LeftItemText>
                         <OpenClinica:RightItemText>left1, right2, both3</OpenClinica:RightItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
                         <OpenClinica:ItemResponse ResponseType="text"/>
                     </OpenClinica:ItemPresentInForm>
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__008" PageNumber="1" PHI="No" ShowItem="Yes" OrderInForm= "4">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__008" PageNumber="1" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "4">
                         <OpenClinica:LeftItemText>site_occlusion_limb_Left1_right2_both3</OpenClinica:LeftItemText>
                         <OpenClinica:RightItemText>left1, right2, both3</OpenClinica:RightItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
                         <OpenClinica:ItemResponse ResponseType="text"/>
                     </OpenClinica:ItemPresentInForm>
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__007" PageNumber="1" PHI="No" ShowItem="Yes" OrderInForm= "4">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__007" PageNumber="1" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "4">
                         <OpenClinica:LeftItemText>site_occlusion_limb_Left1_right2_both3</OpenClinica:LeftItemText>
                         <OpenClinica:RightItemText>left1, right2, both3</OpenClinica:RightItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
@@ -286,25 +286,25 @@ V8: Added a reg expression to check how WS react</OpenClinica:RevisionNotes>
                     </TranslatedText>
                 </Question>
                 <OpenClinica:ItemDetails ItemOID="I_MUSTF_OCCLUDED_ARTERY">
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__010" PageNumber="1" PHI="No" ShowItem="Yes" OrderInForm= "5">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__010" PageNumber="1" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "5">
                         <OpenClinica:LeftItemText>occluded_artery</OpenClinica:LeftItemText>
                         <OpenClinica:RightItemText>welke arterie(en)? van hoogste segment naar laagste segment</OpenClinica:RightItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
                         <OpenClinica:ItemResponse ResponseType="text"/>
                     </OpenClinica:ItemPresentInForm>
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__009" PageNumber="1" PHI="No" ShowItem="Yes" OrderInForm= "5">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__009" PageNumber="1" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "5">
                         <OpenClinica:LeftItemText>occluded_artery</OpenClinica:LeftItemText>
                         <OpenClinica:RightItemText>welke arterie(en)? van hoogste segment naar laagste segment</OpenClinica:RightItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
                         <OpenClinica:ItemResponse ResponseType="text"/>
                     </OpenClinica:ItemPresentInForm>
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__008" PageNumber="1" PHI="No" ShowItem="Yes" OrderInForm= "5">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__008" PageNumber="1" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "5">
                         <OpenClinica:LeftItemText>occluded_artery</OpenClinica:LeftItemText>
                         <OpenClinica:RightItemText>welke arterie(en)? van hoogste segment naar laagste segment</OpenClinica:RightItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
                         <OpenClinica:ItemResponse ResponseType="text"/>
                     </OpenClinica:ItemPresentInForm>
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__007" PageNumber="1" PHI="No" ShowItem="Yes" OrderInForm= "5">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__007" PageNumber="1" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "5">
                         <OpenClinica:LeftItemText>occluded_artery</OpenClinica:LeftItemText>
                         <OpenClinica:RightItemText>welke arterie(en)? van hoogste segment naar laagste segment</OpenClinica:RightItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
@@ -320,22 +320,22 @@ V8: Added a reg expression to check how WS react</OpenClinica:RevisionNotes>
                 </Question>
                 <MeasurementUnitRef MeasurementUnitOID="MU_CM"/>
                 <OpenClinica:ItemDetails ItemOID="I_MUSTF_TOTAL_LENGTH_OCCLUDED_SEGME">
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__010" PageNumber="1" PHI="No" ShowItem="Yes" OrderInForm= "6">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__010" PageNumber="1" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "6">
                         <OpenClinica:LeftItemText>total_length_occluded_segment_in_cm</OpenClinica:LeftItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
                         <OpenClinica:ItemResponse ResponseType="text"/>
                     </OpenClinica:ItemPresentInForm>
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__009" PageNumber="1" PHI="No" ShowItem="Yes" OrderInForm= "6">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__009" PageNumber="1" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "6">
                         <OpenClinica:LeftItemText>total_length_occluded_segment_in_cm</OpenClinica:LeftItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
                         <OpenClinica:ItemResponse ResponseType="text"/>
                     </OpenClinica:ItemPresentInForm>
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__008" PageNumber="1" PHI="No" ShowItem="Yes" OrderInForm= "6">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__008" PageNumber="1" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "6">
                         <OpenClinica:LeftItemText>total_length_occluded_segment_in_cm</OpenClinica:LeftItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
                         <OpenClinica:ItemResponse ResponseType="text"/>
                     </OpenClinica:ItemPresentInForm>
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__007" PageNumber="1" PHI="No" ShowItem="Yes" OrderInForm= "6">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__007" PageNumber="1" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "6">
                         <OpenClinica:LeftItemText>total_length_occluded_segment_in_cm</OpenClinica:LeftItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
                         <OpenClinica:ItemResponse ResponseType="text"/>
@@ -349,25 +349,25 @@ V8: Added a reg expression to check how WS react</OpenClinica:RevisionNotes>
                     </TranslatedText>
                 </Question>
                 <OpenClinica:ItemDetails ItemOID="I_MUSTF_TEST_PARAMETERIZED_LINK_V2">
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__010" PageNumber="1" DefaultValue="http://www.example.com/studyBaseURL/{subject:StudySubjectID}?view=image-01" PHI="No" ShowItem="Yes" OrderInForm= "7">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__010" PageNumber="1" DefaultValue="http://www.example.com/studyBaseURL/{subject:StudySubjectID}?view=image-01" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "7">
                         <OpenClinica:LeftItemText>Link-test</OpenClinica:LeftItemText>
                         <OpenClinica:RightItemText>Click here to see the patient&apos;s CT-scans</OpenClinica:RightItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
                         <OpenClinica:ItemResponse ResponseType="text"/>
                     </OpenClinica:ItemPresentInForm>
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__009" PageNumber="1" DefaultValue="http://www.example.com/studyBaseURL/{subject:StudySubjectID}?view=image-01" PHI="No" ShowItem="Yes" OrderInForm= "7">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__009" PageNumber="1" DefaultValue="http://www.example.com/studyBaseURL/{subject:StudySubjectID}?view=image-01" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "7">
                         <OpenClinica:LeftItemText>Link-test</OpenClinica:LeftItemText>
                         <OpenClinica:RightItemText>Click here to see the patient&apos;s CT-scans</OpenClinica:RightItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
                         <OpenClinica:ItemResponse ResponseType="text"/>
                     </OpenClinica:ItemPresentInForm>
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__008" PageNumber="1" DefaultValue="http://www.example.com/studyBaseURL/{subject:StudySubjectID}?view=image-01" PHI="No" ShowItem="Yes" OrderInForm= "7">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__008" PageNumber="1" DefaultValue="http://www.example.com/studyBaseURL/{subject:StudySubjectID}?view=image-01" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "7">
                         <OpenClinica:LeftItemText>Link-test</OpenClinica:LeftItemText>
                         <OpenClinica:RightItemText>Click here to see the patient&apos;s CT-scans</OpenClinica:RightItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>
                         <OpenClinica:ItemResponse ResponseType="text"/>
                     </OpenClinica:ItemPresentInForm>
-                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__007" PageNumber="1" DefaultValue="http://www.example.com/studyBaseURL/{subject:StudySubjectID}?view=image-01" PHI="No" ShowItem="Yes" OrderInForm= "7">
+                    <OpenClinica:ItemPresentInForm FormOID="F_MUSTFOR_NON__007" PageNumber="1" DefaultValue="http://www.example.com/studyBaseURL/{subject:StudySubjectID}?view=image-01" PHI="No" Required="No" ShowItem="Yes" OrderInForm= "7">
                         <OpenClinica:LeftItemText>Link-test</OpenClinica:LeftItemText>
                         <OpenClinica:RightItemText>Click here to see the patient&apos;s CT-scans</OpenClinica:RightItemText>
                         <OpenClinica:SectionLabel>M</OpenClinica:SectionLabel>

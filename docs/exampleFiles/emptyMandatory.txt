@@ -1,3 +1,3 @@
-StudySubjectID	Study	Site	EventName	CRFName	CRFVersion	EventRepeat	MyInt	MyDate	MyReal	MyString	MySingleSelect1	MyPDate	MySingleSelect2
-ssid1	Test Study 1	site1	Non-repeating event	SuperSimpleCRF	0.1	1	123		2.0	string	1	May-2000	1
-ssid2	Test Study 1	site1	Non-repeating event	SuperSimpleCRF	0.1	1	1231	11-09-2001	2.5	string	1	1999	1
+StudySubjectID	Study	Site	EventName	CRFName	CRFVersion	EventRepeat	age	patient_ID	total_length_occluded_segment_in_cm	male0_female1	occluded_artery	site_occlusion_limb_Left1_right2_both3	test_parameterized_link_v2
+EV-00011	Eventful		Non-repeating Event	MUST-FOR_NON_TTP_STUDY	0.09	1	99		AA	0	vena cava	3	http://www.example.com
+EV-00010	Eventful		Non-repeating Event	MUST-FOR_NON_TTP_STUDY	0.10	1	99	Bugs Bunny	AA	0	vena cava	3	http://www.example.com

@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * Checks if a mandatory item is missing in the input.
  * Created by piotrzakrzewski on 11/05/16.
  */
 public class MandatoryInCrfCrossCheck implements ClinicalDataCrossCheck {
@@ -95,15 +96,15 @@ public class MandatoryInCrfCrossCheck implements ClinicalDataCrossCheck {
         return presentMap;
     }
 
-    private HashMap<String, Set<String>> getMandatoryMap(List<ClinicalData> data, Map<String, Set<CRFDefinition>> eventMap) {
+    private HashMap<String, Set<String>> getMandatoryMap(List<ClinicalData> data, Map<String, Set<CRFDefinition>> crfDefinitionSet) {
         HashMap<String, Set<String>> mandatoryMap = new HashMap<>();
         data.stream().forEach(clinicalData -> {
             String eventName = clinicalData.getEventName();
             String crfName = clinicalData.getCrfName();
             String crfVersion = clinicalData.getCrfVersion();
-            CRFDefinition matching = getMatchingCrf(eventName, crfName, crfVersion, eventMap);
+            CRFDefinition matching = getMatchingCrf(eventName, crfName, crfVersion, crfDefinitionSet);
             if (matching != null) { // Missing CRF or Event are  separate errors
-                Set<String> expected = matching.getMandatoryItemNames();
+                Set<String> expected = matching.determineRequiredItemsNames();
                 mandatoryMap.put(crfName + crfVersion, expected);
             }
         });

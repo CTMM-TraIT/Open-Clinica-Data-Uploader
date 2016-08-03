@@ -13,7 +13,6 @@ import nl.thehyve.ocdu.validators.clinicalDataChecks.MultipleCrfCrossCheck;
 import nl.thehyve.ocdu.validators.clinicalDataChecks.StudyStatusAvailable;
 import nl.thehyve.ocdu.validators.fileValidators.DataPreMappingValidator;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
@@ -44,6 +43,10 @@ public class ClinicalDataOcChecksTests {
 
     private static ClinicalDataOcChecks clinicalDataOcChecks;
     private static MetaData metaData;
+    /**
+     * the metadata of the eventful-test study. The corresponding file is <code><getStudyMetadata3.xml/code>.
+     */
+    private static MetaData metaDataEventfulStudy;
     private static List<StudySubjectWithEventsType> testSubjectWithEventsTypeList;
     private static OcUser testUser;
     private static UploadSession testSubmission;
@@ -102,9 +105,15 @@ public class ClinicalDataOcChecksTests {
             MessageFactory messageFactory = MessageFactory.newInstance();
             File testFile = new File("docs/responseExamples/getStudyMetadata2.xml"); //TODO: Replace File with Path
             FileInputStream in = new FileInputStream(testFile);
-
             SOAPMessage mockedResponseGetMetadata = messageFactory.createMessage(null, in);//soapMessage;
+            in.close();
             metaData = GetStudyMetadataResponseHandler.parseGetStudyMetadataResponse(mockedResponseGetMetadata);
+
+            testFile = new File("docs/responseExamples/getStudyMetadata3.xml"); //TODO: Replace File with Path
+            in = new FileInputStream(testFile);
+            mockedResponseGetMetadata = messageFactory.createMessage(null, in);//soapMessage;
+            in.close();
+            metaDataEventfulStudy = GetStudyMetadataResponseHandler.parseGetStudyMetadataResponse(mockedResponseGetMetadata);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -249,14 +258,8 @@ public class ClinicalDataOcChecksTests {
     @Test
     public void versionMismatchCRF() throws Exception {
         List<ClinicalData> incorrectClinicalData = factory.createClinicalData(testFileMismatchingCRFVersion);
-        File testFile = new File("docs/responseExamples/getStudyMetadata3.xml");
-        FileInputStream in = new FileInputStream(testFile);
-        MessageFactory messageFactory = MessageFactory.newInstance();
-        SOAPMessage mockedResponseGetMetadata = messageFactory.createMessage(null, in);//soapMessage;
-        MetaData crfVersionMetaData = GetStudyMetadataResponseHandler.parseGetStudyMetadataResponse(mockedResponseGetMetadata);
-        clinicalDataOcChecks = new ClinicalDataOcChecks(crfVersionMetaData, incorrectClinicalData, testSubjectWithEventsTypeList);
+        clinicalDataOcChecks = new ClinicalDataOcChecks(metaDataEventfulStudy, incorrectClinicalData, testSubjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = clinicalDataOcChecks.getErrors();
-        in.close();
         assertEquals(1, errors.size());
         assertThat(errors, hasItem(isA(CRFVersionMismatchError.class)));
     }
@@ -292,18 +295,13 @@ public class ClinicalDataOcChecksTests {
 
     @Test
     public void eventStatusCheck() throws Exception {
-        File testFile = new File("docs/responseExamples/getStudyMetadata3.xml");
-        FileInputStream in = new FileInputStream(testFile);
-        MessageFactory messageFactory = MessageFactory.newInstance();
-        SOAPMessage mockedResponseGetMetadata = messageFactory.createMessage(null, in);//soapMessage;
-        MetaData crfVersionMetaData = GetStudyMetadataResponseHandler.parseGetStudyMetadataResponse(mockedResponseGetMetadata);
         List<StudySubjectWithEventsType> incorrectEventStatus = incorrectEventStatusExample();
         List<ClinicalData> incorrectData = new ArrayList<>();
         ClinicalData dPoint = new ClinicalData("Eventful", "age", "ssid1",
                 "RepeatingEvent", 1, "MUST-FOR_NON_TTP_STUDY", null, "0.08", null, null, "12");
         incorrectData.add(dPoint);
-        clinicalDataOcChecks = new ClinicalDataOcChecks(crfVersionMetaData, incorrectData, incorrectEventStatus);
-        in.close();
+        clinicalDataOcChecks = new ClinicalDataOcChecks(metaDataEventfulStudy, incorrectData, incorrectEventStatus);
+
         List<ValidationErrorMessage> errors = clinicalDataOcChecks.getErrors();
         assertThat(errors, hasSize(1));
         assertThat(errors, hasItem(isA(EventStatusNotAllowed.class)));
@@ -351,10 +349,9 @@ public class ClinicalDataOcChecksTests {
     }
 
     @Test
-    @Ignore("Removed for acceptance testing")
     public void ignoredMandatoryItem() throws Exception {
         List<ClinicalData> incorrectClinicalData = factory.createClinicalData(emptyMandatory);
-        clinicalDataOcChecks = new ClinicalDataOcChecks(metaData, incorrectClinicalData, testSubjectWithEventsTypeList);
+        clinicalDataOcChecks = new ClinicalDataOcChecks(metaDataEventfulStudy, incorrectClinicalData, testSubjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = clinicalDataOcChecks.getErrors();
         assertThat(errors, notNullValue());
         assertThat(errors, hasSize(1));
