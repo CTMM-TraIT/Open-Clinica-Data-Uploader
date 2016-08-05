@@ -1,12 +1,9 @@
-var baseApp = "";
+var baseApp = "/ocdu";
 var USERNAME = "";
 var _SESSIONS = [];
 var _CURRENT_SESSION_NAME = "";
 var _SESSION_CONFIG = {};
 
-if(window.location.hostname !== "localhost") {
-    baseApp = "/ocdu";
-}
 
 function init_session_config(session_name) {
     if(!(session_name in _SESSION_CONFIG)) {

@@ -53,6 +53,9 @@ public class StudySubjectFactory {
                 subjectType.setDateOfBirth(dateOfBirth);
             }
         }
+        if (StringUtils.isNotEmpty(subject.getPersonId())) {
+            subjectType.setUniqueIdentifier(subject.getPersonId());
+        }
         if (subject.getGender() != null && !subject.getGender().equals("")) {
             GenderType genderType = GenderType.fromValue(subject.getGender());
             subjectType.setGender(genderType);

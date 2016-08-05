@@ -6,6 +6,6 @@ package nl.thehyve.ocdu.models.errors;
 public class MissingPersonIDError extends ValidationErrorMessage {
 
     public MissingPersonIDError() {
-        super("One or more subjects have a missing mandatory person ID");
+        super("One or more subjects has a missing mandatory person ID");
     }
 }

@@ -71,7 +71,6 @@ public class ClinicalDataOcChecksTests {
     private static Path emptyMandatory;
     private static Path missingToggle;
     private static Path hiddenVal;
-    private static Path testFileMissingPersonID;
     private static Path testFileInvalidEventRepeat;
 
     @BeforeClass
@@ -103,7 +102,6 @@ public class ClinicalDataOcChecksTests {
             emptyMandatory = Paths.get("docs/exampleFiles/emptyMandatory.txt");
             missingToggle = Paths.get("docs/exampleFiles/missingToggle.txt");
             hiddenVal = Paths.get("docs/exampleFiles/hiddenVal.txt");
-            testFileMissingPersonID = Paths.get("docs/exampleFiles/missingPersonID.txt");
             testFileInvalidEventRepeat = Paths.get("docs/exampleFiles/eventRepeatInvalid.txt");
 
             MessageFactory messageFactory = MessageFactory.newInstance();
@@ -409,14 +407,5 @@ public class ClinicalDataOcChecksTests {
         MultipleCrfCrossCheck check = new MultipleCrfCrossCheck();
         ValidationErrorMessage correspondingError = check.getCorrespondingError(incorrectData, null, null, null, null, null);
         assertThat(correspondingError, notNullValue());
-    }
-
-    @Test
-    public void testMissingPersonID() throws Exception {
-        List<ClinicalData> incorrectClinicalData = factory.createClinicalData(testFileMissingPersonID);
-        clinicalDataOcChecks = new ClinicalDataOcChecks(metaDataEventfulStudy, incorrectClinicalData, testSubjectWithEventsTypeList);
-        List<ValidationErrorMessage> errors = clinicalDataOcChecks.getErrors();
-        assertEquals(1, errors.size());
-        assertThat(errors, hasItem(isA(MissingPersonIDError.class)));
     }
 }
