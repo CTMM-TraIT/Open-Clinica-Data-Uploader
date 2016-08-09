@@ -155,10 +155,10 @@ public class OpenClinicaService {
                 String detailedMessage = "Failed upload for subject " + key + ". Cause: " + uploadResult;
                 log.error(detailedMessage);
                 resultList.add(new ODMUploadErrorMessage(detailedMessage));
+                break;
             }
             else {
                 String detailedMessage = "Data successfully uploaded for subject " + key;
-                log.info(detailedMessage);
                 SubmissionResult submissionResult = new SubmissionResult(detailedMessage);
                 submissionResult.setSubject(key);
                 resultList.add(submissionResult);
@@ -275,6 +275,7 @@ public class OpenClinicaService {
                 ValidationErrorMessage validationErrorMessage = new ValidationErrorMessage(detailedMessage);
                 validationErrorMessage.setSubject(eventType.getStudySubjectRef().getLabel());
                 ret.add(validationErrorMessage);
+                break;
             }
             else {
                 String detailedMessage = "Scheduled event " + eventType.getEventDefinitionOID() + " successfully for subject " + eventType.getStudySubjectRef().getLabel();

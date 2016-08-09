@@ -162,6 +162,13 @@ function retrieveSessions() {
     });
 }
 
+function zeroPad(value) {
+    if (value < 10) {
+        return '0' + value;
+    }
+    return value;
+}
+
 function handle_session_retrieval_all(retrieved_sessions) {
     _SESSIONS = retrieved_sessions;
     $("#data-proceed-btn").attr("disabled", false);
@@ -173,7 +180,7 @@ function handle_session_retrieval_all(retrieved_sessions) {
         var d = new Date(s.savedDate);
         var sessionHTML = '<div class="well" id="session_well_' + i + '">' +
             '<button type="button" class="btn btn-primary" id="' + btnid + '" session_index=' + i + '>' + s.name + '</button>' +
-            '<p><small>saved on: ' + monthNames[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() + '</small></p>' +
+            '<p><small>saved on: ' + monthNames[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() + ' ' + zeroPad(d.getHours()) + ':' + zeroPad(d.getMinutes()) + ':' + zeroPad(d.getSeconds()) +'</small></p>' +
             '<button type="button" class="btn btn-danger" id="removal_' + btnid + '" session_index=' + i + '>Remove this submission</button></div>';
         $(sessionHTML).insertAfter("#anchor_old_sessions");
         // $('#session_container').append(sessionHTML);

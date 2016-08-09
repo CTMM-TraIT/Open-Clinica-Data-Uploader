@@ -69,7 +69,7 @@ function performODMUpload() {
                 var errorList = [];
                 var nonErrorList = [];
                 var len = msg.length;
-                for ( i = 0; i < len; ++i ) {
+                for (i = 0; i < len; ++i) {
                     var message = msg[i];
                     if (message.error) {
                         errorList[i] = message;
@@ -77,12 +77,22 @@ function performODMUpload() {
                     else {
                         nonErrorList[i] = message;
                     }
-                };
-                var nonErrorInfo = createMessageDiv(nonErrorList, 'nonErrorInfoDiv', 'alert alert-success', 'Success');
-                $(nonErrorInfo).insertBefore('#odm-upload-back-btn');
+                }
 
-                var errorInfo = createMessageDiv(errorList, 'errorInfoDiv', 'alert alert-danger', 'Failures');
-                $(errorInfo).insertAfter('#nonErrorInfoDiv');
+                if ((errorList) && (errorList.length > 0)) {
+                    var errorInfo = createMessageDiv(errorList, 'errorInfoDiv', 'alert alert-danger', 'Failures');
+                    $(errorInfo).insertBefore('#odm-upload-back-btn');
+                }
+                if ((nonErrorList) && (nonErrorList.length > 0)) {
+                    var nonErrorInfo = createMessageDiv(nonErrorList, 'nonErrorInfoDiv', 'alert alert-success', 'Success');
+                    if ((errorList) && (errorList.length > 0)) {
+                        $(nonErrorInfo).insertAfter('#errorInfoDiv');
+                    }
+                    else {
+                        $(nonErrorInfo).insertBefore('#odm-upload-back-btn');
+                    }
+                }
+
             }else {
                 console.log("Upload ODM successfully");
                 update_submission();
