@@ -10,7 +10,7 @@ $(document).ready(function () {
 });
 
 function generateUploadSettingsHTML() {
-    var html = '<span id="uploadOptions"></span><h3>Upload options</h3>' +
+    var html = '<span id="uploadOptions"><h3>Upload options</h3>' +
         '<h4><div>Please select the status after upload and the status of existing CRF\'s which can be overwritten.</div></h4>' +
         '<hr>' +
         '<div><strong>CRF Status After Upload</strong></div>' +
@@ -64,15 +64,25 @@ function performODMUpload() {
         contentType: false,
         success: function (msg) {
             $('#loading_div').remove();
-            $('#uploadOptions').hide();
+            $('#uploadOptions').remove();
             if (msg.length > 0) {
-                var info = '<div class="alert alert-danger"><ul>';
-                msg.forEach(function (error) {
-                    var errDiv = '<li><span>' + error.message +': '+ error.offendingValues+'</span></li>';
-                    info += errDiv;
-                });
-                info += '</div></ul>';
-                $(info).insertBefore('#odm-upload-back-btn');
+                var errorList = [];
+                var nonErrorList = [];
+                var len = msg.length;
+                for ( i = 0; i < len; ++i ) {
+                    var message = msg[i];
+                    if (message.error) {
+                        errorList[i] = message;
+                    }
+                    else {
+                        nonErrorList[i] = message;
+                    }
+                };
+                var nonErrorInfo = createMessageDiv(nonErrorList, 'nonErrorInfoDiv', 'alert alert-success', 'Success');
+                $(nonErrorInfo).insertBefore('#odm-upload-back-btn');
+
+                var errorInfo = createMessageDiv(errorList, 'errorInfoDiv', 'alert alert-danger', 'Failures');
+                $(errorInfo).insertAfter('#nonErrorInfoDiv');
             }else {
                 console.log("Upload ODM successfully");
                 update_submission();
@@ -88,6 +98,20 @@ function performODMUpload() {
     });
 }
 
+function createMessageDiv(messageList, divID, divCSSClass, divTitle) {
+    var errorInfo = '<div class="' + divCSSClass + '" id="' + divID + '"><h4>'+ divTitle + '</h4><ul>';
+    messageList.forEach(function (error) {
+        var errDiv = '<li><span>' + error.message;
+        if ((error.offendingValues) && (error.offendingValues.length > 0))
+        {
+            errDiv += ': ' + error.offendingValues;
+        }
+        errDiv += '</span></li>';
+        errorInfo += errDiv;
+    });
+    errorInfo += '</div></ul>';
+    return errorInfo;
+}
 
 function log_errors(errors) {
     var info = '<div class="alert alert-danger"><ul>';

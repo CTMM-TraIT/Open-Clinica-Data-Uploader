@@ -84,6 +84,9 @@ public class ODMUploadController {
                 if (! uploadDataUnit.isSubjectRegisteredInOpenClinica()) {
                     AbstractMessage resultMessage = openClinicaService.registerPatient(userName, pwdHash, url, uploadDataUnit.getSubject());
                     result.add(resultMessage);
+                    if (resultMessage.isError()) {
+                        continue;
+                    }
                 }
                 List<Event> eventListPerSubject = uploadDataUnit.getEventList();
 
