@@ -74,6 +74,7 @@ public class EventDataOcChecks {
             if (keyToEventMap.containsKey(key)) {
                 ValidationErrorMessage duplicatedEvent = new ValidationErrorMessage(
                         "An event for the given subject is duplicated.");
+                duplicatedEvent.setSubject(event.getSsid());
                 duplicatedEvent.addAllOffendingValues(key);
                 errors.add(duplicatedEvent);
             } else {
@@ -86,30 +87,35 @@ public class EventDataOcChecks {
 
     protected List<ValidationErrorMessage> validate(Event event) {
         ArrayList<ValidationErrorMessage> errors = new ArrayList<>();
-
+        String subjectID = event.getSsid();
         if (StringUtils.isBlank(event.getSsid())) {
             ValidationErrorMessage subjectIdRequired = new ValidationErrorMessage("Subject id has to be specified.");
+            subjectIdRequired.setSubject(subjectID);
             errors.add(subjectIdRequired);
         }
 
         if (StringUtils.isBlank(event.getEventName())) {
             ValidationErrorMessage eventNameRequired = new ValidationErrorMessage("Event name has to be specified.");
+            eventNameRequired.setSubject(subjectID);
             errors.add(eventNameRequired);
         }
 
         if (StringUtils.isBlank(event.getStudy())) {
             ValidationErrorMessage studyNameRequired = new ValidationErrorMessage("Study name has to be specified.");
+            studyNameRequired.setSubject(subjectID);
             errors.add(studyNameRequired);
         }
 
         if (StringUtils.isBlank(event.getStartDate())) {
             ValidationErrorMessage startDateRequired = new ValidationErrorMessage("Start date has to be specified.");
+            startDateRequired.setSubject(subjectID);
             errors.add(startDateRequired);
         }
 
         if (StringUtils.isBlank(event.getRepeatNumber())) {
             ValidationErrorMessage repeatNumberRequired = new ValidationErrorMessage(
                     "Repeat number has to be specified.");
+            repeatNumberRequired.setSubject(subjectID);
             errors.add(repeatNumberRequired);
         }
 
@@ -117,18 +123,21 @@ public class EventDataOcChecks {
             ValidationErrorMessage noSuchStudy =
                     new ValidationErrorMessage(event.getSsid() + " Study name in your event registration file does not match study name " +
                             "in your data file. Expected:" + metadata.getStudyName());
+            noSuchStudy.setSubject(subjectID);
             noSuchStudy.addOffendingValue(event.getStudy());
             errors.add(noSuchStudy);
         }
 
         if (StringUtils.isNotBlank(event.getEventName()) && !eventNames.contains(event.getEventName())) {
             ValidationErrorMessage noSuchStudy = new ValidationErrorMessage("Event does not exist.");
+            noSuchStudy.setSubject(subjectID);
             noSuchStudy.addOffendingValue(event.getEventName());
             errors.add(noSuchStudy);
         }
 
         if (StringUtils.isNotBlank(event.getSite()) && !siteNames.contains(event.getSite())) {
             ValidationErrorMessage noSuchSite = new ValidationErrorMessage("Site does not exist.");
+            noSuchSite.setSubject(subjectID);
             noSuchSite.addOffendingValue(event.getSite());
             errors.add(noSuchSite);
         }
@@ -136,6 +145,7 @@ public class EventDataOcChecks {
         if (StringUtils.isNotBlank(event.getLocation()) && event.getLocation().length() > LOCATION_STRING_MAX_LENGTH) {
             ValidationErrorMessage locationTooLong = new ValidationErrorMessage("Location name is to long. " +
                     "It has not to exceed " + LOCATION_STRING_MAX_LENGTH + " character in length.");
+            locationTooLong.setSubject(subjectID);
             locationTooLong.addOffendingValue(event.getLocation());
             errors.add(locationTooLong);
         }
@@ -144,12 +154,14 @@ public class EventDataOcChecks {
                 metadata.getLocationRequirementSetting().equals(ProtocolFieldRequirementSetting.BANNED)) {
             ValidationErrorMessage locationBannedButPresent = new ValidationErrorMessage("Location is not " +
                     "allowed in this study, remove the column or leave fields empty");
+            locationBannedButPresent.setSubject(subjectID);
             errors.add(locationBannedButPresent);
         }
         if (StringUtils.isBlank(event.getLocation()) &&
                 metadata.getLocationRequirementSetting().equals(ProtocolFieldRequirementSetting.MANDATORY)) {
             ValidationErrorMessage locationRequiredButAbsent = new ValidationErrorMessage("Location is " +
                     "required in this study, but one or more of events in your file lack it");
+            locationRequiredButAbsent.setSubject(subjectID);
             errors.add(locationRequiredButAbsent);
         }
 
@@ -158,6 +170,7 @@ public class EventDataOcChecks {
             startDateOpt = parseDateOpt(event.getStartDate());
             if (!startDateOpt.isPresent()) {
                 ValidationErrorMessage dateInvalid = new ValidationErrorMessage("Start date is invalid. The date format should be dd-mm-yyyy. For example, 12-10-2014.");
+                dateInvalid.setSubject(subjectID);
                 dateInvalid.addOffendingValue(event.getStartDate());
                 errors.add(dateInvalid);
             }
@@ -168,6 +181,7 @@ public class EventDataOcChecks {
             startTimeOpt = parseTimeOpt(event.getStartTime());
             if (!startTimeOpt.isPresent()) {
                 ValidationErrorMessage timeInvalid = new ValidationErrorMessage("Start time is invalid. The time format should be hh:mm. For example, 13:29.");
+                timeInvalid.setSubject(subjectID);
                 timeInvalid.addOffendingValue(event.getStartTime());
                 errors.add(timeInvalid);
             }
@@ -178,6 +192,7 @@ public class EventDataOcChecks {
             endDateOpt = parseDateOpt(event.getEndDate());
             if (!endDateOpt.isPresent()) {
                 ValidationErrorMessage dateInvalid = new ValidationErrorMessage("End date is invalid. The date format should be dd-mm-yyyy. For example, 12-10-2014.");
+                dateInvalid.setSubject(subjectID);
                 dateInvalid.addOffendingValue(event.getEndDate());
                 errors.add(dateInvalid);
             }
@@ -188,6 +203,7 @@ public class EventDataOcChecks {
             endTimeOpt = parseTimeOpt(event.getEndTime());
             if (!endTimeOpt.isPresent()) {
                 ValidationErrorMessage timeInvalid = new ValidationErrorMessage("End time is invalid. The time format should be hh:mm. For example, 13:29.");
+                timeInvalid.setSubject(subjectID);
                 timeInvalid.addOffendingValue(event.getEndTime());
                 errors.add(timeInvalid);
             }
@@ -198,6 +214,7 @@ public class EventDataOcChecks {
             Date endDate = endDateOpt.get();
             if (endDate.before(startDate)) {
                 ValidationErrorMessage dateRangeInvalid = new ValidationErrorMessage("Date range is invalid.");
+                dateRangeInvalid.setSubject(subjectID);
                 dateRangeInvalid.addOffendingValue(event.getStartDate());
                 dateRangeInvalid.addOffendingValue(event.getEndDate());
                 errors.add(dateRangeInvalid);
@@ -206,6 +223,7 @@ public class EventDataOcChecks {
                 Date endTime = endTimeOpt.get();
                 if (endTime.before(startTime)) {
                     ValidationErrorMessage timeRangeInvalid = new ValidationErrorMessage("Time range is invalid.");
+                    timeRangeInvalid.setSubject(subjectID);
                     timeRangeInvalid.addOffendingValue(event.getStartTime());
                     timeRangeInvalid.addOffendingValue(event.getEndTime());
                     errors.add(timeRangeInvalid);
@@ -218,6 +236,7 @@ public class EventDataOcChecks {
             if (!repeatNumberOpt.isPresent() || repeatNumberOpt.get() < 1) {
                 ValidationErrorMessage noSuchStudy = new ValidationErrorMessage(
                         "Repeat number is not a positive number.");
+                noSuchStudy.setSubject(subjectID);
                 noSuchStudy.addOffendingValue(event.getRepeatNumber());
                 errors.add(noSuchStudy);
             }

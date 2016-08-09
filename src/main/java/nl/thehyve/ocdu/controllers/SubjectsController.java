@@ -3,13 +3,12 @@ package nl.thehyve.ocdu.controllers;
 import nl.thehyve.ocdu.models.OCEntities.Subject;
 import nl.thehyve.ocdu.models.OcUser;
 import nl.thehyve.ocdu.models.UploadSession;
-import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
+import nl.thehyve.ocdu.models.errors.AbstractMessage;
 import nl.thehyve.ocdu.repositories.SubjectRepository;
 import nl.thehyve.ocdu.services.OcUserService;
 import nl.thehyve.ocdu.services.OpenClinicaService;
 import nl.thehyve.ocdu.services.UploadSessionNotFoundException;
 import nl.thehyve.ocdu.services.UploadSessionService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +17,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  *
@@ -58,7 +57,11 @@ public class SubjectsController {
             String url = user.getOcEnvironment();
             Collection<Subject> subjects = subjectRepository.findBySubmission(uploadSession);
             if (! subjects.isEmpty()) {
-                Collection<ValidationErrorMessage> result = openClinicaService.registerPatients(username, pwdHash, url, subjects);
+                Collection<AbstractMessage> result = new ArrayList<>();
+                for (Subject subject : subjects) {
+                    AbstractMessage resultPerSubject = openClinicaService.registerPatient(username, pwdHash, url, subject);
+                    result.add(resultPerSubject);
+                }
                 if (result.isEmpty()) {
                     return new ResponseEntity<>("", HttpStatus.OK);
                 }

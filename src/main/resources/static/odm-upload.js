@@ -10,7 +10,7 @@ $(document).ready(function () {
 });
 
 function generateUploadSettingsHTML() {
-    var html = '<h3>Upload options</h3>' +
+    var html = '<span id="uploadOptions"></span><h3>Upload options</h3>' +
         '<h4><div>Please select the status after upload and the status of existing CRF\'s which can be overwritten.</div></h4>' +
         '<hr>' +
         '<div><strong>CRF Status After Upload</strong></div>' +
@@ -30,7 +30,7 @@ function generateUploadSettingsHTML() {
         '</div>' +
         '<div class="checkbox"> ' +
         '<label><input id="overwriteStatus_3" type="checkbox" name="overwriteStatus" value="overwriteStatus_dataEntryComplete">Data Entry Complete</label>' +
-        '</div><hr>';
+        '</div><hr></span>';
     
     $(html).insertBefore('#odm-upload-back-btn');
 }
@@ -63,8 +63,9 @@ function performODMUpload() {
         processData: false,
         contentType: false,
         success: function (msg) {
+            $('#loading_div').remove();
+            $('#uploadOptions').hide();
             if (msg.length > 0) {
-                $('#loading_div').remove();
                 var info = '<div class="alert alert-danger"><ul>';
                 msg.forEach(function (error) {
                     var errDiv = '<li><span>' + error.message +': '+ error.offendingValues+'</span></li>';

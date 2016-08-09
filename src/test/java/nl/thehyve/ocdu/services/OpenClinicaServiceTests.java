@@ -4,6 +4,7 @@ import nl.thehyve.ocdu.TestUtils;
 import nl.thehyve.ocdu.models.OCEntities.Event;
 import nl.thehyve.ocdu.models.OcDefinitions.EventDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
+import nl.thehyve.ocdu.models.errors.AbstractMessage;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -14,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -31,7 +31,7 @@ public class OpenClinicaServiceTests {
     public void testScheduleEventsEmptyParameters() throws Exception {
         OpenClinicaService openClinicaService = new OpenClinicaService();
 
-        Collection<ValidationErrorMessage> response = openClinicaService.scheduleEvents("",  "hashhashhash", "http://www.example.com",
+        Collection<AbstractMessage> response = openClinicaService.scheduleEvents("",  "hashhashhash", "http://www.example.com",
                 metaData, eventList, studySubjectWithEventsTypeList);
 
         assertTrue(response.contains(new ValidationErrorMessage("One of the required parameters is missing (username, password, url)")));
@@ -50,7 +50,7 @@ public class OpenClinicaServiceTests {
     public void testScheduleEvents() throws Exception {
         OpenClinicaService openClinicaService = new OpenClinicaService();
 
-        Collection<ValidationErrorMessage> response = openClinicaService.scheduleEvents("rootsite", "XXXXXXXXX", "http://localhost:8080/OpenClinica-ws",
+        Collection<AbstractMessage> response = openClinicaService.scheduleEvents("rootsite", "XXXXXXXXX", "http://localhost:8080/OpenClinica-ws",
                 metaData, eventList, studySubjectWithEventsTypeList);
         assertTrue(response.isEmpty());
     }

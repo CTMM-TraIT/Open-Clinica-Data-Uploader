@@ -8,6 +8,7 @@ import nl.thehyve.ocdu.models.OcDefinitions.SiteDefinition;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import nl.thehyve.ocdu.soap.ResponseHandlers.GetStudyMetadataResponseHandler;
 import nl.thehyve.ocdu.validators.patientDataChecks.*;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
@@ -286,5 +287,25 @@ public class PatientDataOcChecksTests {
         presentInData.add(s1);
         error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData);
         assertThat("Returns null for subject present in the data-file", error, nullValue());
+    }
+
+    @Test
+    public void duplatedPersonID() throws  Exception {
+        Subject subject = new Subject();
+        String s1 = "EV-XXXXXX";
+        subject.setSsid(s1);
+        subject.setPersonId("EV-00002");
+        metadata.setPersonIDUsage(ProtocolFieldRequirementSetting.MANDATORY);
+        DuplicatePersonIdDataCheck check = new DuplicatePersonIdDataCheck();
+        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData);
+        assertThat(error.getMessage(), containsString("Duplicate Person ID in data"));
+
+        metadata.setPersonIDUsage(ProtocolFieldRequirementSetting.OPTIONAL);
+        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData);
+        assertEquals(error, null);
+
+        metadata.setPersonIDUsage(ProtocolFieldRequirementSetting.BANNED);
+        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData);
+        assertEquals(error, null);
     }
 }

@@ -8,22 +8,13 @@ import java.util.*;
  * Created by piotrzakrzewski on 01/05/16.
  */
 
-public class ValidationErrorMessage {
+public class ValidationErrorMessage extends AbstractMessage {
 
-    private String message;
     private List<String> offendingValues = new ArrayList<>();
-    private boolean isError = true; // Error by default
 
-    public boolean isError() {
-        return isError;
-    }
-
-    public void setError(boolean error) {
-        isError = error;
-    }
 
     public ValidationErrorMessage(String message) {
-        this.message = message;
+        super(message);
     }
 
     public void addOffendingValue(String value) {
@@ -69,6 +60,7 @@ public class ValidationErrorMessage {
 
     public String toString() {
         return "ValidationErrorMessage{" +
+                "subject='" + subject +  '\'' +
                 "message='" + message + '\'' +
                 ", offendingValues=" + offendingValues +
                 ", isError=" + isError +

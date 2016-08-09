@@ -1,24 +1,16 @@
 package nl.thehyve.ocdu.services;
 
-import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
-import nl.thehyve.ocdu.models.OCEntities.Event;
-import nl.thehyve.ocdu.models.OCEntities.Site;
-import nl.thehyve.ocdu.models.OCEntities.Study;
-import nl.thehyve.ocdu.models.OCEntities.Subject;
+import nl.thehyve.ocdu.models.OCEntities.*;
 import nl.thehyve.ocdu.models.OcDefinitions.EventDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.OcDefinitions.RegisteredEventInformation;
 import nl.thehyve.ocdu.models.OcDefinitions.SiteDefinition;
 import nl.thehyve.ocdu.models.UploadSession;
+import nl.thehyve.ocdu.models.errors.AbstractMessage;
 import nl.thehyve.ocdu.models.errors.ODMUploadErrorMessage;
+import nl.thehyve.ocdu.models.errors.SubmissionResult;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
-import nl.thehyve.ocdu.soap.ResponseHandlers.GetStudyMetadataResponseHandler;
-import nl.thehyve.ocdu.soap.ResponseHandlers.IsStudySubjectResponseHandler;
-import nl.thehyve.ocdu.soap.ResponseHandlers.ListAllByStudyResponseHandler;
-import nl.thehyve.ocdu.soap.ResponseHandlers.ListStudiesResponseHandler;
-import nl.thehyve.ocdu.soap.ResponseHandlers.OCResponseHandler;
-import nl.thehyve.ocdu.soap.ResponseHandlers.SOAPResponseHandler;
-import nl.thehyve.ocdu.soap.ResponseHandlers.SoapUtils;
+import nl.thehyve.ocdu.soap.ResponseHandlers.*;
 import nl.thehyve.ocdu.soap.SOAPRequestFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.openclinica.ws.beans.EventResponseType;
@@ -35,13 +27,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.soap.SOAPConnection;
 import javax.xml.soap.SOAPConnectionFactory;
 import javax.xml.soap.SOAPMessage;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static nl.thehyve.ocdu.soap.ResponseHandlers.RegisterSubjectsResponseHandler.parseRegisterSubjectsResponse;
@@ -64,26 +50,26 @@ public class OpenClinicaService {
     private static final Logger log = LoggerFactory.getLogger(OpenClinicaService.class);
 
 
-    public Collection<ValidationErrorMessage> registerPatients(String username, String passwordHash, String url, Collection<Subject> subjects)
+    public AbstractMessage registerPatient(String username, String passwordHash, String url, Subject subject)
             throws Exception {
-        log.info("Register patients initialized by: " + username + " on: " + url);
-        Collection<ValidationErrorMessage> ret = new ArrayList<>();
-        for (Subject subject : subjects) {
-            SOAPMessage soapMessage = requestFactory.createCreateSubject(username, passwordHash, subject);
-            SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
-            SOAPConnection soapConnection = soapConnectionFactory.createConnection();
-            SOAPMessage soapResponse = soapConnection.call(soapMessage, url + "/ws/studySubject/v1");
-            String error = parseRegisterSubjectsResponse(soapResponse);
-            if (error != null) {
-                String detailedErrorMessage = "Registering subject " + subject.getSsid() + " against instance " + url + " failed, OC error: " + error;
-                log.error(detailedErrorMessage);
-                ret.add(new ValidationErrorMessage(detailedErrorMessage));
-            }
+        AbstractMessage returnMessage;
+        SOAPMessage soapMessage = requestFactory.createCreateSubject(username, passwordHash, subject);
+        SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
+        SOAPConnection soapConnection = soapConnectionFactory.createConnection();
+        SOAPMessage soapResponse = soapConnection.call(soapMessage, url + "/ws/studySubject/v1");
+        String error = parseRegisterSubjectsResponse(soapResponse);
+        if (error != null) {
+            String detailedErrorMessage = "Creating subject " + subject.getSsid() + " against instance " + url + " failed, OC error: " + error;
+            log.error(detailedErrorMessage);
+            returnMessage = new ValidationErrorMessage(detailedErrorMessage);
         }
-        log.info("Registered subjects against instance " + url + " completed, number of subjects:" +
-                    subjects.size());
-        return ret;
-
+        else {
+            String detailedMessage = "Subject " + subject.getSsid() + " successfully registered";
+            returnMessage = new SubmissionResult(detailedMessage);
+            log.info("Subject: '" + subject.getSsid() + "' created in instance " + url + ".");
+        }
+        returnMessage.setSubject(subject.getSsid());
+        return returnMessage;
     }
 
     public List<Study> listStudies(String username, String passwordHash, String url) throws Exception { //TODO: handle exceptions
@@ -138,15 +124,15 @@ public class OpenClinicaService {
         return metaData;
     }
 
-    public Collection<ValidationErrorMessage> uploadODM(String username,
+    public Collection<AbstractMessage> uploadODM(String username,
                                                                  String passwordHash,
                                                                  String url,
                                                                  List<ClinicalData> clinicalDataList,
                                                                  MetaData metaData,
                                                                  UploadSession uploadSession,
-                                                                 String crfStatus) throws Exception {
+                                                                 String crfStatusAfterUpload) throws Exception {
         log.info("Upload initiated by: " + username + " on: " + url);
-        List<ValidationErrorMessage> resultList = new ArrayList();
+        List<AbstractMessage> resultList = new ArrayList();
 
         if (StringUtils.isEmpty(username) ||
                 StringUtils.isEmpty(passwordHash) ||
@@ -163,10 +149,19 @@ public class OpenClinicaService {
         TreeMap<String, List<ClinicalData>> sortedMap = new TreeMap<>(outputMap);
         for (String key : sortedMap.keySet()) {
             List<ClinicalData> outputClinicalData = sortedMap.get(key);
-            String odmString = odmService.generateODM(outputClinicalData, metaData, uploadSession, crfStatus, subjectLabelToOIDMap);
+            String odmString = odmService.generateODM(outputClinicalData, metaData, uploadSession, crfStatusAfterUpload, subjectLabelToOIDMap);
             String uploadResult = uploadODMString(username, passwordHash, url, odmString);
             if (uploadResult != null) {
-                resultList.add(new ODMUploadErrorMessage("Failed upload for subject " + key + ". Cause: " + uploadResult));
+                String detailedMessage = "Failed upload for subject " + key + ". Cause: " + uploadResult;
+                log.error(detailedMessage);
+                resultList.add(new ODMUploadErrorMessage(detailedMessage));
+            }
+            else {
+                String detailedMessage = "Data successfully uploaded for subject " + key;
+                log.info(detailedMessage);
+                SubmissionResult submissionResult = new SubmissionResult(detailedMessage);
+                submissionResult.setSubject(key);
+                resultList.add(submissionResult);
             }
         }
         return resultList;
@@ -216,17 +211,17 @@ public class OpenClinicaService {
      * Schedule all the events found in {@param eventList} but which have not been scheduled yet in
      * OpenClinica according to the information present in the {@param studyEventDefinitionTypeList}.
      *
-     * @param username
-     * @param passwordHash
-     * @param url
-     * @param eventList
-     * @throws Exception
+     * @param username the user name performing the scheduling of events
+     * @param passwordHash the user's password hash
+     * @param url the OpenClinica URL in which the events are scheduled
+     * @param eventList the event list
+     * @throws Exception in case of errors
      */
-    public Collection<ValidationErrorMessage> scheduleEvents(String username, String passwordHash, String url,
+    public Collection<AbstractMessage> scheduleEvents(String username, String passwordHash, String url,
                                                              MetaData metaData,
                                                              List<Event> eventList,
                                                              List<StudySubjectWithEventsType> studySubjectWithEventsTypeList) throws Exception {
-        Collection<ValidationErrorMessage> ret = new ArrayList<>();
+        Collection<AbstractMessage> ret = new ArrayList<>();
         log.info("Schedule events initiated by: " + username + " on: " + url);
         if (StringUtils.isEmpty(username) ||
                 StringUtils.isEmpty(passwordHash) ||
@@ -268,20 +263,25 @@ public class OpenClinicaService {
         SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
         SOAPConnection soapConnection = soapConnectionFactory.createConnection();
 
-        StringBuffer errorMessage = new StringBuffer();
+
         for (EventType eventType : eventTypeList) {
             SOAPMessage soapMessage = requestFactory.createScheduleEventRequest(username, passwordHash, eventType);
             System.out.println("SOAP-->" + SoapUtils.soapMessageToString(soapMessage));
             SOAPMessage soapResponse = soapConnection.call(soapMessage, url + "/ws/event/v1");
             String responseError = SOAPResponseHandler.parseOpenClinicaResponse(soapResponse, "//scheduleResponse");
             if (responseError != null) {
-                log.error("ScheduleEvent request failed: " + responseError);
-                errorMessage.append(responseError);
+                String detailedMessage = "ScheduleEvent request " + eventType.getEventDefinitionOID() + " failed for subject : "  + eventType.getStudySubjectRef().getLabel() + ". Cause: " + responseError;
+                log.error(detailedMessage);
+                ValidationErrorMessage validationErrorMessage = new ValidationErrorMessage(detailedMessage);
+                validationErrorMessage.setSubject(eventType.getStudySubjectRef().getLabel());
+                ret.add(validationErrorMessage);
             }
-        }
-
-        if (!StringUtils.isEmpty(errorMessage.toString())) {
-            ret.add(new ValidationErrorMessage(errorMessage.toString()));
+            else {
+                String detailedMessage = "Scheduled event " + eventType.getEventDefinitionOID() + " successfully for subject " + eventType.getStudySubjectRef().getLabel();
+                SubmissionResult submissionResult = new SubmissionResult(detailedMessage);
+                submissionResult.setSubject(eventType.getStudySubjectRef().getLabel());
+                ret.add(submissionResult);
+            }
         }
         return ret;
     }

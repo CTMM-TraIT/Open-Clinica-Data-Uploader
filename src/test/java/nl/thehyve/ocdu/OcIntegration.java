@@ -1,9 +1,9 @@
 package nl.thehyve.ocdu;
 
+import nl.thehyve.ocdu.models.OCEntities.Study;
 import nl.thehyve.ocdu.models.OCEntities.Subject;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
-import nl.thehyve.ocdu.models.OCEntities.Study;
-import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
+import nl.thehyve.ocdu.models.errors.AbstractMessage;
 import nl.thehyve.ocdu.services.OpenClinicaService;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -13,7 +13,6 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -23,9 +22,7 @@ import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.Every.everyItem;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.IsNull.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by piotrzakrzewski on 29/04/16.
@@ -87,7 +84,7 @@ public class OcIntegration {
         s1.setGender("m");
         Collection<Subject> subjects = new ArrayList<>();
         subjects.add(s1);
-        Collection<ValidationErrorMessage> result = openClinicaService.registerPatients(user, sha1hexDigest, ocUrl, subjects);
-        assertTrue(result.isEmpty()); // true if successful
+        AbstractMessage result = openClinicaService.registerPatient(user, sha1hexDigest, ocUrl, s1);
+        assertFalse(result.isError()); // false if successful
     }
 }

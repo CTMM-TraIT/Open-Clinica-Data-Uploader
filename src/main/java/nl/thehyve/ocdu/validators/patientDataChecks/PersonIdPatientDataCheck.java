@@ -26,7 +26,7 @@ public class PersonIdPatientDataCheck implements PatientDataCheck {
         ValidationErrorMessage error = null;
         String personId = subject.getPersonId();
 
-        if ((metaData.getPersonIDUsage() == ProtocolFieldRequirementSetting.MANDATORY) && (StringUtils.isBlank(personId))) {
+        if ((metaData.getPersonIDUsage() == ProtocolFieldRequirementSetting.MANDATORY) && (StringUtils.isEmpty(personId))) {
             error = new ValidationErrorMessage(commonMessage + "Person ID is missing");
         }
 
