@@ -3,37 +3,10 @@
  * Created by jacob on 6/28/16.
  */
 
-var loading_html;
 
 $(document).ready(function () {
-    generateUploadSettingsHTML();
+    $('#loading_div').hide();
 });
-
-function generateUploadSettingsHTML() {
-    var html = '<span id="uploadOptions"><h3>Upload options</h3>' +
-        '<h4><div>Please select the status after upload and the status of existing CRF\'s which can be overwritten.</div></h4>' +
-        '<hr>' +
-        '<div><strong>CRF Status After Upload</strong></div>' +
-        '<div class="radio">' +
-        '<label><input id="statusAfterUpload_1" type="radio" name="statusAfterUpload" value="initial data entry" checked>Data Entry Started</label>' +
-        '</div> ' +
-        '<div class="radio"> ' +
-        '<label><input id="statusAfterUpload_2" type="radio" name="statusAfterUpload" value="complete">Data Entry Complete</label>' +
-        '</div>' +
-        '<hr>' +
-        '<div><strong>Upload to CRF with status (existing CRF\'s will be overwritten)</strong></div>' +
-        '<div class="checkbox">' +
-        '<label><input id="overwriteStatus_1" type="checkbox" name="overwriteStatus" value="overwriteStatus_notStarted" checked>Not started</label>' +
-        '</div> ' +
-        '<div class="checkbox"> ' +
-        '<label><input id="overwriteStatus_2" type="checkbox" name="overwriteStatus" value="overwriteStatus_initialDataEntry">Data Entry Started</label>' +
-        '</div>' +
-        '<div class="checkbox"> ' +
-        '<label><input id="overwriteStatus_3" type="checkbox" name="overwriteStatus" value="overwriteStatus_dataEntryComplete">Data Entry Complete</label>' +
-        '</div><hr></span>';
-    
-    $(html).insertBefore('#odm-upload-back-btn');
-}
 
 function update_submission() {
     $.ajax({
@@ -53,8 +26,10 @@ function update_submission() {
 }
 
 function performODMUpload() {
-    $('#loading_div').remove();
-    $(loading_html).insertBefore('#odm-upload-back-btn');
+    $('#odm-upload-div').remove();
+    $('#buttonDiv').hide();
+    $('#loading_div').show();
+    $('#odm-upload-proceed-btn').hide();
     $.ajax({
         url: baseApp + "/odm/upload",
         type: "POST",
@@ -65,6 +40,7 @@ function performODMUpload() {
         success: function (msg) {
             $('#loading_div').remove();
             $('#uploadOptions').remove();
+            $('#buttonDiv').show();
             if (msg.length > 0) {
                 var errorList = [];
                 var nonErrorList = [];
@@ -92,11 +68,8 @@ function performODMUpload() {
                         $(nonErrorInfo).insertBefore('#odm-upload-back-btn');
                     }
                 }
-
-            }else {
-                console.log("Upload ODM successfully");
-                update_submission();
             }
+            $('#odm-upload-proceed-btn').remove();
         },
         error: function (jqXHR, textStatus, errorThrown) {
             $('#loading_div').remove();

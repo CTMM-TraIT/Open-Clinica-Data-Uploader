@@ -33,12 +33,12 @@ import static org.junit.Assert.assertThat;
  */
 public class PatientDataOcChecksTests {
 
-    private static MetaData metadata;
-    private static List<StudySubjectWithEventsType> testSubjectWithEventsTypeList;
-    private static Set<String> presentInData;
+    private MetaData metadata;
+    private List<StudySubjectWithEventsType> testSubjectWithEventsTypeList;
+    private Set<String> presentInData;
 
-    @BeforeClass
-    public static void setup() {
+    @Before
+    public void setup() {
         try {
             testSubjectWithEventsTypeList = TestUtils.createStudySubjectWithEventList();
             MessageFactory messageFactory = MessageFactory.newInstance();
@@ -103,6 +103,7 @@ public class PatientDataOcChecksTests {
         subject.setPersonId("Wizzard");
         subject.setStudy("Sjogren");
         subject.setDateOfEnrollment("01-01-2010");
+        subject.setDateOfBirth("1932");
         subjectList.add(subject);
 
         Set<String> duplicatePresentInDataList = new HashSet<>();
@@ -112,7 +113,7 @@ public class PatientDataOcChecksTests {
         PatientDataOcChecks patientDataOcChecks = new PatientDataOcChecks(metadata, subjectList, testSubjectWithEventsTypeList, duplicatePresentInDataList);
 
         List<ValidationErrorMessage> errorList = patientDataOcChecks.getErrors();
-        assertEquals(2, errorList.size());
+        assertEquals(0, errorList.size());
     }
 
     @Test
@@ -127,14 +128,14 @@ public class PatientDataOcChecksTests {
         subject.setDateOfEnrollment("01-01-2010");
         subjectList.add(subject);
 
-        Set<String> duplicatePresnetInDataList = new HashSet<>();
-        duplicatePresnetInDataList.add("EV-XXXXX");
+        Set<String> presentInDataList = new HashSet<>();
+        presentInDataList.add("EV-YYYYY");
 
-        PatientDataOcChecks patientDataOcChecks = new PatientDataOcChecks(metadata, subjectList, testSubjectWithEventsTypeList, duplicatePresnetInDataList);
+        PatientDataOcChecks patientDataOcChecks = new PatientDataOcChecks(metadata, subjectList, testSubjectWithEventsTypeList, presentInDataList);
 
         List<ValidationErrorMessage> errorList = patientDataOcChecks.getErrors();
         assertEquals(1, errorList.size());
-        assertThat(errorList.get(0).getMessage(), containsString("EV-XXXXX duplicate is found"));
+        assertThat(errorList.get(0).getMessage(), containsString("Absent in the data file"));
     }
 
     @Test
@@ -358,17 +359,17 @@ public class PatientDataOcChecksTests {
 
     @Test
     public void bannedDobTest() throws Exception {
-        MetaData metaData = new MetaData();
+        MetaData localMetaData = new MetaData();
         int notRequired = 3;
-        metaData.setBirthdateRequired(notRequired);
+        localMetaData.setBirthdateRequired(notRequired);
         Subject subjectWithDOB = new Subject();
         Subject subjectWithDOBFull = new Subject();
         subjectWithDOBFull.setDateOfBirth("01-JUN-2000");
         subjectWithDOB.setDateOfBirth("1997");
         DateOfBirthPatientDataCheck check = new DateOfBirthPatientDataCheck();
         int bogusLineNumber = 1;
-        ValidationErrorMessage error = check.getCorrespondingError(bogusLineNumber, subjectWithDOB, metaData, testSubjectWithEventsTypeList, presentInData);
-        ValidationErrorMessage errorFullYear = check.getCorrespondingError(bogusLineNumber, subjectWithDOBFull, metaData, testSubjectWithEventsTypeList, presentInData);
+        ValidationErrorMessage error = check.getCorrespondingError(bogusLineNumber, subjectWithDOB, localMetaData, testSubjectWithEventsTypeList, presentInData);
+        ValidationErrorMessage errorFullYear = check.getCorrespondingError(bogusLineNumber, subjectWithDOBFull, localMetaData, testSubjectWithEventsTypeList, presentInData);
         assertThat(error, is(notNullValue()));
         assertThat(error.getMessage(), containsString("Date of birth submission is not allowed by the study protocol"));
         assertThat(errorFullYear.getMessage(), is(notNullValue()));

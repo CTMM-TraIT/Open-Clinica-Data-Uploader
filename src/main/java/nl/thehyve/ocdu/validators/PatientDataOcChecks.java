@@ -10,6 +10,7 @@ import org.openclinica.ws.beans.StudySubjectWithEventsType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by bo on 6/7/16.
@@ -45,12 +46,6 @@ public class PatientDataOcChecks {
         List<ValidationErrorMessage> errors = new ArrayList<>();
         int index = 1;
         for (Subject subject : subjects) {
-            String ssid = subject.getSsid();
-            if (ssidsInData.contains(ssid)) {
-                ValidationErrorMessage error = new ValidationErrorMessage("Line " + index + " Study Subject ID: " + ssid + " duplicate is found.");
-                error.addOffendingValue("ssid = " + ssid);
-                errors.add(error);
-            }
             for (PatientDataCheck check : checks) {
                 ValidationErrorMessage error = check.getCorrespondingError(index, subject, metadata, subjEventData,
                         ssidsInData);
