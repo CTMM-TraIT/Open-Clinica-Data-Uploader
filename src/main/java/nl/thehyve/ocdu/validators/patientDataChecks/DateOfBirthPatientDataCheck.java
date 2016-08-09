@@ -46,14 +46,7 @@ public class DateOfBirthPatientDataCheck implements PatientDataCheck {
                 msg = checkFullDate(dob);
             } else if (DOBrequired == 2) { // YEAR ONLY
                 msg = checkYearOnly(dob);
-            } else { // DOBrequired == 3, but the string of dob is not empty
-                if (dob.length() == 4) {
-                    msg = checkYearOnly(dob);
-                } else {
-                    msg = checkFullDate(dob);
-                }
             }
-
             if (msg != null) {
                 error = new ValidationErrorMessage(commonMessage + msg);
                 error.addOffendingValue("Date of Birth: " + subject.getDateOfBirth());
@@ -68,7 +61,7 @@ public class DateOfBirthPatientDataCheck implements PatientDataCheck {
             int currentYear = Calendar.getInstance().get(Calendar.YEAR);
             int birthYear = Integer.valueOf(dob);
             if (birthYear > currentYear) {
-                return "Birth year format is invalid.";
+                return "Birth year can not be greater than current year";
             }
             return null;
         } catch (NumberFormatException e) {

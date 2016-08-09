@@ -42,12 +42,11 @@ public class PatientDataOcChecks {
     }
 
     public List<ValidationErrorMessage> getErrors() {
-        List<String> ssids = new ArrayList<>();
         List<ValidationErrorMessage> errors = new ArrayList<>();
         int index = 1;
         for (Subject subject : subjects) {
             String ssid = subject.getSsid();
-            if (ssids.contains(ssid)) {
+            if (ssidsInData.contains(ssid)) {
                 ValidationErrorMessage error = new ValidationErrorMessage("Line " + index + " Study Subject ID: " + ssid + " duplicate is found.");
                 error.addOffendingValue("ssid = " + ssid);
                 errors.add(error);

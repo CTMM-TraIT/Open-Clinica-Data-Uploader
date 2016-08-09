@@ -1,5 +1,6 @@
 package nl.thehyve.ocdu.validators;
 
+import junit.framework.Assert;
 import nl.thehyve.ocdu.TestUtils;
 import nl.thehyve.ocdu.factories.ClinicalDataFactory;
 import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
@@ -407,5 +408,21 @@ public class ClinicalDataOcChecksTests {
         MultipleCrfCrossCheck check = new MultipleCrfCrossCheck();
         ValidationErrorMessage correspondingError = check.getCorrespondingError(incorrectData, null, null, null, null, null);
         assertThat(correspondingError, notNullValue());
+    }
+
+    @Test
+    public void checkGetters() throws Exception {
+        // get 100% covarage.
+        MetaData metaData = new MetaData();
+        List<ClinicalData> clinicalDataList = new ArrayList<>();
+        List<StudySubjectWithEventsType> subjectWithEventsTypes = new ArrayList<>();
+        ClinicalDataChecksRunner clinicalDataChecksRunner =
+                new ClinicalDataChecksRunner(metaData, clinicalDataList, subjectWithEventsTypes);
+        assertThat(clinicalDataChecksRunner.getChecks(), notNullValue());
+        assertThat(clinicalDataChecksRunner.getMetadata(), notNullValue());
+        assertThat(clinicalDataChecksRunner.getClinicalData(), notNullValue());
+        assertThat(clinicalDataChecksRunner.getSubjectWithEventsTypeList(), notNullValue());
+
+
     }
 }
