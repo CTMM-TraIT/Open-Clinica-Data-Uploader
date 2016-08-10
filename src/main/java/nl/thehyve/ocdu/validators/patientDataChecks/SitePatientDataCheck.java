@@ -30,15 +30,15 @@ public class SitePatientDataCheck implements PatientDataCheck {
 
         if (!StringUtils.isBlank(site) && !StringUtils.isBlank(study)) {
             List<SiteDefinition> sites = metaData.getSiteDefinitions();
-            if (sites == null) {
-                error = new ValidationErrorMessage(commonMessage + "Study site \"" + subject.getSite() + "\" does not exist.");
+            if ((sites == null) || (sites.isEmpty())) {
+                error = new ValidationErrorMessage(commonMessage + "Site specified for \"" + subject.getSite() + "\", study does not have sites.");
             } else {
                 List<String> sitenames = new ArrayList<>();
                 for (SiteDefinition sd : sites) {
-                    sitenames.add(sd.getSiteOID()); // User needs to put UniqueProtocol ID in, not name
+                    sitenames.add(sd.getUniqueID());
                 }
                 if (!sitenames.contains(subject.getSite())) {
-                    error = new ValidationErrorMessage(commonMessage + "Study site \"" + subject.getSite() + "\" does not exist.");
+                    error = new ValidationErrorMessage(commonMessage + "Study site \"" + subject.getSite() + "\" does not exist, use the site's Unique Protocol ID.");
                 }
             }
         }
