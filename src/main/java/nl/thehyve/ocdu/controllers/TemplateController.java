@@ -20,9 +20,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpSession;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Provides file templates for the user.
@@ -56,15 +58,23 @@ public class TemplateController {
             String username = user.getUsername();
             String pwdHash = ocUserService.getOcwsHash(session);
             String url = user.getOcEnvironment();
-            List<ClinicalData> clinicalDatas = clinicalDataRepository.findBySubmission(uploadSession);
+            List<ClinicalData> clinicalDataList = clinicalDataRepository.findBySubmission(uploadSession);
 
             //key: subject id from user - val: technical subject id
-            Map<String, String> subjectMap = openClinicaService.createMapSubjectLabelToSubjectOID(username, pwdHash, url, clinicalDatas);
+            Map<String, String> subjectMap = openClinicaService.createMapSubjectLabelToSubjectOID(username, pwdHash, url, clinicalDataList);
 
             Study study = dataService.findStudy(uploadSession.getStudy(), user, pwdHash);
             MetaData metadata = openClinicaService.getMetadata(username, pwdHash, user.getOcEnvironment(), study);
             PatientDataFactory pdf = new PatientDataFactory(user, uploadSession);
-            List<String> result = pdf.generatePatientRegistrationTemplate(metadata, subjectMap, registerSite);
+
+            Map<String, String> subjectSiteMap = new HashMap<>();
+            for (ClinicalData clinicalData : clinicalDataList) {
+                if (! subjectSiteMap.containsKey(clinicalData.getSsid())) {
+                    subjectSiteMap.put(clinicalData.getSsid(), clinicalData.getSite());
+                }
+            }
+
+            List<String> result = pdf.generatePatientRegistrationTemplate(metadata, subjectMap, registerSite, subjectSiteMap);
 
             return new ResponseEntity<>(result, HttpStatus.OK);
         } catch (Exception e) {

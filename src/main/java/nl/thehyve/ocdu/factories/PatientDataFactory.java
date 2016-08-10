@@ -1,19 +1,18 @@
 package nl.thehyve.ocdu.factories;
 
+import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OCEntities.Subject;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.OcDefinitions.ProtocolFieldRequirementSetting;
 import nl.thehyve.ocdu.models.OcUser;
 import nl.thehyve.ocdu.models.UploadSession;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -94,7 +93,7 @@ public class PatientDataFactory extends UserSubmittedDataFactory {
         consumer.accept(cellValue);
     }
 
-    public List<String> generatePatientRegistrationTemplate(MetaData metadata, Map<String, String> subjectMap, boolean registerSite) {
+    public List<String> generatePatientRegistrationTemplate(MetaData metadata, Map<String, String> subjectMap, boolean registerSite, Map<String, String> subjectSiteSet) {
         List<String> result = new ArrayList<>();
         String delim = "\t";
         List<String> header = new ArrayList<>();
@@ -109,7 +108,6 @@ public class PatientDataFactory extends UserSubmittedDataFactory {
         if (registerSite) header.add(SITE);
         result.add(String.join(delim, header) + "\n");
 
-
         for (String ssid : subjectMap.keySet()) {
             String techId = subjectMap.get(ssid);
             if (techId == null) {
@@ -120,12 +118,17 @@ public class PatientDataFactory extends UserSubmittedDataFactory {
                 line.add("");//date of enrollment
                 line.add("");//secondary id
                 line.add(metadata.getStudyName());//study
-                if (registerSite) line.add("");//site
+                if (registerSite) {
+                    String siteValue = subjectSiteSet.get(ssid);
+                    if (siteValue == null) {
+                        siteValue = "";
+                    }
+                    line.add(siteValue);//site
+                }
                 result.add(String.join(delim, line) + "\n");
             }
         }
 
         return result;
     }
-
 }
