@@ -301,7 +301,7 @@ public class PatientDataOcChecksTests {
         SitePatientDataCheck check = new SitePatientDataCheck();
         List<SiteDefinition> siteDefs = new ArrayList<>();
         SiteDefinition sjogrenSite = new SiteDefinition();
-        sjogrenSite.setSiteOID("SjogrenSjogren");
+        sjogrenSite.setUniqueID("SjogrenSjogren");
         siteDefs.add(sjogrenSite);
         metadata.setSiteDefinitions(siteDefs);
         ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData);

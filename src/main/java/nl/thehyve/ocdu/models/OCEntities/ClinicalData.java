@@ -2,11 +2,13 @@ package nl.thehyve.ocdu.models.OCEntities;
 
 import nl.thehyve.ocdu.models.OcUser;
 import nl.thehyve.ocdu.models.UploadSession;
-import org.openclinica.ws.beans.StudySubjectWithEventsType;
+import org.apache.commons.lang3.StringUtils;
+import org.openclinica.ws.beans.*;
 
 import javax.persistence.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -302,6 +304,20 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
         return ret.toString().toUpperCase();
     }
 
+    public String createEventKey() {
+        StringBuffer ret = new StringBuffer();
+        ret.append(study);
+        ret.append(KEY_SEPARATOR);
+        ret.append(site);
+        ret.append(KEY_SEPARATOR);
+        ret.append(ssid);
+        ret.append(KEY_SEPARATOR);
+        ret.append(eventName);
+        ret.append(KEY_SEPARATOR);
+        ret.append(eventRepeat);
+        return ret.toString().toUpperCase();
+    }
+
     public String createEventRepeatKey() {
         StringBuffer ret = new StringBuffer();
         ret.append(study);
@@ -315,10 +331,6 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
         return ret.toString().toUpperCase();
     }
 
-    public String createODMGroupingKey() {
-        return ssid;
-    }
-
     /**
      * returns <code>true</code> if the event defined in {@param studySubjectWithEventsType} is
      * present present in this ClinicalData.
@@ -328,7 +340,31 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
      * present present in this ClinicalData.
      */
     public boolean isEventPresent(StudySubjectWithEventsType studySubjectWithEventsType) {
-        return false;
+        String subjectID = studySubjectWithEventsType.getLabel();
+        if ((subjectID != null) && (! subjectID.equals(ssid))) {
+            return false;
+        }
+        String studyIdentifier = studySubjectWithEventsType.getStudyRef().getIdentifier();
+        String siteIdentifier =
+                studySubjectWithEventsType.getStudyRef().getSiteRef() != null ? studySubjectWithEventsType.getStudyRef().getSiteRef().getIdentifier() : "";
+        if ((studyIdentifier != null) && (! studyIdentifier.equals(study))) {
+            return false;
+        }
+        if (StringUtils.isNotEmpty(siteIdentifier) && (! siteIdentifier.equals(site))) {
+            return false;
+        }
+
+        EventsType events = studySubjectWithEventsType.getEvents();
+        List<String> clinicalAxis =
+                events.getEvent().stream().
+                        map(eventResponseType -> eventResponseType.getEventDefinitionOID() + eventResponseType.getOccurrence())
+                        .collect(Collectors.toList());
+        String compareValue = this.getEventName() + this.getEventRepeat();
+        return clinicalAxis.contains(compareValue);
+    }
+
+    public String createODMGroupingKey() {
+        return ssid;
     }
 
     public List<String> getValues() {

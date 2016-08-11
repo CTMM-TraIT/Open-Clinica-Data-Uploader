@@ -233,7 +233,7 @@ public class OpenClinicaService {
                 metaData.getEventDefinitions().stream().collect(Collectors.toMap(EventDefinition::getName, EventDefinition::getStudyEventOID));
 
         Map<String, EventResponseType> eventsRegisteredInOpenClinica =
-                RegisteredEventInformation.createEventKeyList(studySubjectWithEventsTypeList);
+                RegisteredEventInformation.createEventKeyMap(studySubjectWithEventsTypeList);
         List<EventType> eventTypeList = new ArrayList<>();
         for (Event event : eventList) {
             String eventOID = eventNameOIDMap.get(event.getEventName());

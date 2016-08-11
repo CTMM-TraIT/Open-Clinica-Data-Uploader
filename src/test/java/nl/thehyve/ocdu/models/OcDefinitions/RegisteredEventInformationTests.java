@@ -1,6 +1,7 @@
 package nl.thehyve.ocdu.models.OcDefinitions;
 
 import nl.thehyve.ocdu.TestUtils;
+import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OCEntities.Event;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.BeforeClass;
@@ -23,14 +24,39 @@ public class RegisteredEventInformationTests {
 
     private static MetaData metaData;
 
+    private static List<Event> eventList;
+
+    private static List<ClinicalData> clinicalDataList;
+
     @Test
     public void testEventPresentInOC() {
         Map<String, EventResponseType> eventsRegisteredInOpenClinica =
-                RegisteredEventInformation.createEventKeyList(studySubjectWithEventsTypeList);
+                RegisteredEventInformation.createEventKeyMap(studySubjectWithEventsTypeList);
         assertEquals(true, eventsRegisteredInOpenClinica.containsKey("EVENTFULEV-00006SE_REPEATINGEVENT3"));
         assertEquals(false, eventsRegisteredInOpenClinica.containsKey("EVENTFULEV-00006SE_REPEATINGEVENT8"));
         assertEquals(true, eventsRegisteredInOpenClinica.containsKey("EVENTFULEVENTFULSITEEVS-00001SE_REPEATINGEVENT1"));
         assertEquals(false, eventsRegisteredInOpenClinica.containsKey("EVENTFULEVENTFULSITEEVS-00001SE_REPEATINGEVENT5"));
+    }
+
+    @Test
+    public void testCreateEventKeyListFromStudySubjectWithEventsTypeList() {
+        List<String> eventKeyList = RegisteredEventInformation.createEventKeyListFromStudySubjectWithEventsTypeList(metaData, studySubjectWithEventsTypeList);
+        assertEquals(true, eventKeyList.contains("EVENTFUL\t\tEV-00006\tREPEATING_EVENT\t3"));
+        assertEquals(false,eventKeyList.contains("EVENTFUL\t\tEV-00006\tREPEATING_EVENT\t8"));
+        assertEquals(true, eventKeyList.contains("EVENTFUL\tEVENTFULSITE\tEVS-00001\tREPEATING_EVENT\t1"));
+        assertEquals(false, eventKeyList.contains("EVENTFUL\tEVENTFULSITE\tEVS-00001\tREPEATING_EVENT\t5"));
+    }
+
+    @Test
+    public void testCreateEventKeyListFromEventList() {
+        List<String> eventKeyList = RegisteredEventInformation.createEventKeyListFromEventList(eventList);
+        assertEquals(true, eventKeyList.contains("EVENTFUL\tEVENTFULSITE\tEVS-00001\tREPEATING_EVENT\t1"));
+    }
+
+    @Test
+    public void testCreateEventKeyListFroMClinicalData() {
+        Set<String> eventKeyList = RegisteredEventInformation.createEventKeyListFroMClinicalData(clinicalDataList);
+        assertEquals(true, eventKeyList.contains("EVENTFUL\tEVENTFULSITE\tEVS-00002\tREPEATING_EVENT\t1"));
     }
 
     @Test
@@ -78,5 +104,24 @@ public class RegisteredEventInformationTests {
 
 
         metaData.setEventDefinitions(eventDefinitionList);
+
+        eventList = new ArrayList<>();
+        Event event = new Event();
+        event.setSsid("EVS-00001");
+        event.setStudy("EVENTFUL");
+        event.setSite("EVENTFULSITE");
+        event.setEventName("REPEATING_EVENT");
+        event.setRepeatNumber("1");
+        eventList.add(event);
+
+        clinicalDataList = new ArrayList<>();
+        ClinicalData clinicalData = new ClinicalData();
+        clinicalData.setSsid("EVS-00002");
+        clinicalData.setStudy("EVENTFUL");
+        clinicalData.setSite("EVENTFULSITE");
+        clinicalData.setEventName("REPEATING_EVENT");
+        clinicalData.setEventRepeat("1");
+        clinicalDataList.add(clinicalData);
+
     }
 }

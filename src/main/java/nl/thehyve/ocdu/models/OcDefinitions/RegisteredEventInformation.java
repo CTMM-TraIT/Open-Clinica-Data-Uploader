@@ -1,22 +1,12 @@
 package nl.thehyve.ocdu.models.OcDefinitions;
 
+import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OCEntities.Event;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.openclinica.ws.beans.EventResponseType;
-import org.openclinica.ws.beans.EventsType;
-import org.openclinica.ws.beans.SiteRefType;
-import org.openclinica.ws.beans.StudyRefType;
-import org.openclinica.ws.beans.StudySubjectWithEventsType;
+import org.openclinica.ws.beans.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
 
 /**
  * Class responsible for providing a {@link Map} with which a check can be performed if an event / event-repeat
@@ -29,14 +19,14 @@ import java.util.stream.Collectors;
 public class RegisteredEventInformation {
 
     /**
-     * Creates a map of with as String as key which can be used to check if an event is present in OpenClinica. The value
+     * Creates a map of {@link EventResponseType}s with as String as key which can be used to check if an event is present in OpenClinica. The value
      * set contains the event. The key consists of the study identifier, the site identifier (optional), the eventOID and the event
      * repeat number.
      *
      * @param studySubjectWithEventsTypeList
      * @return
      */
-    public static Map<String, EventResponseType> createEventKeyList(List<StudySubjectWithEventsType> studySubjectWithEventsTypeList) {
+    public static Map<String, EventResponseType> createEventKeyMap(List<StudySubjectWithEventsType> studySubjectWithEventsTypeList) {
         Map<String, EventResponseType> ret = new HashMap<>(studySubjectWithEventsTypeList.size());
         for (StudySubjectWithEventsType studySubjectWithEventsType : studySubjectWithEventsTypeList) {
             EventsType eventsTypeList = studySubjectWithEventsType.getEvents();
@@ -59,17 +49,69 @@ public class RegisteredEventInformation {
         return ret;
     }
 
+    public static Set<String> createEventKeyListFroMClinicalData(List<ClinicalData> clinicalDataList) {
+        Set<String> ret = new HashSet<>();
+        for (ClinicalData clinicalData : clinicalDataList) {
+            ret.add(clinicalData.createEventKey());
+        }
+        return ret;
+    }
+
+    public static List<String> createEventKeyListFromStudySubjectWithEventsTypeList(MetaData metaData, List<StudySubjectWithEventsType> studySubjectWithEventsTypeList) {
+        Map<String, String> eventOIDToNameMap = createEventOIDToNameMap(metaData);
+        List<String> ret = new  ArrayList<>();
+        for (StudySubjectWithEventsType studySubjectWithEventsType : studySubjectWithEventsTypeList) {
+            String ssid = studySubjectWithEventsType.getLabel();
+            String study = studySubjectWithEventsType.getStudyRef().getIdentifier();
+            String site = studySubjectWithEventsType.getStudyRef().getSiteRef() != null ? studySubjectWithEventsType.getStudyRef().getSiteRef().getIdentifier() : "";
+            for (EventResponseType event : studySubjectWithEventsType.getEvents().getEvent()) {
+                ClinicalData clinicalData = new ClinicalData();
+                clinicalData.setSsid(ssid);
+                clinicalData.setStudy(study);
+                clinicalData.setSite(site);
+                String eventName = eventOIDToNameMap.get(event.getEventDefinitionOID());
+                clinicalData.setEventName(eventName);
+                clinicalData.setEventRepeat(event.getOccurrence());
+                ret.add(clinicalData.createEventKey());
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * Creates list of String which identify the events present in a list of Events.
+     *
+     * @param eventList
+     * @return
+     */
+    public static List<String> createEventKeyListFromEventList(List<Event> eventList) {
+        List<String> ret = new  ArrayList<>();
+        for (Event event : eventList) {
+            ClinicalData clinicalData = event.createClinicaData();
+            clinicalData.setStudy(event.getStudy());
+            clinicalData.setSsid(event.getSsid());;
+            clinicalData.setSite(event.getSite());
+            clinicalData.setEventName(event.getEventName());
+            clinicalData.setEventRepeat(event.getRepeatNumber());
+            ret.add(clinicalData.createEventKey());
+        }
+        return ret;
+    }
+
+    public static Map<String, String> createEventOIDToNameMap(MetaData metaData) {
+        Map<String, String> eventOIDToNameMap = new HashMap<>();
+        metaData.getEventDefinitions().forEach(eventDefinition -> {
+            eventOIDToNameMap.put(eventDefinition.getStudyEventOID(), eventDefinition.getName());
+        });
+        return eventOIDToNameMap;
+    }
+
     public static Collection<Event> determineEventsToSchedule(MetaData metaData,
                                                               List<StudySubjectWithEventsType> studySubjectWithEventsTypeList,
                                                               Set<ImmutablePair> patientsInEvent) {
         Collection<Event> ret = new HashSet<>();
 
-        Map<String, String> eventNameToOIDMap = new HashMap<>();
-        Map<String, String> eventOIDToNameMap = new HashMap<>();
-        metaData.getEventDefinitions().forEach(eventDefinition -> {
-            eventNameToOIDMap.put(eventDefinition.getName(), eventDefinition.getStudyEventOID());
-            eventOIDToNameMap.put(eventDefinition.getStudyEventOID(), eventDefinition.getName());
-        });
+        Map<String, String> eventOIDToNameMap = createEventOIDToNameMap(metaData);
 
         Collection<Event> alreadyRegistered = new HashSet<>();
         for (StudySubjectWithEventsType studySubjectWithEventsType : studySubjectWithEventsTypeList) {

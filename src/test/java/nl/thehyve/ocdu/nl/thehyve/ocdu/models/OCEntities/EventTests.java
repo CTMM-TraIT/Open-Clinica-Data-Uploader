@@ -1,5 +1,6 @@
 package nl.thehyve.ocdu.nl.thehyve.ocdu.models.OCEntities;
 
+import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OCEntities.Event;
 import nl.thehyve.ocdu.models.OcUser;
 import nl.thehyve.ocdu.models.UploadSession;
@@ -35,6 +36,23 @@ public class EventTests {
         event.setRepeatNumber("6");
 
         assertEquals("TESTSTUDYSITESUBJECT_0001SE_EVENTFULDAY6", event.createEventKey("SE_EVENTFULDAY"));
+    }
+
+    @Test
+    public void testCreateClinicaData() {
+        Event event = new Event();
+        event.setStudy("TestStudy");
+        event.setSite("SITE");
+        event.setEventName("EventfulDay");
+        event.setSsid("SUBJECT_0001");
+        event.setLocation("Location");
+        event.setRepeatNumber("6");
+        ClinicalData clinicalData = event.createClinicaData();
+        assertEquals("TestStudy", clinicalData.getStudy());
+        assertEquals("SITE", clinicalData.getSite());
+        assertEquals("EventfulDay", clinicalData.getEventName());
+        assertEquals("SUBJECT_0001", clinicalData.getSsid());
+        assertEquals("6", clinicalData.getEventRepeat());
     }
 
 

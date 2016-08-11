@@ -7,11 +7,7 @@ import org.openclinica.ws.beans.EventType;
 import org.openclinica.ws.beans.SiteRefType;
 import org.openclinica.ws.beans.StudyRefType;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.util.Map;
 
 /**
@@ -200,6 +196,16 @@ public class Event implements OcEntity, UserSubmitted, EventReference {
         }
         ret.setEventDefinitionOID(eventName);
         return ret;
+    }
+
+    public ClinicalData createClinicaData() {
+        ClinicalData clinicalData = new ClinicalData();
+        clinicalData.setStudy(study);
+        clinicalData.setSsid(ssid);;
+        clinicalData.setSite(site);
+        clinicalData.setEventName(eventName);
+        clinicalData.setEventRepeat(repeatNumber);
+        return clinicalData;
     }
 
     @Override
