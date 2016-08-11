@@ -367,6 +367,8 @@ public class EventDataOcChecksTests {
         String sid = "subj1";
         String studyName = "Test Study";
         String eventName = "Test Event";
+
+        String siteUniqueID = "TestSiteUniqueID";
         String siteName = "Test Site";
 
         metadata = new MetaData();
@@ -378,14 +380,15 @@ public class EventDataOcChecksTests {
         metadata.setEventDefinitions(eventDefinitions);
         ArrayList<SiteDefinition> siteDefinitions = new ArrayList<>();
         SiteDefinition siteDefinition = new SiteDefinition();
-        siteDefinition.setName(siteName);
+        siteDefinition.setName(siteUniqueID);
+        siteDefinition.setUniqueID(siteUniqueID);
         siteDefinitions.add(siteDefinition);
         metadata.setSiteDefinitions(siteDefinitions);
 
         event = new Event();
         event.setStudy(studyName);
         event.setEventName(eventName);
-        event.setSite(siteName);
+        event.setSite(siteUniqueID);
         event.setSsid(sid);
         event.setStartDate("22-02-2014");
         event.setStartTime("0:00");

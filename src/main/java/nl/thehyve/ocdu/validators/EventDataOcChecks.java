@@ -55,7 +55,7 @@ public class EventDataOcChecks {
             this.siteNames = metadata
                     .getSiteDefinitions()
                     .stream()
-                    .map(SiteDefinition::getName)
+                    .map(SiteDefinition::getUniqueID)
                     .collect(Collectors.toSet());
         }
     }
