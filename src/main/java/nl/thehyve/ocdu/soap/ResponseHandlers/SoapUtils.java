@@ -6,7 +6,6 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -15,11 +14,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
@@ -32,7 +27,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 /**
- * SOAP related utility methods speicifc to this project.
+ * SOAP related utility methods specific to this project.
  *
  * Created by piotrzakrzewski on 15/04/16.
  */
@@ -47,28 +42,21 @@ public class SoapUtils {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         String xmlString = sw.toString();
-        Document doc = builder.parse( new InputSource( new StringReader( xmlString ) ) );
-        return doc;
+        return builder.parse( new InputSource( new StringReader( xmlString ) ) );
     }
 
     public static Document unEscapeCDATAXML(String escapedXml) {
         //String xmlString = StringEscapeUtils.unescapeXml(escapedXml);
-        Document doc = simpleString2XmlDoc(escapedXml);
-        return doc;
+        return simpleString2XmlDoc(escapedXml);
     }
 
     public static Document simpleString2XmlDoc(String xmlString) {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = null;
+        DocumentBuilder builder;
         try {
             builder = factory.newDocumentBuilder();
-            Document doc = builder.parse( new InputSource( new StringReader( xmlString ) ) );
-            return doc;
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+            return builder.parse( new InputSource( new StringReader( xmlString ) ) );
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
@@ -91,6 +79,23 @@ public class SoapUtils {
         }
     }
 
+    public static XMLGregorianCalendar getFullXmlTime(String timeString) {
+        try {
+            Calendar calendar = GregorianCalendar.getInstance();
+            if (! StringUtils.isEmpty(timeString)) {
+                DateFormat dateFormat = new SimpleDateFormat("HH:mm");
+                Date date = dateFormat.parse(timeString);
+                calendar.setTime(date);
+            }
+            return DatatypeFactory.newInstance().newXMLGregorianCalendarTime(calendar.get(Calendar.HOUR_OF_DAY),
+                    calendar.get(Calendar.MINUTE), calendar.get(Calendar.SECOND), DatatypeConstants.FIELD_UNDEFINED);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public static String soapMessageToString(SOAPMessage soapMessage) throws Exception {
         Source xmlInput = new DOMSource(soapMessage.getSOAPPart());
         Transformer transformer = TransformerFactory.newInstance().newTransformer();
@@ -100,9 +105,4 @@ public class SoapUtils {
         transformer.transform(xmlInput, stringResult);
         return stringResult.toString();
     }
-
-    private static String escapeAttributeValues(String xmlString) {
-        return null;
-    }
-
 }

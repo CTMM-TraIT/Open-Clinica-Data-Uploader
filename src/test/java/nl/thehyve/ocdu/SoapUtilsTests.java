@@ -1,17 +1,13 @@
 package nl.thehyve.ocdu;
 
-import com.sun.org.apache.xpath.internal.NodeSet;
 import nl.thehyve.ocdu.soap.ResponseHandlers.SoapUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.xpath.XPath;
@@ -22,6 +18,7 @@ import java.io.FileInputStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertEquals;
 
@@ -58,5 +55,27 @@ public class SoapUtilsTests {
                 XPathConstants.NODESET);
         assertThat(unescapedDocument, is(notNullValue()));
         assertEquals(true, crfNodes.getLength() > 0);
+    }
+
+    @Test
+    public void testGetFullXmlDate() throws Exception {
+        String dateString = "01-12-2015";
+        String timeString = "11:30";
+        XMLGregorianCalendar calendar = SoapUtils.getFullXmlDate(dateString);
+        String output = calendar.toXMLFormat();
+        assertThat(output, containsString("2015-12-01"));
+    }
+
+    @Test
+    public void testGetFullXmlTime() throws Exception {
+        String timeString = "11:30";
+        XMLGregorianCalendar calendar = SoapUtils.getFullXmlTime(timeString);
+        String output = calendar.toXMLFormat();
+        assertThat(output, containsString("11:30:00"));
+
+        timeString = "23:18";
+        calendar = SoapUtils.getFullXmlTime(timeString);
+        output = calendar.toXMLFormat();
+        assertThat(output, containsString("23:18:00"));
     }
 }
