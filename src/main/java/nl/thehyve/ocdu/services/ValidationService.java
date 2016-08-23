@@ -105,7 +105,7 @@ public class ValidationService {
         MissingEventError missingEventError = new MissingEventError();
         for (String offendingValue : eventsPresentInClinicalData) {
             String[] partList = StringUtils.split(offendingValue, ClinicalData.KEY_SEPARATOR);
-            String errorMessage = "Subject: " + partList[2] + ", event: " + partList[3];
+            String errorMessage = "Subject: " + partList[1] + ", event: " + partList[2];
             if ((partList.length < 4) && StringUtils.isNotEmpty(partList[4])) {
                 errorMessage += ", repeat number: " + partList[4];
             }
