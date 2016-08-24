@@ -36,6 +36,7 @@ public class UploadSession {
     private boolean uponNotStarted = true;
     private boolean uponDataEntryStarted;
     private boolean uponDataEntryCompleted;
+    private String crfStatusAfterUpload;
 
 
     public String getStudy() {
@@ -121,6 +122,11 @@ public class UploadSession {
         this.owner = owner;
     }
 
+    public String getCrfStatusAfterUpload() {
+        return crfStatusAfterUpload;
+    }
 
-
+    public void setCrfStatusAfterUpload(String crfStatusAfterUpload) {
+        this.crfStatusAfterUpload = crfStatusAfterUpload;
+    }
 }

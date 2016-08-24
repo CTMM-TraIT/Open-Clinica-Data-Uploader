@@ -47,6 +47,7 @@ public class OpenClinicaService {
     ODMService odmService;
 
     SOAPRequestFactory requestFactory = new SOAPRequestFactory();
+
     private static final Logger log = LoggerFactory.getLogger(OpenClinicaService.class);
 
 
@@ -124,15 +125,25 @@ public class OpenClinicaService {
         return metaData;
     }
 
+    /**
+     * Performs the actual upload to OpenClinica of the data in the clinicalDataList.
+     * @param username the user performing the upload
+     * @param passwordHash the user's hashed (SHA1) password
+     * @param url the OpenClinica URL
+     * @param clinicalDataList the list with clinical data
+     * @param metaData the meta data of the study
+     * @param uploadSession the upload session with the relevenat information
+     * @return a list of messages with errors and/or results
+     * @throws Exception in case of an error
+     */
     public Collection<AbstractMessage> uploadODM(String username,
                                                                  String passwordHash,
                                                                  String url,
                                                                  List<ClinicalData> clinicalDataList,
                                                                  MetaData metaData,
-                                                                 UploadSession uploadSession,
-                                                                 String crfStatusAfterUpload) throws Exception {
+                                                                 UploadSession uploadSession) throws Exception {
         log.info("Upload initiated by: " + username + " on: " + url);
-        List<AbstractMessage> resultList = new ArrayList();
+        List<AbstractMessage> resultList = new ArrayList<>();
 
         if (StringUtils.isEmpty(username) ||
                 StringUtils.isEmpty(passwordHash) ||
@@ -149,7 +160,7 @@ public class OpenClinicaService {
         TreeMap<String, List<ClinicalData>> sortedMap = new TreeMap<>(outputMap);
         for (String key : sortedMap.keySet()) {
             List<ClinicalData> outputClinicalData = sortedMap.get(key);
-            String odmString = odmService.generateODM(outputClinicalData, metaData, uploadSession, crfStatusAfterUpload, subjectLabelToOIDMap);
+            String odmString = odmService.generateODM(outputClinicalData, metaData, uploadSession, subjectLabelToOIDMap);
             String uploadResult = uploadODMString(username, passwordHash, url, odmString);
             if (uploadResult != null) {
                 String detailedMessage = "Failed upload for subject " + key + ". Cause: " + uploadResult;
@@ -350,9 +361,7 @@ public class OpenClinicaService {
                 requestFactory.createIsStudySubjectRequest(username, passwordHash, studyLabel, subjectLabel);
 
         SOAPMessage soapResponse = soapConnection.call(message, url + "/ws/studySubject/v1");  // Add SOAP endopint to OCWS URL.
-        String studySubjectOID = IsStudySubjectResponseHandler.parseIsStudySubjectResponse(soapResponse);
-
-        return studySubjectOID;
+        return IsStudySubjectResponseHandler.parseIsStudySubjectResponse(soapResponse);
     }
 
     private void addSiteInformationToMetaData(MetaData metaData, Study study) {

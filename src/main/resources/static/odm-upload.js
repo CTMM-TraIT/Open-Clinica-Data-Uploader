@@ -26,6 +26,10 @@ function update_submission() {
 }
 
 function performODMUpload() {
+    var form = document.getElementById('upload-odm-template-form');
+
+    var dataString = $(form).serialize();
+
     $('#odm-upload-div').remove();
     $('#buttonDiv').hide();
     $('#loading_div').show();
@@ -33,10 +37,8 @@ function performODMUpload() {
     $.ajax({
         url: baseApp + "/odm/upload",
         type: "POST",
-        data: new FormData($("#upload-odm-template-form")[0]),
-        enctype: 'multipart/form-data',
-        processData: false,
-        contentType: false,
+        data: dataString,
+        enctype: 'application/x-www-form-urlencoded',
         success: function (msg) {
             $('#loading_div').remove();
             $('#uploadOptions').remove();

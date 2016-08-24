@@ -70,7 +70,8 @@ public class ODMGenerationTests {
         Map<String, String> subjectLabelToOIDMap = new HashMap<>();
         subjectLabelToOIDMap.put("jan", null);
         String crfStatus = "complete";
-        odmService.generateODM(correctClinicalData, metaData, uploadSession, crfStatus, subjectLabelToOIDMap);
+        uploadSession.setCrfStatusAfterUpload(crfStatus);
+        odmService.generateODM(correctClinicalData, metaData, uploadSession, subjectLabelToOIDMap);
     }
 
     @Test
@@ -82,7 +83,8 @@ public class ODMGenerationTests {
         subjectLabelToOIDMap.put("EV-00001", "SS_EV00001");
         subjectLabelToOIDMap.put("EV-00002", "SS_EV00002");
         String crfStatus = "complete";
-        String result = odmService.generateODM(correctClinicalData, metaData, uploadSession, crfStatus, subjectLabelToOIDMap);
+        uploadSession.setCrfStatusAfterUpload(crfStatus);
+        String result = odmService.generateODM(correctClinicalData, metaData, uploadSession, subjectLabelToOIDMap);
         assertEquals(true, result.contains("c&quot;a&apos;r&lt;o&amp;t&gt;is"));
     }
 
@@ -95,7 +97,8 @@ public class ODMGenerationTests {
         subjectLabelToOIDMap.put("EV-00001", "SS_EV00001");
         subjectLabelToOIDMap.put("EV-00002", "SS_EV00002");
         String crfStatus = "complete";
-        String result = odmService.generateODM(correctClinicalData, metaData, uploadSession, crfStatus, subjectLabelToOIDMap);
+        uploadSession.setCrfStatusAfterUpload(crfStatus);
+        String result = odmService.generateODM(correctClinicalData, metaData, uploadSession, subjectLabelToOIDMap);
         assertEquals(true, result.contains("<ItemGroupData ItemGroupOID=\"IG_MUSTF_OCCLUSION_CHARS\""));
     }
 }

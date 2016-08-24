@@ -15,13 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -49,7 +43,6 @@ public class ODMService {
 
     private static final String STATUS_AFTER_UPLOAD_PARAM = "${STATUS_AFTER_UPLOAD_PARAM}";
 
-    // TODO: add the post-upload CRF status to the template
     /**
      * Template for the subjects section in an ODM-file
      */
@@ -72,13 +65,22 @@ public class ODMService {
 
     private static final Logger log = LoggerFactory.getLogger(ODMService.class);
 
+
+    /**
+     * Generates a string in ODM-format for uploading.
+     * @param clinicalDataList the clinical data
+     * @param metaData the study's metadata
+     * @param uploadSession the upload session
+     * @param subjectLabelToOIDMap a map which mapps the subject's label to the subject's OID.
+     * @return the ODM as string
+     * @throws Exception
+     */
     public String generateODM(List<ClinicalData> clinicalDataList,
                               MetaData metaData,
                               UploadSession uploadSession,
-                              String crfStatusAfterUpload,
                               Map<String, String> subjectLabelToOIDMap) throws Exception {
         StringBuffer odmDocument =
-                buildODM(clinicalDataList, uploadSession, crfStatusAfterUpload, metaData, subjectLabelToOIDMap);
+                buildODM(clinicalDataList, uploadSession, metaData, subjectLabelToOIDMap);
         return odmDocument.toString();
     }
 
@@ -87,7 +89,7 @@ public class ODMService {
         odmData.append("<ODM ");
         odmData.append("ODMVersion=\"1.3\" ");
         odmData.append("FileOID=\"");
-        odmData.append(System.currentTimeMillis() + "");
+        odmData.append(System.currentTimeMillis());
         odmData.append("\" ");
         odmData.append("FileType=\"Snapshot\" ");
         odmData.append("Description=\"Dataset ODM\" ");
@@ -101,9 +103,13 @@ public class ODMService {
         odmData.append(studyOID);
         odmData.append("\" ");
         odmData.append("MetaDataVersionOID=\"v1.0.0\">");
-        odmData.append("<UpsertOn NotStarted=\"" + uploadSession.isUponNotStarted() +
-                        "\" DataEntryStarted=\"" + uploadSession.isUponDataEntryStarted() +
-                        "\" DataEntryComplete=\"" + uploadSession.isUponDataEntryCompleted() + "\"/>");
+        odmData.append("<UpsertOn NotStarted=\"");
+        odmData.append(uploadSession.isUponNotStarted());
+        odmData.append("\" DataEntryStarted=\"");
+        odmData.append(uploadSession.isUponDataEntryStarted());
+        odmData.append("\" DataEntryComplete=\"");
+        odmData.append(uploadSession.isUponDataEntryCompleted());
+        odmData.append("\"/>");
     }
 
     private void addClosingTags(StringBuffer odmData) {
@@ -172,7 +178,6 @@ public class ODMService {
 
     private StringBuffer buildODM(List<ClinicalData> clinicalDataList,
                                   UploadSession uploadSession,
-                                  String crfStatusAfterUpload,
                                   MetaData metaData,
                                   Map<String, String> subjectLabelToOIDMap) throws Exception {
         long startTime = System.currentTimeMillis();
@@ -203,7 +208,7 @@ public class ODMService {
         TreeMap<String, List<ClinicalData>> sortedMap = new TreeMap<>(outputMap);
         for (String key : sortedMap.keySet()) {
             List<ClinicalData> outputClinicalData = sortedMap.get(key);
-            appendSubjectODMSection(odmData, metaData, outputClinicalData, crfStatusAfterUpload, eventNameOIDMap, itemNameOIDMap, subjectLabelToOIDMap);
+            appendSubjectODMSection(odmData, metaData, outputClinicalData, uploadSession.getCrfStatusAfterUpload(), eventNameOIDMap, itemNameOIDMap, subjectLabelToOIDMap);
         }
 
         addClosingTags(odmData);

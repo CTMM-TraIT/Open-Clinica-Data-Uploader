@@ -6,54 +6,60 @@
 </head>
 <body>
 <div th:replace="header">Upload data to OpenClinica</div>
-<div id="odm-upload-container" class="container ocdu-container">
-    <div>
-        <h2>Upload data</h2>
-    </div>
-    <div id="loading_div"><h3>Uploading ...</h3>
-        <div class="loader"></div>
-    </div>
-    <div id="odm-upload-div" class="jumbotron container-fluid" style="padding: 15px; padding-left:25px; padding-right: 25px;">
+<form id="upload-odm-template-form">
+    <div id="odm-upload-container" class="container ocdu-container">
+        <div>
+            <h2>Upload data</h2>
+        </div>
+        <div id="loading_div"><h3>Uploading ...</h3>
+            <div class="loader"></div>
+        </div>
+        <div id="odm-upload-div" class="jumbotron container-fluid"
+             style="padding: 15px; padding-left:25px; padding-right: 25px;">
 
-        <h4>Options</h4>
+            <h4>Options</h4>
 
-        <div>Please select the status after upload and the status of existing CRF's which can be overwritten.</div>
-        <hr/>
-        <div>CRF Status After Upload</div>
-        <div class="radio">
-            <label><input id="statusAfterUpload_1" type="radio" name="statusAfterUpload" value="initial data entry"
-                          checked>Data Entry Started</label>
+            <div>Please select the status after upload and the status of existing CRF's which can be overwritten.</div>
+            <hr/>
+            <div>CRF Status After Upload</div>
+            <div class="radio">
+                <label><input id="statusAfterUpload_1" type="radio" name="CRFStatusAfterUpload"
+                              value="initial data entry"
+                              checked>Data Entry Started</label>
+            </div>
+            <div class="radio">
+                <label><input id="statusAfterUpload_2" type="radio" name="CRFStatusAfterUpload" value="complete">Data
+                    Entry
+                    Complete</label>
+            </div>
+            <hr/>
+            <div>Upload to CRF with status (existing CRF's will be overwritten)</div>
+            <div class="checkbox">
+                <label><input id="upsertUponCRFStatus_1" type="checkbox" name="upsertUponCRFStatus"
+                              value="notStarted" checked>Not started</label>
+            </div>
+            <div class="checkbox">
+                <label><input id="upsertUponCRFStatus_2" type="checkbox" name="upsertUponCRFStatus"
+                              value="dataEntryStarted">Data Entry Started</label>
+            </div>
+            <div class="checkbox">
+                <label><input id="upsertUponCRFStatus_3" type="checkbox" name="upsertUponCRFStatus"
+                              value="dataEntryComplete">Data Entry Complete</label>
+            </div>
         </div>
-        <div class="radio">
-            <label><input id="statusAfterUpload_2" type="radio" name="statusAfterUpload" value="complete">Data Entry
-                Complete</label>
-        </div>
-        <hr/>
-        <div>Upload to CRF with status (existing CRF\'s will be overwritten)</div>
-        <div class="checkbox">
-            <label><input id="overwriteStatus_1" type="checkbox" name="overwriteStatus"
-                          value="overwriteStatus_notStarted" checked>Not started</label>
-        </div>
-        <div class="checkbox">
-            <label><input id="overwriteStatus_2" type="checkbox" name="overwriteStatus"
-                          value="overwriteStatus_initialDataEntry">Data Entry Started</label>
-        </div>
-        <div class="checkbox">
-            <label><input id="overwriteStatus_3" type="checkbox" name="overwriteStatus"
-                          value="overwriteStatus_dataEntryComplete">Data Entry Complete</label>
+        <div id="buttonDiv">
+            <hr/>
+            <button type="button" class="btn btn-primary" id="odm-upload-back-btn" onclick="odmUploadBackBtnHandler()">
+                Back
+            </button>
+            <button type="button" class="btn btn-primary" id="odm-upload-proceed-btn"
+                    onclick="odmUploadNextBtnHandler()">
+                Upload
+            </button>
+            <br/><br/><br/>
         </div>
     </div>
-    <div id="buttonDiv">
-        <hr/>
-        <button type="button" class="btn btn-primary" id="odm-upload-back-btn" onclick="odmUploadBackBtnHandler()">Back
-        </button>
-        <button type="button" class="btn btn-primary" id="odm-upload-proceed-btn" onclick="odmUploadNextBtnHandler()">
-            Upload
-        </button>
-        <br/><br/><br/>
-    </div>
-</div>
-
+</form>
 <script th:src="@{/odm-upload.js}"></script>
 <div th:replace="footer :: footer"></div>
 </body>

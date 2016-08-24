@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpSession;
 import java.util.*;
@@ -56,10 +57,20 @@ public class ODMUploadController {
     ClinicalDataRepository clinicalDataRepository;
 
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
-    public ResponseEntity<Collection<AbstractMessage>> uploadODM(HttpSession session) {
+    public ResponseEntity<Collection<AbstractMessage>> uploadODM(HttpSession session,
+                                                                 @RequestParam("CRFStatusAfterUpload") String crfStatusAfterUploadParam,
+                                                                 @RequestParam(value = "upsertUponCRFStatus", required = false) String[] upsertUponCRFStatusParam) {
         Collection<AbstractMessage> result = new ArrayList<>();
         try {
+            checkInputStatusAfterUpload(crfStatusAfterUploadParam);
+
+
             UploadSession uploadSession = uploadSessionService.getCurrentUploadSession(session);
+            uploadSession.setCrfStatusAfterUpload(crfStatusAfterUploadParam);
+            checkUpsertUponCRFStatus(upsertUponCRFStatusParam, uploadSession);
+
+
+            uploadSessionService.setCurrentUploadSession(session, uploadSession);
 
             OcUser user = ocUserService.getCurrentOcUser(session);
             String userName = user.getUsername();
@@ -94,13 +105,17 @@ public class ODMUploadController {
                     Collection<AbstractMessage> resultEventRegistration =
                             openClinicaService.scheduleEvents(userName, pwdHash, url, metaData, eventListPerSubject, studySubjectWithEventsTypeList);
                     result.addAll(resultEventRegistration);
+                    for (AbstractMessage message : resultEventRegistration) {
+                        if (message.isError()) {
+                            continue;
+                        }
+                    }
                 }
 
-                String crfStatusAfterUpload = "initial data entry";
                 List<ClinicalData> clinicalDataListPerSubject = uploadDataUnit.getClinicalDataList();
                 if (! clinicalDataListPerSubject .isEmpty()) {
                     Collection<AbstractMessage> resultDataUpload =
-                    openClinicaService.uploadODM(userName, pwdHash, url, clinicalDataListPerSubject, metaData, uploadSession, crfStatusAfterUpload);
+                    openClinicaService.uploadODM(userName, pwdHash, url, clinicalDataListPerSubject, metaData, uploadSession);
                     result.addAll(resultDataUpload);
                 }
             }
@@ -110,6 +125,31 @@ public class ODMUploadController {
             ValidationErrorMessage errorMessage = new ValidationErrorMessage(e.getMessage());
             result.add(errorMessage);
             return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private void checkUpsertUponCRFStatus(String[] upsertUponCRFStatusInput, UploadSession uploadSession) {
+        uploadSession.setUponNotStarted(false);
+        uploadSession.setUponDataEntryCompleted(false);
+        uploadSession.setUponDataEntryStarted(false);
+        if (upsertUponCRFStatusInput == null) {
+            return;
+        }
+        List<String> inputList = Arrays.asList(upsertUponCRFStatusInput);
+        for (String inputValue : inputList) {
+            UpsertUponCRFStatus upsertUponCRFStatus = UpsertUponCRFStatus.lookupByValue(inputValue);
+            switch (upsertUponCRFStatus) {
+                case DATA_ENTRY_COMPLETE : { uploadSession.setUponDataEntryCompleted(true); break;}
+                case NOT_STARTED : { uploadSession.setUponNotStarted(true); break;}
+                case DATA_ENTRY_STARTED : { uploadSession.setUponDataEntryStarted(true); break;}
+            }
+        }
+    }
+
+    private void checkInputStatusAfterUpload(String crfStatusAfterUpload) {
+        CRFStatusAfterUpload crFStatusAfterUpload = CRFStatusAfterUpload.lookupByValue(crfStatusAfterUpload);
+        if (crFStatusAfterUpload == null) {
+            throw new IllegalStateException("Illegal value for crf-status after upload: " + crfStatusAfterUpload);
         }
     }
 
