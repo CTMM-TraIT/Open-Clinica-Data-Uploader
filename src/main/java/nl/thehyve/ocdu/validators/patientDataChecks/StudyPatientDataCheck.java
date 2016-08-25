@@ -24,7 +24,7 @@ public class StudyPatientDataCheck implements PatientDataCheck {
 
         ValidationErrorMessage error = null;
         String study = subject.getStudy();
-        String mStudy = metaData.getStudyName();
+        String mStudy = metaData.getProtocolName();
 
         if (StringUtils.isBlank(study)) {
             error = new ValidationErrorMessage(commonMessage + "Study should be provided.");

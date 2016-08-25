@@ -1,5 +1,7 @@
 package nl.thehyve.ocdu.soap.SOAPRequestDecorators;
 
+import org.apache.commons.lang3.StringUtils;
+
 import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPEnvelope;
@@ -17,9 +19,12 @@ public class IsStudySubjectRequestDecorator implements SoapDecorator {
 
     private String studyName;
 
-    public IsStudySubjectRequestDecorator(String subjectLabel, String studyName) {
+    private String siteName;
+
+    public IsStudySubjectRequestDecorator(String subjectLabel, String studyName, String siteName) {
         this.subjectLabel = subjectLabel;
         this.studyName = studyName;
+        this.siteName = siteName;
     }
 
 
@@ -33,6 +38,11 @@ public class IsStudySubjectRequestDecorator implements SoapDecorator {
         studySubjectElement.addChildElement("subject", "beans");
         SOAPElement studyRef = studySubjectElement.addChildElement("studyRef", "beans");
         SOAPElement identifier = studyRef.addChildElement("identifier", "beans");
+        if (!StringUtils.isEmpty(siteName)) {
+            SOAPElement siteRef = studyRef.addChildElement("siteRef", "beans");
+            SOAPElement siteIdentifier = siteRef.addChildElement("identifier", "beans");
+            siteIdentifier.setTextContent(siteName);
+        }
         identifier.setTextContent(studyName);
     }
 }

@@ -119,10 +119,10 @@ public class EventDataOcChecks {
             errors.add(repeatNumberRequired);
         }
 
-        if (StringUtils.isNotBlank(event.getStudy()) && !event.getStudy().equals(metadata.getStudyName())) {
+        if (StringUtils.isNotBlank(event.getStudy()) && !event.getStudy().equals(metadata.getProtocolName())) {
             ValidationErrorMessage noSuchStudy =
-                    new ValidationErrorMessage(event.getSsid() + " Study name in your event registration file does not match study name " +
-                            "in your data file. Expected:" + metadata.getStudyName());
+                    new ValidationErrorMessage(event.getSsid() + " Study identifier in your event registration file does not match study identifier " +
+                            "in your data file. Expected:" + metadata.getProtocolName());
             noSuchStudy.setSubject(subjectID);
             noSuchStudy.addOffendingValue(event.getStudy());
             errors.add(noSuchStudy);

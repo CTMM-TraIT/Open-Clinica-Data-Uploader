@@ -196,7 +196,7 @@ public class DataService {
     }
 
     /**
-     * Returns Study object (holding name, idenfier and OID) given study name
+     * Returns Study object (holding name, identifier and OID) given study name
      * @param studyName
      * @param owner
      * @param ocwsHash
@@ -206,7 +206,7 @@ public class DataService {
     public Study findStudy(String studyName, OcUser owner, String ocwsHash) throws Exception {
         //TODO: implement caching of studies instead of looking it up each time by WS call
         List<Study> studies = openClinicaService.listStudies(owner.getUsername(), ocwsHash, owner.getOcEnvironment());
-        List<Study> matching = studies.stream().filter(study -> study.getName().equals(studyName)).collect(Collectors.toList());
+        List<Study> matching = studies.stream().filter(study -> study.getIdentifier().equals(studyName)).collect(Collectors.toList());
         if (matching.size() == 1) {
             return matching.get(0);
         } else if (matching.size() == 0) {

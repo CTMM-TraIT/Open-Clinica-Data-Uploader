@@ -28,6 +28,4 @@ public class GetStudyMetadataRequestDecorator implements SoapDecorator {
         }
         identifier.setTextContent(study.getIdentifier());
     }
-
-
 }

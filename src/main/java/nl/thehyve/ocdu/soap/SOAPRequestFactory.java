@@ -84,11 +84,11 @@ public class SOAPRequestFactory {
         return soapMessage;
     }
 
-    public SOAPMessage createIsStudySubjectRequest(String userName, String passwordHash, String studyLabel, String subjectLabel) throws Exception {
+    public SOAPMessage createIsStudySubjectRequest(String userName, String passwordHash, String studyLabel, String siteLabel, String subjectLabel) throws Exception {
         SOAPMessage soapMessage = getSoapMessage(userName, passwordHash, STUDY_SUBJECT_NAME_SPACE);
         SOAPEnvelope envelope = soapMessage.getSOAPPart().getEnvelope();
         IsStudySubjectRequestDecorator isStudySubjectRequestDecorator =
-                new IsStudySubjectRequestDecorator(subjectLabel, studyLabel);
+                new IsStudySubjectRequestDecorator(subjectLabel, studyLabel, siteLabel);
 
         isStudySubjectRequestDecorator.decorateBody(envelope);
 

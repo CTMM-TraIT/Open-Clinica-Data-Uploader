@@ -129,7 +129,7 @@ public class EventDataOcChecksTests {
         List<ValidationErrorMessage> errors = checks.validate(event);
 
         assertThat(errors, contains(allOf(
-                hasProperty("message", is(event.getSsid() + " Study name in your event registration file does not match study name "
+                hasProperty("message", is(event.getSsid() + " Study identifier in your event registration file does not match study identifier "
                         + "in your data file. Expected:" + metadata.getStudyName())),
                 hasProperty("offendingValues", contains(studyName))
         )));
@@ -366,6 +366,7 @@ public class EventDataOcChecksTests {
     public void setUp() throws Exception {
         String sid = "subj1";
         String studyName = "Test Study";
+        String studyProtocolName = "Test Study";
         String eventName = "Test Event";
 
         String siteUniqueID = "TestSiteUniqueID";
@@ -384,9 +385,11 @@ public class EventDataOcChecksTests {
         siteDefinition.setUniqueID(siteUniqueID);
         siteDefinitions.add(siteDefinition);
         metadata.setSiteDefinitions(siteDefinitions);
+        metadata.setProtocolName(studyProtocolName);
 
         event = new Event();
-        event.setStudy(studyName);
+        event.setStudy(studyProtocolName);
+        event.setStudyProtocolName(studyProtocolName);
         event.setEventName(eventName);
         event.setSite(siteUniqueID);
         event.setSsid(sid);

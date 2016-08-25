@@ -96,7 +96,8 @@ public class OpenClinicaService {
             String subjectLabel = clinicalData.getSsid();
             if (!ret.containsKey(subjectLabel)) {
                 String studyLabel = clinicalData.getStudy();
-                String subjectOID = getSubjectOID(username, passwordHash, url, studyLabel, subjectLabel);
+                String siteLabel = clinicalData.getSite();
+                String subjectOID = getSubjectOID(username, passwordHash, url, studyLabel, siteLabel, subjectLabel);
                 ret.put(subjectLabel, subjectOID);
             }
         }
@@ -345,20 +346,21 @@ public class OpenClinicaService {
      * @param username     the user name
      * @param passwordHash the SHA1 hashed password
      * @param url          the url to the OpenClinica-WS instance
-     * @param studyLabel   the study label
-     * @param subjectLabel the subject label
+     * @param studyLabel    the study's name
+     * @param siteLabel     the optional site name
+     * @param subjectLabel  the subject's ID
      * @return <code>null</code> if the subjectLabel does not exist in the study.
      * @throws Exception in case of problems
      */
-    private String getSubjectOID(String username, String passwordHash, String url, String studyLabel, String subjectLabel) throws Exception {
-        log.info("Get isStudySubject initiated by: " + username + " on: " + url + " study: " + studyLabel);
+    public String getSubjectOID(String username, String passwordHash, String url, String studyLabel, String siteLabel, String subjectLabel) throws Exception {
+        log.info("Get isStudySubject initiated by: " + username + " on: " + url + " study: " + studyLabel + " site: " + siteLabel);
         if (studyLabel == null || username == null || passwordHash == null || url == null || subjectLabel == null) {
             return null;
         }
         SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
         SOAPConnection soapConnection = soapConnectionFactory.createConnection();
         SOAPMessage message =
-                requestFactory.createIsStudySubjectRequest(username, passwordHash, studyLabel, subjectLabel);
+                requestFactory.createIsStudySubjectRequest(username, passwordHash, studyLabel, siteLabel, subjectLabel);
 
         SOAPMessage soapResponse = soapConnection.call(message, url + "/ws/studySubject/v1");  // Add SOAP endopint to OCWS URL.
         return IsStudySubjectResponseHandler.parseIsStudySubjectResponse(soapResponse);

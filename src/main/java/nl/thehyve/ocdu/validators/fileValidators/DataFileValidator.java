@@ -48,7 +48,7 @@ public class DataFileValidator extends GenericFileValidator {
 
     private void studyExists(Set<String> usedStudies) {
         for (String studyName : usedStudies) {
-            if (!studies.stream().anyMatch(study -> study.getName().equals(studyName))) {
+            if (!studies.stream().anyMatch(study -> study.getIdentifier().equals(studyName))) {
                 FileFormatError error = new FileFormatError("Study: " + studyName + " either does not exist or you have no access to it.");
                 addError(error);
             }
