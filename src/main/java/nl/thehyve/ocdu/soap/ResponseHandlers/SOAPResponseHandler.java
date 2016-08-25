@@ -1,6 +1,8 @@
 package nl.thehyve.ocdu.soap.ResponseHandlers;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -18,6 +20,8 @@ import static nl.thehyve.ocdu.soap.ResponseHandlers.SoapUtils.toDocument;
  */
 public class SOAPResponseHandler extends OCResponseHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(SOAPResponseHandler.class);
+
     /**
      * Checks if an error occurred on the OpenClinica-side and reports it back as the
      * return value
@@ -30,7 +34,7 @@ public class SOAPResponseHandler extends OCResponseHandler {
 
     public static String parseOpenClinicaResponse(SOAPMessage response, String xPathToResponse) throws Exception {
         Document document = toDocument(response);
-        System.out.println("SOAP:----->\n" + SoapUtils.soapMessageToString(response));
+        log.debug("SOAP -->\n" + SoapUtils.soapMessageToString(response));
         String result = isAuthFailure(document);
         if (! StringUtils.isEmpty(result)) {
             throw new AuthenticationCredentialsNotFoundException("Problem calling OpenClinica web-services: " + result);

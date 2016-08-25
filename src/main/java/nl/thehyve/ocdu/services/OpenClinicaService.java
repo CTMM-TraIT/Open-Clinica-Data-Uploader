@@ -210,7 +210,7 @@ public class OpenClinicaService {
         SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
         SOAPConnection soapConnection = soapConnectionFactory.createConnection();
         SOAPMessage soapMessage = requestFactory.createDataUploadRequest(username, passwordHash, odm);
-        System.out.println("-->" + SoapUtils.soapMessageToString(soapMessage));
+        log.debug("SOAP -->\n" + SoapUtils.soapMessageToString(soapMessage));
         SOAPMessage soapResponse = soapConnection.call(soapMessage, url + "/ws/data/v1");  // Add SOAP endopint to OCWS URL.
         String responseError = SOAPResponseHandler.parseOpenClinicaResponse(soapResponse, "//importDataResponse");
         if (responseError != null) {
@@ -293,7 +293,7 @@ public class OpenClinicaService {
 
         for (EventType eventType : eventTypeList) {
             SOAPMessage soapMessage = requestFactory.createScheduleEventRequest(username, passwordHash, eventType);
-            System.out.println("SOAP-->" + SoapUtils.soapMessageToString(soapMessage));
+            log.debug("SOAP -->\n" + SoapUtils.soapMessageToString(soapMessage));
             SOAPMessage soapResponse = soapConnection.call(soapMessage, url + "/ws/event/v1");
             String responseError = SOAPResponseHandler.parseOpenClinicaResponse(soapResponse, "//scheduleResponse");
             String eventName = eventOIDToNameMap.get(eventType.getEventDefinitionOID());
