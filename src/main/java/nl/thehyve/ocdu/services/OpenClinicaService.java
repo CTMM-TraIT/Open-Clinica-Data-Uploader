@@ -244,6 +244,9 @@ public class OpenClinicaService {
         Map<String, String> eventNameOIDMap =
                 metaData.getEventDefinitions().stream().collect(Collectors.toMap(EventDefinition::getName, EventDefinition::getStudyEventOID));
 
+        Map<String, String> eventOIDToNameMap =
+                metaData.getEventDefinitions().stream().collect(Collectors.toMap(EventDefinition::getStudyEventOID, EventDefinition::getName));
+
         Map<String, EventResponseType> eventsRegisteredInOpenClinica =
                 RegisteredEventInformation.createEventKeyMap(studySubjectWithEventsTypeList);
         List<EventType> eventTypeList = new ArrayList<>();
@@ -293,8 +296,9 @@ public class OpenClinicaService {
             System.out.println("SOAP-->" + SoapUtils.soapMessageToString(soapMessage));
             SOAPMessage soapResponse = soapConnection.call(soapMessage, url + "/ws/event/v1");
             String responseError = SOAPResponseHandler.parseOpenClinicaResponse(soapResponse, "//scheduleResponse");
+            String eventName = eventOIDToNameMap.get(eventType.getEventDefinitionOID());
             if (responseError != null) {
-                String detailedMessage = "ScheduleEvent request " + eventType.getEventDefinitionOID() + " failed for subject : "  + eventType.getStudySubjectRef().getLabel() + ". Cause: " + responseError;
+                String detailedMessage = "ScheduleEvent request " + eventName + " failed for subject : "  + eventType.getStudySubjectRef().getLabel() + ". Cause: " + responseError;
                 log.error(detailedMessage);
                 ValidationErrorMessage validationErrorMessage = new ValidationErrorMessage(detailedMessage);
                 validationErrorMessage.setSubject(eventType.getStudySubjectRef().getLabel());
@@ -302,7 +306,7 @@ public class OpenClinicaService {
                 break;
             }
             else {
-                String detailedMessage = "Scheduled event " + eventType.getEventDefinitionOID() + " successfully for subject " + eventType.getStudySubjectRef().getLabel();
+                String detailedMessage = "Scheduled event " + eventName + " successfully for subject " + eventType.getStudySubjectRef().getLabel();
                 SubmissionResult submissionResult = new SubmissionResult(detailedMessage);
                 submissionResult.setSubject(eventType.getStudySubjectRef().getLabel());
                 ret.add(submissionResult);

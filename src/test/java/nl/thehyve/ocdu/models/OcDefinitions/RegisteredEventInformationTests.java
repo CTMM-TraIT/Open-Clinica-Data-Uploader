@@ -55,7 +55,7 @@ public class RegisteredEventInformationTests {
 
     @Test
     public void testCreateEventKeyListFroMClinicalData() {
-        Set<String> eventKeyList = RegisteredEventInformation.createEventKeyListFroMClinicalData(clinicalDataList);
+        Set<String> eventKeyList = RegisteredEventInformation.createEventKeyListFromClinicalData(clinicalDataList);
         assertEquals(true, eventKeyList.contains("EVENTFUL\tEVENTFULSITE\tEVS-00002\tREPEATING_EVENT\t1"));
     }
 

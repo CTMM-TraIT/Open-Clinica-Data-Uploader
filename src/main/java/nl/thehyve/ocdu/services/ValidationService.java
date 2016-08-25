@@ -20,13 +20,11 @@ import nl.thehyve.ocdu.validators.EventDataOcChecks;
 import nl.thehyve.ocdu.validators.PatientDataOcChecks;
 import nl.thehyve.ocdu.validators.fileValidators.DataPreMappingValidator;
 import org.apache.commons.lang3.StringUtils;
-import org.openclinica.ws.beans.EventResponseType;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.util.ListUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -95,7 +93,7 @@ public class ValidationService {
         // public visability for unit-testing
         List<String> eventsPresentInOpenClinica = RegisteredEventInformation.createEventKeyListFromStudySubjectWithEventsTypeList(metaData, subjectWithEventsTypeList);
         List<String> eventsPresentInEventData = RegisteredEventInformation.createEventKeyListFromEventList(eventList);
-        Set<String> eventsPresentInClinicalData = RegisteredEventInformation.createEventKeyListFroMClinicalData(clinicalDataList);
+        Set<String> eventsPresentInClinicalData = RegisteredEventInformation.createEventKeyListFromClinicalData(clinicalDataList);
 
         eventsPresentInClinicalData.removeAll(eventsPresentInEventData);
         eventsPresentInClinicalData.removeAll(eventsPresentInOpenClinica);

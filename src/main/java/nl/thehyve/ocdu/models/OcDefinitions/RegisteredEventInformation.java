@@ -49,7 +49,7 @@ public class RegisteredEventInformation {
         return ret;
     }
 
-    public static Set<String> createEventKeyListFroMClinicalData(List<ClinicalData> clinicalDataList) {
+    public static Set<String> createEventKeyListFromClinicalData(List<ClinicalData> clinicalDataList) {
         Set<String> ret = new HashSet<>();
         for (ClinicalData clinicalData : clinicalDataList) {
             ret.add(clinicalData.createEventKey());
@@ -116,7 +116,7 @@ public class RegisteredEventInformation {
         Collection<Event> alreadyRegistered = new HashSet<>();
         for (StudySubjectWithEventsType studySubjectWithEventsType : studySubjectWithEventsTypeList) {
             List<EventResponseType> regEvents = studySubjectWithEventsType.getEvents().getEvent();
-            String studySubjectID = studySubjectWithEventsType.getSubject().getUniqueIdentifier();
+            String studySubjectID = studySubjectWithEventsType.getLabel();
             for (EventResponseType eventResponseType : regEvents) {
                 String eventOID = eventResponseType.getEventDefinitionOID();
                 String eventName = eventOIDToNameMap.get(eventOID);
