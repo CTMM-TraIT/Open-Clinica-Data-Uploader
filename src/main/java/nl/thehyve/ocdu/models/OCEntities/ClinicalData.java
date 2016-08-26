@@ -387,6 +387,13 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
         return ofenderMsg;
     }
 
+    public void convertValueToISO_8601() {
+        String day = StringUtils.substringBefore(value, "-");
+        String month = StringUtils.substringBetween(value, "-", "-");
+        String year = StringUtils.substringAfterLast(value, "-");
+        value = year + "-" + month + "-" + day;
+    }
+
     public String getOriginalItem() {
         return originalItem;
     }

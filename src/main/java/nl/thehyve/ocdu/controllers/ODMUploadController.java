@@ -1,7 +1,9 @@
 package nl.thehyve.ocdu.controllers;
 
 import nl.thehyve.ocdu.models.OCEntities.*;
+import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
+import nl.thehyve.ocdu.models.OcDefinitions.ResponseType;
 import nl.thehyve.ocdu.models.OcUser;
 import nl.thehyve.ocdu.models.UploadSession;
 import nl.thehyve.ocdu.models.errors.AbstractMessage;
@@ -13,6 +15,7 @@ import nl.thehyve.ocdu.services.DataService;
 import nl.thehyve.ocdu.services.OcUserService;
 import nl.thehyve.ocdu.services.OpenClinicaService;
 import nl.thehyve.ocdu.services.UploadSessionService;
+import nl.thehyve.ocdu.validators.ClinicalDataChecksRunner;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -88,6 +91,8 @@ public class ODMUploadController {
             List<Event> eventList = eventRepository.findBySubmission(uploadSession);
             List<ClinicalData> clinicalDataList = clinicalDataRepository.findBySubmission(uploadSession);
 
+            convertDatesToISO_8601_Format(metaData, clinicalDataList, studySubjectWithEventsTypeList);
+
             Collection<UploadDataUnit> uploadDataUnitList = createUploadDataUnitList(subjects, eventList, clinicalDataList, studySubjectWithEventsTypeList);
 
 
@@ -125,6 +130,17 @@ public class ODMUploadController {
             ValidationErrorMessage errorMessage = new ValidationErrorMessage(e.getMessage());
             result.add(errorMessage);
             return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private void convertDatesToISO_8601_Format(MetaData metaData, List<ClinicalData> clinicalDataList, List<StudySubjectWithEventsType> studySubjectWithEventsTypeList ) {
+        ClinicalDataChecksRunner clinicalDataChecksRunner = new ClinicalDataChecksRunner(metaData, clinicalDataList, studySubjectWithEventsTypeList);
+        Map<ClinicalData, ItemDefinition> clinicalDataItemDefinitionMap = clinicalDataChecksRunner.buildItemDefMap(clinicalDataList, metaData);
+        for (ClinicalData clinicalData : clinicalDataList) {
+            ItemDefinition itemDefinition = clinicalDataItemDefinitionMap.get(clinicalData);
+            if ("date".equals(itemDefinition.getDataType())) {
+                clinicalData.convertValueToISO_8601();
+            }
         }
     }
 

@@ -71,7 +71,7 @@ public class ClinicalDataChecksRunner {
         return subjectWithEventsTypeList;
     }
 
-    private Map<ClinicalData, ItemDefinition> buildItemDefMap(List<ClinicalData> data, MetaData metaData) {
+    public Map<ClinicalData, ItemDefinition> buildItemDefMap(List<ClinicalData> data, MetaData metaData) {
         Map<ClinicalData, ItemDefinition> itemDefMap = new HashMap<>();
         data.forEach(clinicalData -> {
             ItemDefinition itemDefinition = getMatching(clinicalData, metaData);

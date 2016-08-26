@@ -3,16 +3,17 @@ package nl.thehyve.ocdu.soap.SOAPRequestFactories;
 import nl.thehyve.ocdu.models.OCEntities.Study;
 import nl.thehyve.ocdu.models.OCEntities.Subject;
 import nl.thehyve.ocdu.models.OcDefinitions.SiteDefinition;
-import nl.thehyve.ocdu.soap.ResponseHandlers.SoapUtils;
 import nl.thehyve.ocdu.validators.UtilChecks;
 import org.apache.commons.lang3.StringUtils;
-import org.openclinica.ws.beans.*;
+import org.openclinica.ws.beans.GenderType;
+import org.openclinica.ws.beans.StudyRefType;
+import org.openclinica.ws.beans.StudySubjectType;
+import org.openclinica.ws.beans.SubjectType;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-
 import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -20,10 +21,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import static javax.xml.datatype.DatatypeConstants.*;
 import static nl.thehyve.ocdu.soap.SOAPRequestFactories.StudyRefFactory.createStudyRef;
 
 /**
+ * Factory for a StudySubject.
  * Created by piotrzakrzewski on 17/06/16.
  */
 public class StudySubjectFactory {
@@ -127,9 +128,6 @@ public class StudySubjectFactory {
     }
 
     private static boolean isYearOnly(String dateString) {
-        if (dateString.length() == 4) {
-            return true;
-        } else
-            return false;
+        return (dateString.length() == 4);
     }
 }
