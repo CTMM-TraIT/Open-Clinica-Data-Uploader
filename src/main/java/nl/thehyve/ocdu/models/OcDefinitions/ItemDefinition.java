@@ -21,6 +21,7 @@ public class ItemDefinition implements ODMElement {
     private boolean mandatoryInGroup = false;
     private boolean isMultiselect = false;
     private String codeListRef;
+    private ResponseType responseType;
 
     @OneToMany(targetEntity = RangeCheck.class)
     private List<DisplayRule> displayRules = new ArrayList<>();
@@ -50,6 +51,7 @@ public class ItemDefinition implements ODMElement {
         this.codeListRef = prototype.getCodeListRef();
         this.displayRules = prototype.getDisplayRules();
         this.group = prototype.getGroup();
+        this.responseType = prototype.getResponseType();
     }
 
     public List<ItemPresentInForm> getItemPresentInFormList() {
@@ -58,6 +60,14 @@ public class ItemDefinition implements ODMElement {
 
     public void setItemPresentInFormList(List<ItemPresentInForm> itemPresentInFormList) {
         this.itemPresentInFormList = itemPresentInFormList;
+    }
+
+    public ResponseType getResponseType() {
+        return responseType;
+    }
+
+    public void setResponseType(ResponseType responseType) {
+        this.responseType = responseType;
     }
 
     public List<DisplayRule> getDisplayRules() {

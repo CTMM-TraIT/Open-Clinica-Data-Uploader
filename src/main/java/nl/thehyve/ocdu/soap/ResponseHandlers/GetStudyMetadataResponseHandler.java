@@ -385,7 +385,7 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
             for (String crfOID : parseFromOIDs(formOIDs)) {
                 CRFDefinition crfDefinition = crfMap.get(crfOID);
                 List<String> mandatoryUngroupedItems = crfDefinition.getMandatoryUngroupedItems();
-                ItemDefinition ungroupedItem = getItem(item);
+                ItemDefinition ungroupedItem = getItemDefinition(item);
                 if (mandatoryUngroupedItems.contains(oid)) {
                     ungroupedItem.setMandatoryInGroup(true);
                 } else ungroupedItem.setMandatoryInGroup(false);
@@ -524,7 +524,7 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
         List<ItemDefinition> items = new ArrayList<>();
         for (int i = 0; i < itemDefNodes.getLength(); i++) {
             Node item = itemDefNodes.item(i);
-            ItemDefinition itemDef = getItem(item);
+            ItemDefinition itemDef = getItemDefinition(item);
             items.add(itemDef);
         }
         return items;
@@ -616,12 +616,13 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
         return rule;
     }
 
-    private static ItemDefinition getItem(Node item) throws XPathExpressionException {
-        String oid = item.getAttributes().getNamedItem("OID").getTextContent();
-        String name = item.getAttributes().getNamedItem("Name").getTextContent();
-        String dataType = item.getAttributes().getNamedItem("DataType").getTextContent();
-        Node length1 = item.getAttributes().getNamedItem("Length");
-        Node significantDigits = item.getAttributes().getNamedItem("SignificantDigits");
+    private static ItemDefinition getItemDefinition(Node itemDefinitionNode) throws XPathExpressionException {
+        String oid = itemDefinitionNode.getAttributes().getNamedItem("OID").getTextContent();
+        String name = itemDefinitionNode.getAttributes().getNamedItem("Name").getTextContent();
+
+        String dataType = itemDefinitionNode.getAttributes().getNamedItem("DataType").getTextContent();
+        Node length1 = itemDefinitionNode.getAttributes().getNamedItem("Length");
+        Node significantDigits = itemDefinitionNode.getAttributes().getNamedItem("SignificantDigits");
         String length = "20"; // Can be empty, zero means default of 20 (default in OC)
         String significantDigitsText = "4"; // default for OC is 4
         if (length1 != null) {
@@ -630,12 +631,14 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
         if (significantDigits != null) {
             significantDigitsText = significantDigits.getTextContent();
         }
-        List<RangeCheck> rangeChecks = parseRangeChecks(item);
-        boolean isMultiSelect = isMultiSelect(item);
-        String codeListRef = determineCodeListRef(item);
-        List<DisplayRule> displayRules = getDisplayRules(item);
-        List<ItemPresentInForm> itemPresentInFormList = createPresentInCRFList(item);
+        List<RangeCheck> rangeChecks = parseRangeChecks(itemDefinitionNode);
+        boolean isMultiSelect = isMultiSelect(itemDefinitionNode);
+        ResponseType responseType = determineResponseType(itemDefinitionNode);
+        String codeListRef = determineCodeListRef(itemDefinitionNode);
+        List<DisplayRule> displayRules = getDisplayRules(itemDefinitionNode);
+        List<ItemPresentInForm> itemPresentInFormList = createPresentInCRFList(itemDefinitionNode);
         ItemDefinition itemDef = new ItemDefinition();
+        itemDef.setResponseType(responseType);
         itemDef.setOid(oid);
         itemDef.setName(name);
         itemDef.setItemPresentInFormList(itemPresentInFormList);
@@ -657,6 +660,15 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
         }
         if (refMultiSelect != null) {
             return refMultiSelect.getAttributes().getNamedItem("MultiSelectListID").getTextContent();
+        }
+        return null;
+    }
+
+    private static ResponseType determineResponseType(Node itemDefinitionNode) throws XPathExpressionException {
+        Node itemResponseNode = (Node) xpath.evaluate(".//*[local-name()='ItemResponse']", itemDefinitionNode, XPathConstants.NODE);
+        if (itemResponseNode != null) {
+            String textValue = itemResponseNode.getAttributes().getNamedItem("ResponseType").getTextContent();
+            return ResponseType.lookupByDescription(textValue);
         }
         return null;
     }

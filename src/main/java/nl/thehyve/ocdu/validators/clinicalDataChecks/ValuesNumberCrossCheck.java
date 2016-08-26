@@ -4,6 +4,7 @@ import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OcDefinitions.CRFDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
+import nl.thehyve.ocdu.models.OcDefinitions.ResponseType;
 import nl.thehyve.ocdu.models.errors.TooManyValues;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
@@ -38,9 +39,8 @@ public class ValuesNumberCrossCheck implements ClinicalDataCrossCheck {
         if (itemDefinition == null) {
             return false; // Missing item is a different error
         }
-        boolean multipleValuesAllowed = itemDefinition.isMultiselect();
         boolean hasMultipleValues = dataPoint.getValues().size() > 1;
-        if (hasMultipleValues && !multipleValuesAllowed) {
+        if (hasMultipleValues && itemDefinition.getResponseType() == ResponseType.SINGLE_SELECT) {
             return true;
         } else {
             return false;
