@@ -105,16 +105,19 @@ public class ODMUploadController {
                     }
                 }
                 List<Event> eventListPerSubject = uploadDataUnit.getEventList();
-
+                boolean eventErrorOccured = false;
                 if (! eventListPerSubject.isEmpty()) {
                     Collection<AbstractMessage> resultEventRegistration =
                             openClinicaService.scheduleEvents(userName, pwdHash, url, metaData, eventListPerSubject, studySubjectWithEventsTypeList);
                     result.addAll(resultEventRegistration);
                     for (AbstractMessage message : resultEventRegistration) {
                         if (message.isError()) {
-                            continue;
+                            eventErrorOccured = true;
                         }
                     }
+                }
+                if (eventErrorOccured) {
+                    continue;
                 }
 
                 List<ClinicalData> clinicalDataListPerSubject = uploadDataUnit.getClinicalDataList();
@@ -170,9 +173,8 @@ public class ODMUploadController {
     }
 
     private Collection<UploadDataUnit> createUploadDataUnitList(Collection<Subject> subjectList, List<Event> eventList, List<ClinicalData> clinicalDataList, List<StudySubjectWithEventsType> studySubjectWithEventsTypeList) {
-        Map<String, UploadDataUnit> ret = new HashMap<>();
+        Map<String, UploadDataUnit> ret = new TreeMap<>();
         for (Subject subject : subjectList) {
-            String subjectID = subject.getSsid();
             UploadDataUnit uploadDataUnit = new UploadDataUnit(subject, false);
             ret.put(subject.getSsid(), uploadDataUnit);
         }
