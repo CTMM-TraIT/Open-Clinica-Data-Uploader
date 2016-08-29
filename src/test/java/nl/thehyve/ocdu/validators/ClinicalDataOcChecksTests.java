@@ -291,7 +291,8 @@ public class ClinicalDataOcChecksTests {
     public void studyStatusTest() throws Exception {
         ClinicalDataCrossCheck statusCheck = new StudyStatusAvailable();
         MetaData metaData = new MetaData();
-        metaData.setStatus("whatever");
+        metaData.setStatus("pending");
+        metaData.setStudyName("Whatever");
         ValidationErrorMessage correspondingError = statusCheck.getCorrespondingError(null, metaData, null, null, null, null);
         assertThat(correspondingError, is(notNullValue()));
         assertThat(correspondingError, is(instanceOf(StudyStatusError.class)));
