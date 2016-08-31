@@ -1,23 +1,21 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <title>Data-Upload Feedback</title>
-</head>
+<head th:replace="header :: header_scripts ('Data-Upload Feedback')"  />
 <body role="document">
-<div th:replace="header"></div>
+<nav th:replace="header :: header_nav_bar"/>
 <div class="container ocdu-container">
-
     <div>
-        <h3>Feedback of Data Upload</h3>
+        <h2 class="step-title">Feedback of Data Upload</h2>
     </div>
 
     <div id="feedback-tables">
+        <div id="progression-section" hidden><span class="loader"></span><div class="progress-text">Checking data and mapping ...</div></div>
 
     </div>
 
     <hr>
-    <button type="button" class="btn btn-primary" id="data-feedback-back-btn" onclick="backBtnHandler()">Back</button>
-    <button type="button" class="btn btn-primary" id="data-feedback-proceed-btn" onclick="feedbackDataNext()">Next</button>
+    <button type="button" class="btn btn-primary aligned-btn-primary" id="data-feedback-back-btn" onclick="backBtnHandler()">Back</button>
+    <button type="button" class="btn btn-primary aligned-btn-primary" id="data-feedback-proceed-btn" onclick="feedbackDataNext()">Next</button>
     <br>
     <br>
 </div>

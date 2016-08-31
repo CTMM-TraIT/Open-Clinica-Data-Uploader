@@ -19,7 +19,30 @@ var _deleteCurrentSubmission = function() {
     });
 };
 
+function displayError(data) {
+    hideUploadSection(true);
+
+
+    var html_title = '<p>Error occurred:</p>';
+    $('#message-board').append(html_title);
+
+    var info = '<div class="alert alert-danger"><ul>';
+
+    var errDiv = '<li><span>' + data.responseText + '</span></li>';
+    info += errDiv;
+
+    info += '</div></ul>';
+    $("#message-board").append(info);
+
+
+}
+
+
 function uploadFile() {
+
+    hideUploadSection(false);
+    $("#message-board").empty();
+
 
     var isSessionNameDefined = ($('#upload-session-input').val() !== "");
     var isDataSelected = ($('#upload-file-input').val() !== "");
@@ -35,7 +58,6 @@ function uploadFile() {
     }
     if (sessionnames.indexOf(_CURRENT_SESSION_NAME) !== -1) isSessionNameDefined = false;
 
-    $("#message-board").empty();
 
     var mappingFileUpload = function () {
         if (isMappingSelected) {
@@ -99,6 +121,7 @@ function uploadFile() {
                     init_session_config(_CURRENT_SESSION_NAME);
                     window.location.href = baseApp + "/views/mapping";
                 } else {
+                    hideUploadSection(true);
                     var info = '<div class="alert alert-danger"><ul>';
                     fileFormatErrors.forEach(function (error) {
                         var errDiv = '<li><span>' + error.message +' '+ error.offendingValues+'</span></li>';
@@ -113,6 +136,7 @@ function uploadFile() {
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 // Handle upload error
+                hideUploadSection(true);
                 var message = 'Data upload failed. Please check the data format, which should be a plain, tab-delimited file. The size of the file should be less than 10MB. ';
                 var info = '<div id="data-alert" class="alert alert-danger">' + message + '</div>';
                 $("#message-board").append(info);
@@ -125,16 +149,16 @@ function uploadFile() {
     if (isSessionNameDefined && isDataSelected) {
         $.ajax({
             url: baseApp + "/submission/create",
-            type: "post",
+            enctype: 'multipart/form-data',
+            type: "POST",
             data: {name: _CURRENT_SESSION_NAME},
             success: dataFileUpload,
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.log(jqXHR.status + " " + textStatus + " " + errorThrown);
-            }
+            error: displayError
         });
     }
 
     if (!isSessionNameDefined || !isDataSelected) {
+        hideUploadSection(true);
         $("#message-board").empty();
         if (!isSessionNameDefined) {
             var info = '<span id="message-alert" class="alert alert-danger">Pleaes give your new submission a unique name. </span>';
@@ -147,6 +171,24 @@ function uploadFile() {
     }
 
 } //function uploadFile
+
+
+function hideUploadSection(showOrHide) {
+    if (showOrHide === true) {
+        document.getElementById('upload-session-name').style.display = 'inline';
+        document.getElementById('upload-file-name').style.display = 'inline';
+        document.getElementById('data-proceed-btn').style.display = 'inline';
+        document.getElementById('session_container').style.display = 'inline';
+        document.getElementById('progression-section').style.display = 'none';
+    }
+    else {
+        document.getElementById('upload-session-name').style.display = 'none';
+        document.getElementById('upload-file-name').style.display = 'none';
+        document.getElementById('data-proceed-btn').style.display = 'none';
+        document.getElementById('session_container').style.display = 'none';
+        document.getElementById('progression-section').style.display = 'inline';
+    }
+}
 
 function retrieveSessions() {
     $.ajax({
@@ -173,7 +215,7 @@ function handle_session_retrieval_all(retrieved_sessions) {
     _SESSIONS = retrieved_sessions;
     $("#data-proceed-btn").attr("disabled", false);
     var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    $('#old_upload_section').append('<div id="session_container" class="row-fluid"><p id="anchor_old_sessions"></p> </div>');
+    var insertionPoint = document.getElementById("session_container");
     for (var i = 0; i < _SESSIONS.length; i++) {
         var s = _SESSIONS[i];
         var btnid = "s" + (i + 1);
@@ -182,7 +224,7 @@ function handle_session_retrieval_all(retrieved_sessions) {
             '<button type="button" class="btn btn-primary" id="' + btnid + '" session_index=' + i + '>' + s.name + '</button>' +
             '<p><small>saved on: ' + monthNames[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() + ' ' + zeroPad(d.getHours()) + ':' + zeroPad(d.getMinutes()) + ':' + zeroPad(d.getSeconds()) +'</small></p>' +
             '<button type="button" class="btn btn-danger" id="removal_' + btnid + '" session_index=' + i + '>Remove this submission</button></div>';
-        $(sessionHTML).insertAfter("#anchor_old_sessions");
+        insertionPoint.innerHTML += sessionHTML;
         // $('#session_container').append(sessionHTML);
         $('#' + btnid).click(handle_session_retrieval);
         $('#removal_' + btnid).click(handle_session_removal);

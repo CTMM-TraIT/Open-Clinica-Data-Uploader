@@ -3,18 +3,24 @@
  */
 
 var template_str;
-var loading_html;
 var is_template_empty = false;;
 
 $(document).ready(function () {
     _SESSION_CONFIG = JSON.parse(localStorage.getItem("session_config"));
     _CURRENT_SESSION_NAME = localStorage.getItem("current_session_name");
-
-    loading_html = '<div id="loading_div"><div class="loader"></div><hr></div>';
-    $('#subject-registration-div').append(loading_html);
+    makeProgressSectionVisible(true)
     next_btn();
     check_new_patients(true);
 });
+
+function makeProgressSectionVisible(visible) {
+    if (visible === false) {
+        document.getElementById('progression-section').style.display = 'none';
+    }
+    else {
+        document.getElementById('progression-section').style.display = 'inline';
+    }
+}
 
 function check_new_patients(toRegisterSite) {
     $('#template_error').remove();
@@ -24,7 +30,7 @@ function check_new_patients(toRegisterSite) {
         type: "GET",
         data: {registerSite: toRegisterSite},
         success: function (template) {
-            $('#loading_div').remove();
+            makeProgressSectionVisible(false);
             template_str = template;
             if (template.length > 1) {
                 provide_template_download();
@@ -63,8 +69,8 @@ function provide_filled_template_upload() {
 }
 
 function next_btn() {
-    var html = '<button type="button" class="btn btn-primary" id="subject-back-btn">Back</button>&nbsp;' +
-        '<button type="button" class="btn btn-primary" id="subject-next-btn">Next</button>';
+    var html = '<button type="button" class="btn btn-primary aligned-btn-primary" id="subject-back-btn">Back</button>&nbsp;' +
+        '<button type="button" class="btn btn-primary aligned-btn-primary" id="subject-next-btn">Next</button>';
     $('#subject-registration-div').append(html);
     $('#subject-back-btn').click(function () {
         window.location.href = baseApp + "/views/feedback-data";
@@ -75,15 +81,19 @@ function next_btn() {
             upload_subjects();
         }
         else{
-            window.location.href = baseApp + "/views/feedback-subjects";
+            if (_SESSION_CONFIG[_CURRENT_SESSION_NAME]['NEED_TO_VALIDATE_SUBJECTS'] === true) {
+                window.location.href = baseApp + "/views/feedback-subjects";
+            }
+            else {
+                window.location.href = baseApp + "/views/events";
+            }
         }
     });
 
 }
 
 function upload_subjects() {
-    $('#loading_div').remove();
-    $(loading_html).insertAfter('#message-board');
+    makeProgressSectionVisible(true);
     $('#message-board').empty();
     $.ajax({
         url: baseApp + "/upload/subjects",
@@ -101,7 +111,7 @@ function upload_subjects() {
             }
         },
         error: function (jqXHR, textStatus, errorThrown) {
-            $('#loading_div').remove();
+            makeProgressSectionVisible(false);
             console.log(jqXHR.status + " " + textStatus + " " + errorThrown);
             $('#message-board').append('<div class="alert-danger">Subject upload fails. Please check the format of the subject registration file, and upload again.</div>')
         }
@@ -118,12 +128,12 @@ function update_submission() {
         type: "POST",
         data: {step: "feedback-subjects"},
         success: function () {
-            $('#loading_div').remove();
+            makeProgressSectionVisible(false);
             //handle subject file upload
             window.location.href = baseApp + "/views/feedback-subjects";
         },
         error: function (jqXHR, textStatus, errorThrown) {
-            $('#loading_div').remove();
+            makeProgressSectionVisible(false);
             console.log(jqXHR.status + " " + textStatus + " " + errorThrown);
             var html = "<div id='template_error' class='alert alert-warning'>The update of submission has failed.</div>"
             $('#subject-registration-div').append(html);
@@ -139,5 +149,5 @@ function log_errors(errors) {
     });
     info += '</div></ul>';
     $("#message-board").append(info);
-    $('#loading_div').remove();
+    makeProgressSectionVisible(false);
 }

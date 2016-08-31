@@ -4,7 +4,7 @@
 
 
 var displayMessages = function displayMessages(data) {
-    $('#loading_div').remove();
+    $('#progression-section').remove();
     if(data.length == 0) {
         var html = '<div class="alert alert-success"> <strong>Data validation is successful!</strong></div>';
         $('#feedback-tables').append(html);
@@ -45,6 +45,7 @@ function feedbackDataNext() {
             window.location.href = baseApp + "/views/subjects";
         },
         error: function (jqXHR, textStatus, errorThrown) {
+            makeProgressSectionVisible(false);
             console.log(jqXHR.status+" "+textStatus+" "+errorThrown);
             window.location.href = baseApp + "/views/feedback-data";
         }
@@ -53,20 +54,28 @@ function feedbackDataNext() {
     
 }
 
+function makeProgressSectionVisible(visible) {
+    if (visible === false) {
+        document.getElementById('progression-section').style.display = 'none';
+    }
+    else {
+        document.getElementById('progression-section').style.display = 'inline';
+    }
+}
+
 function backBtnHandler() {
     window.location.href = baseApp + "/views/mapping";
 }
 
 //waiting for the ajax call
-var loadinghtml = '<div id="loading_div" class="loader"></div>';
-$('#feedback-tables').append(loadinghtml);
-
+makeProgressSectionVisible(true);
 $.ajax({
     url: baseApp+"/validate/data",
     type: "GET",
     cache: false,
     success: displayMessages,
     error: function (jqXHR, textStatus, errorThrown) {
+        makeProgressSectionVisible(false);
         console.log("Data Validation fails.");
         window.location.href = baseApp + "/views/data";
     }

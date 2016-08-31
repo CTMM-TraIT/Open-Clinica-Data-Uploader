@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <title>Mapping</title>
-</head>
-<body role="document">
-<div th:replace="header"></div>
-<link th:href="@{/css/style-mapping.css}" rel="stylesheet"/>
-
-<div id="control-container" class="container" style="margin-top: 60px;">
+<head th:replace="header :: header_scripts ('Mapping')"  />
+<body role="document" class="withOverflow">
+<nav th:replace="header :: header_nav_bar"/>
+<div id="main-container" class="container ocdu-container">
+    <div>
+        <h2>Data mapping</h2>
+    </div>
+    <div id="progression-section" style="margin-top: 40px">
+        <span class="loader"></span>
+        <div class="progress-text" style="padding-top: 40px;">Retrieving study definition ...</div>
+    </div>
+<div id="control-container" class="container" hidden>
 
     <button id="apply-map-btn" type="button" class="btn btn-success">Apply the mapping file</button>
     <button id="auto-map-btn" type="button" class="btn btn-success">Match item names</button>
@@ -19,7 +23,11 @@
     <span id="empty_space"> </span>
 </div>
 
-<div id="mapping-area" class="container all-col" style="margin-top: 20px;">
+
+
+<div id="mapping-area" class="container all-col" style="margin-top: 20px;" hidden>
+
+
     <div class="container" id="path-area"></div>
 
     <div class="container" style="width: 100%" id="col-heading-area">
@@ -35,10 +43,11 @@
     <div class="right-col" id="right-col-area" ></div>
 
 </div>
-
+</div>
 <script th:src="@{/js/jquery-ui.min.js}"></script>
 <script th:src="@{/data-mapping.js}"></script>
 <div th:replace="footer :: footer"></div>
+
 </body>
 </html>
 

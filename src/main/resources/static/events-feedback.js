@@ -4,7 +4,7 @@
 
 
 var displayMessages = function displayMessages(data) {
-    $('#loading_div').remove();
+    makeProgressSectionVisible(false);
     if(data.length == 0) {
         var html = '<div class="alert alert-success"> <strong>Event validation is successful!</strong></div>';
         $('#feedback-tables').append(html);
@@ -12,7 +12,7 @@ var displayMessages = function displayMessages(data) {
     else {
         $('#feedback-tables').empty();
         var error_word = 'errors'; if(data.length == 1) error_word = 'error';
-        var html_title = '<h3><span> <strong>'+data.length +' '+error_word+' found... </strong> </span></h3>';
+        var html_title = '<p>'+data.length +' '+error_word+' found ...</p>';
         $('#feedback-tables').append(html_title);
 
         for (var i = 0; i < data.length; i++) {
@@ -55,6 +55,17 @@ function backBtnHandler() {
 }
 
 
+function makeProgressSectionVisible(visible) {
+    if (visible === true) {
+        document.getElementById('progression-section').style.display = 'inline';
+        document.getElementById('feedback-tables').style.display = 'none';
+    }
+    else {
+        document.getElementById('progression-section').style.display = 'none';
+        document.getElementById('feedback-tables').style.display = 'inline';
+    }
+}
+
 $(document).ready(function () {
     contains_events_unscheduled = true;
     _SESSION_CONFIG = JSON.parse(localStorage.getItem("session_config"));
@@ -62,9 +73,7 @@ $(document).ready(function () {
 
     if(_SESSION_CONFIG[_CURRENT_SESSION_NAME]['NEED_TO_VALIDATE_EVENTS']) {
         //waiting for the ajax call
-        var loadinghtml = '<div id="loading_div" class="loader"></div>';
-        $('#feedback-tables').append(loadinghtml);
-
+        makeProgressSectionVisible(true);
         $.ajax({
             url: baseApp+"/validate/events",
             type: "GET",

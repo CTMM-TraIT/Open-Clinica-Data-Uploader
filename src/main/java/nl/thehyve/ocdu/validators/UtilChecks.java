@@ -1,5 +1,8 @@
 package nl.thehyve.ocdu.validators;
 
+import nl.thehyve.ocdu.services.InputValidationException;
+import org.apache.commons.lang3.StringUtils;
+
 import java.time.LocalDate;
 import java.time.chrono.IsoChronology;
 import java.time.format.DateTimeFormatter;
@@ -38,6 +41,21 @@ public class UtilChecks {
             .appendOptional(month).appendValue(YEAR, 4).toFormatter()
             .withChronology(IsoChronology.INSTANCE);
 
+
+
+    public static String inputValidation(String input, String allowedCharacters, String inputName, int maxLength) throws InputValidationException {
+        if ((! StringUtils.isEmpty(input)) && (input.length() > maxLength)) {
+            throw new InputValidationException(inputName + " can be maximally " + maxLength + " characters long");
+        }
+        String ret = StringUtils.substring(input, 0, maxLength);
+        if (StringUtils. isEmpty(ret)) {
+            throw new InputValidationException("No input specified for " + inputName);
+        }
+        if (! StringUtils.containsOnly(input, allowedCharacters)) {
+            throw new InputValidationException("Illegal characters in " + inputName +" input. Only letters, numbers, spaces, hyphens or underscores are allowed.");
+        }
+        return ret;
+    }
 
     public static boolean isDate(String input) {
         try {

@@ -2,6 +2,7 @@
  * Created by jacob on 6/30/16. Based on previous work by bo
  */
 var displayMessages = function displayMessages(data) {
+    makeProgressSectionVisible(false);
     $('#loading_div').remove();
     if (data.length == 0) {
         var html = '<div class="alert alert-success"> <strong>No remaining validation errors and problems found!</strong></div>';
@@ -51,11 +52,19 @@ function backBtnHandler() {
     window.location.href = baseApp + "/views/feedback-events";
 }
 
-//waiting for the ajax call
-var loadinghtml = '<div id="loading_div" class="loader"></div>';
-$('#feedback-tables').append(loadinghtml);
+function makeProgressSectionVisible(visible) {
+    if (visible === true) {
+        document.getElementById('progression-section').style.display = 'inline';
+        document.getElementById('feedback-tables').style.display = 'none';
+    }
+    else {
+        document.getElementById('progression-section').style.display = 'none';
+        document.getElementById('feedback-tables').style.display = 'inline';
+    }
+}
 
 
+makeProgressSectionVisible(true);
 $.ajax({
     url: baseApp + "/odm/pre-odm-upload-overview",
     type: "GET",

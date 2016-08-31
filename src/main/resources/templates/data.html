@@ -1,25 +1,24 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <title>Data Upload</title>
-</head>
-<body role="document">
-    <div th:replace="header"></div>
+<head th:replace="header :: header_scripts ('Data Upload')"  />
+<body role="document" class="withOverflow ">
+    <nav th:replace="header :: header_nav_bar"/>
     <div class="container ocdu-container">
 
-        <div id="new_upload_section" class="jumbotron container-fluid">
-            <h2>Upload new data</h2>
+        <div id="new_upload_section" class="jumbotron container-fluid reducedPadding">
+            <h2 class="step-title">Upload new data</h2>
+            <div id="progression-section" hidden><span class="loader"></span><div class="progress-text">Uploading and checking data ...</div></div>
             <form id="upload-session-form" class="form-horizontal">
-                <div class="form-group">
+                <div class="form-group" id="upload-session-name">
                     <label for="upload-session-input">* Give your submission a name:</label>
-                    <input id="upload-session-input" type="text" name="uploadsession" accept="*" />
+                    <input id="upload-session-input" type="text" name="uploadsession"  maxlength="50"/>
                 </div>
             </form>
 
             <form id="upload-file-form" class="form-horizontal">
-                <div class="form-group">
+                <div class="form-group" id="upload-file-name">
                     <label for="upload-file-input">* Select data file:</label>
-                    <input id="upload-file-input" type="file" name="uploadfile" accept="*" />
+                    <input id="upload-file-input" type="file" name="uploadfile" accept="*"/>
                 </div>
             </form>
 
@@ -35,8 +34,12 @@
             <span id="message-board"></span>
         </div>
 
-        <div id="old_upload_section" class="jumbotron container-fluid">
-            <h2>Resume previous uploads</h2>
+        <div id="old_upload_section" class="jumbotron container-fluid reducedPadding">
+            <span id="old_upload_section_togglable">
+                <h2>Resume previous uploads</h2>
+            </span>
+            <div id="session_container" class="row-fluid">
+            </div>
         </div>
 
     </div>

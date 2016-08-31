@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
-<head>
-    <title>Events</title>
-</head>
+<head th:replace="header :: header_scripts ('Events')"  />
 <body>
-<div th:replace="header">...</div>
+<nav th:replace="header :: header_nav_bar"/>
 <div id="event-registration-container" class="container ocdu-container">
-    <div id="event-registration-div" class="jumbotron container-fluid">
+    <div id="event-registration-div" class="jumbotron container-fluid reducedPadding">
+        <h2 class="form-step-title">Events</h2>
+        <div id="progression-section" hidden><span class="loader"></span><div class="progress-text">Checking events ...</div></div>
     </div>
 </div>
 

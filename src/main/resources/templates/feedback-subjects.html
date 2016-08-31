@@ -1,23 +1,21 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-<head>
-    <title>Subject Regirstration Feedback</title>
-</head>
+<head th:replace="header :: header_scripts ('Subject Registration Feedback')"  />
 <body role="document">
-<div th:replace="header"></div>
+<nav th:replace="header :: header_nav_bar"/>
 <div class="container ocdu-container">
-
     <div>
-        <h3>Feedback of Subject Registration</h3>
+        <h2 class="step-title">Feedback of Subject Registration</h2>
+
     </div>
 
     <div id="feedback-tables">
-
+        <div id="progression-section"><span class="loader"></span><div class="progress-text">Checking subjects ...</div></div>
     </div>
 
     <hr>
-    <button type="button" class="btn btn-primary" id="data-feedback-back-btn" onclick="backBtnHandler()">Back</button>
-    <button type="button" class="btn btn-primary" id="data-feedback-proceed-btn" onclick="feedbackNext()">Next</button>
+    <button type="button" class="btn btn-primary aligned-btn-primary" id="data-feedback-back-btn" onclick="backBtnHandler()">Back</button>
+    <button type="button" class="btn btn-primary aligned-btn-primary" id="data-feedback-proceed-btn" onclick="feedbackNext()">Next</button>
     <br><br><br>
 </div>
 

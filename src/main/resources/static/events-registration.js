@@ -7,12 +7,11 @@ var loading_html;
 
 
 $(document).ready(function () {
+    makeProgressSectionVisible(true);
     contains_events_unscheduled = true;
     _SESSION_CONFIG = JSON.parse(localStorage.getItem("session_config"));
     _CURRENT_SESSION_NAME = localStorage.getItem("current_session_name");
 
-    loading_html = '<div id="loading_div"><div class="loader"></div><hr></div>';
-    $('#event-registration-div').append(loading_html);
     next_btn();
     check_new_events();
 });
@@ -25,7 +24,7 @@ function check_new_events() {
         url: baseApp + "/template/get-event-template",
         type: "GET",
         success: function (template) {
-            $('#loading_div').remove();
+            makeProgressSectionVisible(false);
             template_arr = template;
             if (template.length > 1) {
                 provide_event_template_download();
@@ -63,8 +62,8 @@ function provide_event_template_upload() {
 }
 
 function next_btn() {
-    var html = '<button type="button" class="btn btn-primary" id="event-back-btn">Back</button>&nbsp;' +
-        '<button type="button" class="btn btn-primary" id="event-next-btn">Next</button>';
+    var html = '<button type="button" class="btn btn-primary aligned-btn-primary" id="event-back-btn">Back</button>&nbsp;' +
+        '<button type="button" class="btn btn-primary aligned-btn-primary" id="event-next-btn">Next</button>';
     $('#event-registration-div').append(html);
     $('#event-back-btn').click(function () {
         window.location.href = baseApp + "/views/feedback-subjects";
@@ -74,12 +73,25 @@ function next_btn() {
         if(template_arr.length > 1) {
             upload_event_data();
         }
-        else{
-            window.location.href = baseApp + "/views/feedback-events";
+        else {
+            if (_SESSION_CONFIG[_CURRENT_SESSION_NAME]['NEED_TO_VALIDATE_EVENTS'] === true) {
+                window.location.href = baseApp + "/views/feedback-events";
+            }
+            else {
+                window.location.href = baseApp + "/views/pre-odm-upload";
+            }
         }
     });
 }
 
+function makeProgressSectionVisible(visible) {
+    if (visible === false) {
+        document.getElementById('progression-section').style.display = 'none';
+    }
+    else {
+        document.getElementById('progression-section').style.display = 'inline';
+    }
+}
 
 function update_submission() {
     $('#template_error').remove();
@@ -89,11 +101,11 @@ function update_submission() {
         data: {step: "feedback-events"},
         success: function () {
             console.log("Update submission called successfully");
-            $('#loading_div').remove();
+            makeProgressSectionVisible(false);
             window.location.href = baseApp + "/views/feedback-events";
         },
         error: function (jqXHR, textStatus, errorThrown) {
-            $('#loading_div').remove();
+            makeProgressSectionVisible(false);
             console.log(jqXHR.status + " " + textStatus + " " + errorThrown);
             var html = "<div id='template_error' class='alert alert-danger'>The submission update has failed.</div>"
             $('#subject-registration-div').append(html);
@@ -102,7 +114,7 @@ function update_submission() {
 }
 
 function upload_event_data() {
-    $('#loading_div').remove();
+    makeProgressSectionVisible(true);
     $('#template_error').remove();
     $(loading_html).insertAfter('#message-board');
     $('#message-board').empty();
@@ -123,7 +135,7 @@ function upload_event_data() {
             }
         },
         error: function (jqXHR, textStatus, errorThrown) {
-            $('#loading_div').remove();
+            makeProgressSectionVisible(false);
             console.log(jqXHR.status + " " + textStatus + " " + errorThrown);
             var html = "<div id='template_error' class='alert alert-danger'>The upload for event registration has failed.</div>";
             $(html).insertBefore('#event-back-btn');
@@ -133,8 +145,17 @@ function upload_event_data() {
     });
 }
 
+function makeProgressSectionVisible(visible) {
+    if (visible === false) {
+        document.getElementById('progression-section').style.display = 'none';
+    }
+    else {
+        document.getElementById('progression-section').style.display = 'inline';
+    }
+}
+
 function log_errors(errors) {
-    $('#loading_div').remove();
+    makeProgressSectionVisible(false);
     var info = '<div class="alert alert-danger"><ul>';
     errors.forEach(function (error) {
         var errDiv = '<li><span>' + error.message + '</span></li>';

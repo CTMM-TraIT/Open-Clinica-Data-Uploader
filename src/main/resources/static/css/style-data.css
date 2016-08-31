@@ -6,8 +6,17 @@ td {
     text-align: left;
 }
 
+.withOverflow {
+    overflow: auto !important;
+}
+
 .ocdu-container {
-    padding-top: 100px;
+    padding-top: 50px;
+}
+
+.reducedPadding {
+    padding: 10px !important;
+    margin-top: 10px;
 }
 
 .loader {
@@ -17,9 +26,40 @@ td {
     width: 60px;
     height: 60px;
     animation: spin 2s linear infinite;
+
+    float: left;
 }
 
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+
+.progress-text {
+    font-size: 14pt;
+    padding-top: 20px;
+    margin-left: 75px;
+    padding-bottom: 30px;
+}
+
+
+
+.step-title {
+    padding-top: 15px;
+    margin-top: 20px;
+    margin-left: 15px;
+    margin-bottom: 10px;
+    font-size: 18pt;
+}
+
+.form-step-title {
+    margin-top: 20px;
+    margin-left: 15px;
+    margin-bottom: 10px;
+    font-size: 18pt;
+}
+
+.aligned-btn-primary {
+    margin: 20px;
 }

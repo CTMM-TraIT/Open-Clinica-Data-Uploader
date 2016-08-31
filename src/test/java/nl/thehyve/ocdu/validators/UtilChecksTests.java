@@ -1,5 +1,7 @@
 package nl.thehyve.ocdu.validators;
 
+import nl.thehyve.ocdu.controllers.UploadSessionController;
+import nl.thehyve.ocdu.services.InputValidationException;
 import org.junit.Assert;
 
 import org.junit.Test;
@@ -27,6 +29,29 @@ public class UtilChecksTests {
     public void testInstantiation() throws Exception {
         UtilChecks check = new UtilChecks();
         Assert.assertNotNull(check);
+    }
+
+    @Test(expected = InputValidationException.class)
+    public void testInvalidInputValidation() throws Exception {
+        String input = "&" + UploadSessionController.ALLOWED_CHARACTERS_UPLOAD_SESSION_NAME;
+        String sanitizedInput = UtilChecks.inputValidation(input, UploadSessionController.ALLOWED_CHARACTERS_UPLOAD_SESSION_NAME, "Input label", 25);
+    }
+
+    @Test
+    public void testValidInputValidation() throws Exception {
+        String sanitizedInput = UtilChecks.inputValidation(UploadSessionController.ALLOWED_CHARACTERS_UPLOAD_SESSION_NAME, UploadSessionController.ALLOWED_CHARACTERS_UPLOAD_SESSION_NAME, "Input label", UploadSessionController.ALLOWED_CHARACTERS_UPLOAD_SESSION_NAME.length());
+        Assert.assertEquals(sanitizedInput, UploadSessionController.ALLOWED_CHARACTERS_UPLOAD_SESSION_NAME);
+    }
+
+    @Test(expected = InputValidationException.class)
+    public void testEmptyInputValidation() throws Exception {
+        UtilChecks.inputValidation("", UploadSessionController.ALLOWED_CHARACTERS_UPLOAD_SESSION_NAME, "Input label", 5);
+    }
+
+    @Test(expected = InputValidationException.class)
+    public void testLengthInputValidation() throws Exception {
+        String input = "0123456789" + "1";
+        String sanitizedInput = UtilChecks.inputValidation(input, UploadSessionController.ALLOWED_CHARACTERS_UPLOAD_SESSION_NAME, "Input label", 10);
     }
 
     @Test

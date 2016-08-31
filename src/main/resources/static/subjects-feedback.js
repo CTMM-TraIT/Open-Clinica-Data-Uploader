@@ -3,7 +3,7 @@
  */
 
 var displayMessages = function displayMessages(data) {
-    $('#loading_div').remove();
+    makeProgressSectionVisible(false);
     if (data.length == 0) {
         var html = '<div class="alert alert-success"> <strong>Subject validation is successful!</strong></div>';
         $('#feedback-tables').append(html);
@@ -35,6 +35,7 @@ var displayMessages = function displayMessages(data) {
 };
 
 function feedbackNext() {
+    makeProgressSectionVisible(false);
     $.ajax({
         url: baseApp + "/submission/update",
         type: "POST",
@@ -57,6 +58,14 @@ function backBtnHandler() {
     window.location.href = baseApp + "/views/subjects";
 }
 
+function makeProgressSectionVisible(visible) {
+    if (visible === false) {
+        document.getElementById('progression-section').style.display = 'none';
+    }
+    else {
+        document.getElementById('progression-section').style.display = 'inline';
+    }
+}
 
 $(document).ready(function () {
     _SESSION_CONFIG = JSON.parse(localStorage.getItem("session_config"));
@@ -64,8 +73,7 @@ $(document).ready(function () {
 
     if (_SESSION_CONFIG[_CURRENT_SESSION_NAME]['NEED_TO_VALIDATE_SUBJECTS']) {
         //waiting for the ajax call
-        var loadinghtml = '<div id="loading_div" class="loader"></div>';
-        $('#feedback-tables').append(loadinghtml);
+        makeProgressSectionVisible(true);
         
         $.ajax({
             url: baseApp + "/validate/patients",
@@ -73,7 +81,7 @@ $(document).ready(function () {
             success: displayMessages,
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log(jqXHR.status + " " + textStatus + " " + errorThrown);
-                $('#loading_div').remove();
+                makeProgressSectionVisible(false);
                 var html = '<div class="alert alert-danger">Subject validation has failed.</div>';
                 $(html).insertBefore('#data-feedback-back-btn');
             }

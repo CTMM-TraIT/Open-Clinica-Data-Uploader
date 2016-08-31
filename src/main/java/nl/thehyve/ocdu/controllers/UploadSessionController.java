@@ -6,6 +6,7 @@ import nl.thehyve.ocdu.models.UploadSession;
 import nl.thehyve.ocdu.repositories.ClinicalDataRepository;
 import nl.thehyve.ocdu.repositories.UploadSessionRepository;
 import nl.thehyve.ocdu.services.*;
+import nl.thehyve.ocdu.validators.UtilChecks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,26 @@ import static org.springframework.http.HttpStatus.OK;
 @RequestMapping("/submission")
 public class UploadSessionController {
 
+
+    private static final String ALPHABETH_UPPERCASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private static final String ALPHABETH_LOWERCASE = ALPHABETH_UPPERCASE.toLowerCase();
+    private static final String NUMBERS = "0123456789";
+    private static final String EXTRA_CHARACTERS = " _-";
     private static final Logger log = LoggerFactory.getLogger(UploadSessionController.class);
+
+    public static final String ALLOWED_CHARACTERS_UPLOAD_SESSION_NAME = ALPHABETH_UPPERCASE + ALPHABETH_LOWERCASE + NUMBERS + EXTRA_CHARACTERS;
+
+    @Autowired
+    DataService dataService;
+
+    @Autowired
+    OcUserService ocUserService;
+
+    @Autowired
+    UploadSessionRepository uploadSessionRepository;
+
+    @Autowired
+    UploadSessionService uploadSessionService;
 
     @RequestMapping(value = "/username", method = RequestMethod.GET)
     public String username() {
@@ -152,19 +172,6 @@ public class UploadSessionController {
         }
     }
 
-
-    @Autowired
-    DataService dataService;
-
-    @Autowired
-    OcUserService ocUserService;
-
-    @Autowired
-    UploadSessionRepository uploadSessionRepository;
-
-    @Autowired
-    UploadSessionService uploadSessionService;
-
     @RequestMapping(value = "/all", method = RequestMethod.GET)
     public ResponseEntity<List<UploadSession>> unfinishedSessions(HttpSession session) {
         try {
@@ -182,14 +189,19 @@ public class UploadSessionController {
     public ResponseEntity<?> createUploadSession(@RequestParam(value = "name", defaultValue = "newSession") String name,
                                                  HttpSession session) {
         try {
+            String sanitizedName = UtilChecks.inputValidation(name, ALLOWED_CHARACTERS_UPLOAD_SESSION_NAME, "submission name", 50);
             OcUser usr = ocUserService.getCurrentOcUser(session);
-            UploadSession uploadSession = new UploadSession(name, UploadSession.Step.MAPPING, new Date(), usr);//TODO: Add remaining steps
+            UploadSession uploadSession = new UploadSession(sanitizedName, UploadSession.Step.MAPPING, new Date(), usr);//TODO: Add remaining steps
             uploadSessionRepository.save(uploadSession);
             uploadSessionService.setCurrentUploadSession(session, uploadSession);
             return new ResponseEntity<>(uploadSession, OK);
         } catch (UploadSessionNotFoundException ex) {
             System.out.println(ex);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+        } catch (InputValidationException ive) {
+            log.info("Input validation problem: " + name);
+            return new ResponseEntity<>(ive.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -247,5 +259,4 @@ public class UploadSessionController {
         }
 
     }
-
 }
