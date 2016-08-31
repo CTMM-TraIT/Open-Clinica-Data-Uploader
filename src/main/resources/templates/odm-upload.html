@@ -1,15 +1,13 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
-<head>
-    <title>Upload data to OpenClinica</title>
-</head>
+<head th:replace="header :: header_scripts ('Upload data to OpenClinica')"  />
 <body>
-<div th:replace="header">Upload data to OpenClinica</div>
+<nav th:replace="header :: header_nav_bar"/>
 <form id="upload-odm-template-form">
     <div id="odm-upload-container" class="container ocdu-container">
         <div>
-            <h2>Upload data</h2>
+            <h2 class="step-title">Upload data</h2>
         </div>
         <div id="loading_div"><h3>Uploading ...</h3>
             <div class="loader"></div>
