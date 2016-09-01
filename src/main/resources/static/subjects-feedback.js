@@ -50,8 +50,6 @@ function feedbackNext() {
             $(html).insertBefore('#data-feedback-back-btn');
         }
     });
-
-    window.location.href = baseApp + "/views/events";
 }
 
 function backBtnHandler() {

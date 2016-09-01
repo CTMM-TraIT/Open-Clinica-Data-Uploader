@@ -5,8 +5,17 @@
 
 
 $(document).ready(function () {
-    $('#loading_div').hide();
+    makeProgressSectionVisible(false);
 });
+
+function makeProgressSectionVisible(visible) {
+    if (visible === false) {
+        document.getElementById('progression-section').style.display = 'none';
+    }
+    else {
+        document.getElementById('progression-section').style.display = 'inline';
+    }
+}
 
 function update_submission() {
     $.ajax({
@@ -14,7 +23,7 @@ function update_submission() {
         type: "POST",
         data: {step: "final"},
         success: function () {
-            $('#loading_div').remove();
+            makeProgressSectionVisible(false);
             window.location.href = baseApp + "/views/final";
         },
         error: function (jqXHR, textStatus, errorThrown) {
@@ -32,7 +41,7 @@ function performODMUpload() {
 
     $('#odm-upload-div').remove();
     $('#buttonDiv').hide();
-    $('#loading_div').show();
+    makeProgressSectionVisible(true);
     $('#odm-upload-proceed-btn').hide();
     $.ajax({
         url: baseApp + "/odm/upload",
@@ -40,7 +49,7 @@ function performODMUpload() {
         data: dataString,
         enctype: 'application/x-www-form-urlencoded',
         success: function (msg) {
-            $('#loading_div').remove();
+            makeProgressSectionVisible(false);
             $('#uploadOptions').remove();
             $('#buttonDiv').show();
             if (msg.length > 0) {
@@ -74,7 +83,7 @@ function performODMUpload() {
             $('#odm-upload-proceed-btn').remove();
         },
         error: function (jqXHR, textStatus, errorThrown) {
-            $('#loading_div').remove();
+            makeProgressSectionVisible(false);
             console.log(jqXHR.status + " " + textStatus + " " + errorThrown);
             var html = '<div class="alert alert-danger">ODM Upload failed:' + textStatus + ' </div>';
             $(html).insertBefore('#odm-upload-back-btn');

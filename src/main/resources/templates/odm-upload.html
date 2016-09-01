@@ -9,11 +9,8 @@
         <div>
             <h2 class="step-title">Upload data</h2>
         </div>
-        <div id="loading_div"><h3>Uploading ...</h3>
-            <div class="loader"></div>
-        </div>
-        <div id="odm-upload-div" class="jumbotron container-fluid"
-             style="padding: 15px; padding-left:25px; padding-right: 25px;">
+        <div id="progression-section"><span class="loader"></span><div class="progress-text">Uploading data to OpenClinica ...</div></div>
+        <div id="odm-upload-div" class="jumbotron container-fluid">
 
             <h4>Options</h4>
 
@@ -46,11 +43,10 @@
             </div>
         </div>
         <div id="buttonDiv">
-            <hr/>
-            <button type="button" class="btn btn-primary" id="odm-upload-back-btn" onclick="odmUploadBackBtnHandler()">
+            <button type="button" class="btn btn-primary aligned-btn-primary" id="odm-upload-back-btn" onclick="odmUploadBackBtnHandler()">
                 Back
             </button>
-            <button type="button" class="btn btn-primary" id="odm-upload-proceed-btn"
+            <button type="button" class="btn btn-primary aligned-btn-primary" id="odm-upload-proceed-btn"
                     onclick="odmUploadNextBtnHandler()">
                 Upload
             </button>
