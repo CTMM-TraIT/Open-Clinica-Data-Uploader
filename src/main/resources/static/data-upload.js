@@ -220,14 +220,12 @@ function handle_session_retrieval_all(retrieved_sessions) {
         var s = _SESSIONS[i];
         var btnid = "s" + (i + 1);
         var d = new Date(s.savedDate);
-        var sessionHTML = '<div class="well" id="session_well_' + i + '">' +
-            '<button type="button" class="btn btn-primary" id="' + btnid + '" session_index=' + i + '>' + s.name + '</button>' +
+        var sessionHTML = '<div class="well" id="session_well_' + s.id + '">' +
+            '<button type="button" onclick="handle_session_retrieval(' + s.id + ')"  class="btn btn-primary" id="' + btnid + '" session_index=' + i + '>' + s.name + '</button>' +
             '<p><small>saved on: ' + monthNames[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() + ' ' + zeroPad(d.getHours()) + ':' + zeroPad(d.getMinutes()) + ':' + zeroPad(d.getSeconds()) +'</small></p>' +
-            '<button type="button" class="btn btn-danger" id="removal_' + btnid + '" session_index=' + i + '>Remove this submission</button></div>';
+            '<button type="button" onclick="handle_session_removal(' + s.id + ')" class="btn btn-danger" id="removal_' + btnid + '" session_index=' + i + '>Remove this submission</button></div>';
         insertionPoint.innerHTML += sessionHTML;
         // $('#session_container').append(sessionHTML);
-        $('#' + btnid).click(handle_session_retrieval);
-        $('#removal_' + btnid).click(handle_session_removal);
     }//for
 
     //init session_config
@@ -236,16 +234,25 @@ function handle_session_retrieval_all(retrieved_sessions) {
     });
 }//function handle_session_retrieval_all
 
-function handle_session_retrieval() {
-    var ind = $(this).attr('session_index');
-    var session = _SESSIONS[ind];
-    var sid = session.id;
+function findSessionByID(sessionID) {
+    for (var i = 0; i < _SESSIONS.length; i++) {
+        var session = _SESSIONS[i];
+        if (sessionID == session.id) {
+            return session;
+        }
+    }
+    console.log("ERROR: unable to retrieve session with ID: " + sessionID);
+    return null;
+}
+
+function handle_session_retrieval(sessionID) {
+    var session = findSessionByID(sessionID);
     _CURRENT_SESSION_NAME = session.name;
     //set the current session
     $.ajax({
         url: baseApp + "/submission/select",
         type: "get",
-        data: {sessionId: sid},
+        data: {sessionId: sessionID},
         success: function (data) {
             var page;
             //direct user to the selected session
@@ -288,17 +295,15 @@ function handle_session_retrieval() {
     });
 }//function handle_session_retrieval
 
-function handle_session_removal() {
+function handle_session_removal(sessionID) {
     var ind = $(this).attr('session_index');
-    var session = _SESSIONS[ind];
-    var sid = session.id;
     $.ajax({
         url: baseApp + "/submission/deleteSession",
-        type: "post",
-        data: {id: sid},
+        type: "POST",
+        data: {id: sessionID},
         success: function (data) {
-            console.log('deleted session ' + sid);
-            $('#session_well_' + ind).remove();
+            console.log('deleted session ' + sessionID);
+            document.getElementById('session_well_' + sessionID).style.display = 'none';
         },
         error: function (jqXHR, textStatus, errorThrown) {
             console.log(jqXHR.status + " " + textStatus + " " + errorThrown);
