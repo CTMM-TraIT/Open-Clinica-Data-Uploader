@@ -303,6 +303,7 @@ function handle_session_removal(sessionID) {
         data: {id: sessionID},
         success: function (data) {
             console.log('deleted session ' + sessionID);
+            _SESSIONS.splice(ind, 1);
             document.getElementById('session_well_' + sessionID).style.display = 'none';
         },
         error: function (jqXHR, textStatus, errorThrown) {
