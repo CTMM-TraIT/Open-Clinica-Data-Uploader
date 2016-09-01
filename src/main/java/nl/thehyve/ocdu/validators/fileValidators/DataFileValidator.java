@@ -49,7 +49,7 @@ public class DataFileValidator extends GenericFileValidator {
     private void studyExists(Set<String> usedStudies) {
         for (String studyName : usedStudies) {
             if (!studies.stream().anyMatch(study -> study.getIdentifier().equals(studyName))) {
-                FileFormatError error = new FileFormatError("Study: " + studyName + " either does not exist or you have no access to it.");
+                FileFormatError error = new FileFormatError("Study \"" + studyName + "\" either does not exist in OpenClinica or you do not have access to it.");
                 addError(error);
             }
         }
@@ -57,7 +57,7 @@ public class DataFileValidator extends GenericFileValidator {
 
     private void onlyOneStudy(Set<String> usedStudies) {
         if (usedStudies.size() != 1) {
-            FileFormatError error = new FileFormatError("Data file must contain one and only one study");
+            FileFormatError error = new FileFormatError("Data file must contain one and only one study.");
             addError(error);
         }
     }
@@ -81,7 +81,7 @@ public class DataFileValidator extends GenericFileValidator {
 
     private void onlyOneCRF(Set<String> usedCrfs) {
         if (usedCrfs.size() != 1) {
-            FileFormatError error = new FileFormatError("Data file must contain one and only one CRF and CRF version");
+            FileFormatError error = new FileFormatError("Data file must contain one and only one CRF and CRF version.");
             addError(error);
         }
     }
