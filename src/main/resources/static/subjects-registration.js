@@ -54,7 +54,7 @@ function check_new_patients(toRegisterSite) {
 
 
 function provide_template_download() {
-    var info = '<h4>&#9755; Unregistered subjects are found in the dataset. These subjects should be registered with a "subject registration template", which can be downloaded<button id="download-subject-template-btn" class="btn btn-link btn-lg text-left" style="text-align: left">here</button></h4><div id="template-download-anchor"></div><hr>';
+    var info = '<h4>&#9755; One or more subjects in the data file are not yet present in OpenClinica. These subjects should be registered with a "subject registration template", which can be downloaded<button id="download-subject-template-btn" class="btn btn-link btn-lg text-left" style="text-align: left"> here</button></h4><div id="template-download-anchor"></div><hr>';
     $(info).insertBefore('#subject-back-btn');
 
     $('#download-subject-template-btn').click(function () {
