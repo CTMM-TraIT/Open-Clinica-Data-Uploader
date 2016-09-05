@@ -79,9 +79,9 @@ public class SiteSubjectMatchCrossCheckTests {
         ValidationErrorMessage validationErrorMessage =
                 siteSubjectMatchCrossCheck.getCorrespondingError(clinicalDataList, null, null, studySubjectWithEventsTypeList, null, null);
 
-        Assert.assertEquals("One or more existing subjects have a mismatching site specified in your data file", validationErrorMessage.getMessage());
+        Assert.assertEquals("One or more existing subjects have a mismatching site specified in your data file. Offending values: ", validationErrorMessage.getMessage());
         Assert.assertEquals(1, validationErrorMessage.getOffendingValues().size());
-        Assert.assertEquals("[Subject_0001]", validationErrorMessage.getOffendingValues().toString());
+        Assert.assertEquals("[Subject <i>Subject_0001</i>, Line number <i>1</i>, ]", validationErrorMessage.getOffendingValues().toString());
     }
 
     @Before

@@ -7,6 +7,6 @@ package nl.thehyve.ocdu.models.errors;
 public class SubjectSiteMismatch extends ValidationErrorMessage {
 
     public SubjectSiteMismatch() {
-        super("One or more existing subjects have a mismatching site specified in your data file");
+        super("One or more existing subjects have a mismatching site specified in your data file. Offending values: ");
     }
 }

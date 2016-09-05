@@ -10,7 +10,7 @@
             <h2 class="step-title">Upload data</h2>
         </div>
         <div id="progression-section"><span class="loader"></span><div class="progress-text">Uploading data to OpenClinica ...</div></div>
-        <div id="odm-upload-div" class="jumbotron container-fluid">
+        <div id="odm-upload-div" class="jumbotron container-fluid reducedPadding">
 
             <h4>Options</h4>
 
@@ -28,18 +28,18 @@
                     Complete</label>
             </div>
             <hr/>
-            <div>Upload to CRF with status (existing CRF's will be overwritten)</div>
+            <div>Upload if CRF has status in OpenClinica</div>
             <div class="checkbox">
                 <label><input id="upsertUponCRFStatus_1" type="checkbox" name="upsertUponCRFStatus"
                               value="notStarted" checked>Not started</label>
             </div>
             <div class="checkbox">
                 <label><input id="upsertUponCRFStatus_2" type="checkbox" name="upsertUponCRFStatus"
-                              value="dataEntryStarted">Data Entry Started</label>
+                              value="dataEntryStarted">Data Entry Started (existing CRF data will be overwritten)</label>
             </div>
             <div class="checkbox">
                 <label><input id="upsertUponCRFStatus_3" type="checkbox" name="upsertUponCRFStatus"
-                              value="dataEntryComplete">Data Entry Complete</label>
+                              value="dataEntryComplete">Data Entry Complete (existing CRF data will be overwritten)</label>
             </div>
         </div>
         <div id="buttonDiv">

@@ -39,7 +39,8 @@ public class SiteSubjectMatchCrossCheck implements ClinicalDataCrossCheck {
                     new SubjectSiteMismatch();
             List<String> mismatchingSubjectSiteCombinationList = new ArrayList<>();
             violators.stream().forEach(clinicalData ->
-            { String subjectID = clinicalData.getSsid();
+            { String subjectID = "Subject " + ClinicalData.CD_SEP_PREFIX + clinicalData.getSsid() + ClinicalData.CD_SEP_POSTEFIX +
+                                   "Line number " + ClinicalData.CD_SEP_PREFIX + clinicalData.getLineNumber() + ClinicalData.CD_SEP_POSTEFIX;
                 if(!mismatchingSubjectSiteCombinationList.contains(subjectID)) mismatchingSubjectSiteCombinationList.add(subjectID);
             });
             error.addAllOffendingValues(mismatchingSubjectSiteCombinationList);

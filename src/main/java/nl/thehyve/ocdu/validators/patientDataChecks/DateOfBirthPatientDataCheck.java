@@ -83,7 +83,7 @@ public class DateOfBirthPatientDataCheck implements PatientDataCheck {
             }
             return null;
         } catch (ParseException e) {
-            return "Birth date format is invalid or the date does not exit. The date format should be dd-mm-yyyy. For example, 23-10-2012.";
+            return "Birth date format is invalid or the date does not exist. The date format should be dd-mm-yyyy. For example, 23-10-2012.";
         }
     }
 }
