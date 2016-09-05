@@ -37,7 +37,7 @@ function check_new_patients(toRegisterSite) {
                 provide_filled_template_upload();
             }
             else {
-                var html = "<div id='template_error' class='alert alert-success'><strong>All subjects in the data file have been registered in OpenClinica. Click Next to proceed.</strong></div>";
+                var html = "<div id='template_error' class='alert alert-success'><strong>All subjects in the data file are already registered in OpenClinica; validation is not required. Click Next to proceed.</strong></div>";
                 $(html).insertBefore('#subject-back-btn');
                 is_template_empty = true;
                 _SESSION_CONFIG[_CURRENT_SESSION_NAME]['NEED_TO_VALIDATE_SUBJECTS'] = false;
