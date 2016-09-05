@@ -37,7 +37,7 @@ public class SitesExistCrossCheck implements ClinicalDataCrossCheck {
                     new SiteDoesNotExist();
             List<String> nonExistentSiteNames = new ArrayList<>();
             violators.stream().forEach(clinicalData ->
-            { String siteName = clinicalData.getSite();
+            { String siteName = ClinicalData.CD_SEP_PREFIX + clinicalData.getSite() + ClinicalData.CD_SEP_POSTEFIX + " in line " + clinicalData.getLineNumber() + " of subject: " + ClinicalData.CD_SEP_PREFIX + clinicalData.getSsid() + ClinicalData.CD_SEP_POSTEFIX;
                 if(!nonExistentSiteNames.contains(siteName)) nonExistentSiteNames.add(siteName);
             });
             error.addAllOffendingValues(nonExistentSiteNames);

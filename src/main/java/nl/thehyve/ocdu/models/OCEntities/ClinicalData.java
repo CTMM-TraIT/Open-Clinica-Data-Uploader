@@ -229,6 +229,13 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
         this.studyProtocolName = studyProtocolName;
     }
 
+    public long getLineNumber() {
+        return lineNumber;
+    }
+
+    public void setLineNumber(long lineNumber) {
+        this.lineNumber = lineNumber;
+    }
 
     @Override
     public String toString() {

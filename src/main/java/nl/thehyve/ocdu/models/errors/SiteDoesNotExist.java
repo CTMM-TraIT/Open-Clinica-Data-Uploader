@@ -7,6 +7,6 @@ package nl.thehyve.ocdu.models.errors;
 public class SiteDoesNotExist extends ValidationErrorMessage {
 
     public SiteDoesNotExist() {
-        super("One or more of sites you used in your data file does not exist, use the site's Unique Protocol ID:");
+        super("One or more of sites you used in your data file does not exist; use the site's Unique Protocol ID. Invalid sites are: ");
     }
 }
