@@ -25,7 +25,7 @@ public class ValuesNumberCrossCheck implements ClinicalDataCrossCheck {
         if (violators.size() > 0) {
             TooManyValues error = new TooManyValues();
             violators.forEach(clinicalData -> {
-                String msg = clinicalData.toOffenderString() + " number of values (separated by comma): " +
+                String msg = clinicalData.toOffenderString() + " Number of values (separated by comma): " +
                         clinicalData.getValues().size();
                 error.addOffendingValue(msg);
             });

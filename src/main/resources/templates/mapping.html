@@ -4,12 +4,10 @@
 <body role="document" class="withOverflow">
 <nav th:replace="header :: header_nav_bar"/>
 <div id="main-container" class="container ocdu-container">
-    <div>
-        <h2 class="step-title">Data mapping</h2>
-    </div>
-    <div id="progression-section" style="margin-top: 40px">
+    <h2 class="step-title">Data mapping</h2>
+    <div id="progression-section">
         <span class="loader"></span>
-        <div class="progress-text" style="padding-top: 40px;">Retrieving study definition ...</div>
+        <div class="progress-text">Retrieving study definition ...</div>
     </div>
 <div id="control-container" class="container" hidden>
 
@@ -17,7 +15,7 @@
     <button id="auto-map-btn" type="button" class="btn btn-success">Match item names</button>
     <button id="clear-map-btn" type="button" class="btn btn-success">Clear mapping</button>
     <button id="export-map-btn" type="button" class="btn btn-success">Export mapping</button>
-    <span role="separator" class="divider"> . </span>
+    </br>
     <button id="map-back-btn" type="button" class="btn btn-primary">Back</button>
     <button id="map-proceed-btn" type="button" class="btn btn-primary">Next</button>
     <span id="empty_space"> </span>
@@ -25,7 +23,7 @@
 
 
 
-<div id="mapping-area" class="container all-col" style="margin-top: 20px;" hidden>
+<div id="mapping-area" class="container all-col" hidden>
 
 
     <div class="container" id="path-area"></div>

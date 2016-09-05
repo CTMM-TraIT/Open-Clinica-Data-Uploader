@@ -389,9 +389,9 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
         if (groupRepeat != null) {
             groupRepeatPart = " item group repeat " + groupRepeat;
         } else {
-            groupRepeatPart = " non-repeating group ";
+            groupRepeatPart = " non-repeating group";
         }
-        String offenderMsg = "Line number: [ " +  + lineNumber + " ], "
+        String offenderMsg = "Line number [" +  + lineNumber + "]. "
                 + "Subject " + CD_SEP_PREFIX + ssid + CD_SEP_POSTEFIX
                 + " item " + CD_SEP_PREFIX + item + CD_SEP_POSTEFIX
                 + CD_SEP_PREFIX  + groupRepeatPart + CD_SEP_POSTEFIX

@@ -25,7 +25,7 @@ public class ItemLengthCrossCheck implements ClinicalDataCrossCheck {
             String value = clinicalData.getValue();
             if (lengthMap.get(clinicalData) != null && value.length() > lengthMap.get(clinicalData)) {
                 if (lengthMap.get(clinicalData) != 0) { // Length does not have to be defined, in this case it is 0
-                    error.addOffendingValue(clinicalData.toOffenderString() + " exceeds allowed length: "
+                    error.addOffendingValue(clinicalData.toOffenderString() + " Exceeds allowed length: "
                             + lengthMap.get(clinicalData));
                 }
             }

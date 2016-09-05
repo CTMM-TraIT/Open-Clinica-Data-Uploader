@@ -64,7 +64,7 @@ function provide_template_download() {
 }
 
 function provide_filled_template_upload() {
-    var html = '<h4>&#9755; Once you have filled out the template, select it using the file chooser below.</h4> <form id="upload-subject-template-form" class="form-horizontal"><input id="upload-subject-template-input" type="file" name="uploadPatientData" accept="*" /></form> <span id="message-board"></span> <hr>';
+    var html = '<h4>&#9755; Once you have filled out the template, select it using the file chooser below.</h4> <form id="upload-subject-template-form" class="form-horizontal"><input id="upload-subject-template-input" type="file" name="uploadPatientData" accept="*" /></form> <span id="message-board"></span></br><hr>';
     $(html).insertBefore('#subject-back-btn');
 }
 
