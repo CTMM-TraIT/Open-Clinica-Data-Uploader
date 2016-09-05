@@ -20,6 +20,10 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
 
     public static final String KEY_SEPARATOR = "\t";
 
+    // The prefix and postfix to display the clinical data axis values.
+    private static final String CD_SEP_PREFIX = "<i>";
+    private static final String CD_SEP_POSTEFIX = "</i>, ";
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -376,15 +380,21 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
     public String toOffenderString() {
         String groupRepeatPart;
         if (groupRepeat != null) {
-            groupRepeatPart = " item Group Repeat: " + groupRepeat;
+            groupRepeatPart = " item group repeat " + groupRepeat;
         } else {
-            groupRepeatPart = " not repeating group ";
+            groupRepeatPart = " non-repeating group ";
         }
-        String ofenderMsg = "Subject: " + ssid + " Item: " + item + groupRepeatPart
-                + " in CRF: " + crfName + " version: " + crfVersion + " in event: "
-                + eventName + " event repeat: " + eventRepeat + " value: "
-                + value;
-        return ofenderMsg;
+        String offenderMsg = "Subject " + CD_SEP_PREFIX + ssid + CD_SEP_POSTEFIX
+                + " item " + CD_SEP_PREFIX + item + CD_SEP_POSTEFIX
+                + CD_SEP_PREFIX  + groupRepeatPart + CD_SEP_POSTEFIX
+                + " in CRF "  + CD_SEP_PREFIX + crfName + CD_SEP_POSTEFIX
+                + " version "  + CD_SEP_PREFIX + crfVersion + CD_SEP_POSTEFIX
+                + " in event "  + CD_SEP_PREFIX + eventName + CD_SEP_POSTEFIX
+                + " event repeat "  + CD_SEP_PREFIX + eventRepeat + CD_SEP_POSTEFIX
+                + " value " +  CD_SEP_PREFIX + value;
+        String closingPoint = StringUtils.removeEnd(CD_SEP_POSTEFIX, ", ") + ".";
+        offenderMsg += closingPoint;
+        return offenderMsg;
     }
 
     public void convertValueToISO_8601() {

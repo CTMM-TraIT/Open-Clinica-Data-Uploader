@@ -11,6 +11,7 @@ import nl.thehyve.ocdu.validators.UtilChecks;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 
 /**
@@ -30,9 +31,15 @@ public class RangeChecks implements ClinicalDataCrossCheck {
                     for (String value : values) {
                         if (UtilChecks.isFloat(value) || UtilChecks.isInteger(value)) {
                             BigDecimal intValue = BigDecimal.valueOf(Double.parseDouble(value)); // Do not attempt floating point comparison
+                            BigDecimal rangeValue = rangeCheck.getValue();
+                            String dataType = itemDefinition.getDataType();
+                            if ("integer".equals(dataType)) {
+                                rangeValue = rangeValue.setScale(0);
+                                intValue = intValue.setScale(0);
+                            }
+
                             if (!rangeCheck.isInRange(intValue)) {
-                                String gRepMsg = clinicalData.getGroupRepeat() != null ? " group repeat: " + clinicalData.getGroupRepeat() : "";
-                                String msg = clinicalData.toOffenderString()+ " " + rangeCheck.violationMessage()
+                                String msg = clinicalData.toOffenderString()+ " " + rangeCheck.violationMessage() + rangeValue
                                         + " but was: " + intValue;
                                 if (!alreadyReported.contains(msg)) {
                                     error.addOffendingValue(msg);

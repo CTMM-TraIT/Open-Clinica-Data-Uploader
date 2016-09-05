@@ -66,7 +66,7 @@ public class RangeCheck {
 
     public String violationMessage() {
         String comparatorHumanReadable = getHumanReadableComparator();
-        String message = "Should be "+ comparatorHumanReadable + value;
+        String message = "Should be "+ comparatorHumanReadable;
         return message;
     }
 
