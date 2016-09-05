@@ -21,8 +21,8 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
     public static final String KEY_SEPARATOR = "\t";
 
     // The prefix and postfix to display the clinical data axis values.
-    private static final String CD_SEP_PREFIX = "<i>";
-    private static final String CD_SEP_POSTEFIX = "</i>, ";
+    public static final String CD_SEP_PREFIX = "<i>";
+    public static final String CD_SEP_POSTEFIX = "</i>, ";
 
 
     @Id

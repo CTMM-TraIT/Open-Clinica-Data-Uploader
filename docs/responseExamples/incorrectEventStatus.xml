@@ -28,7 +28,7 @@
                                 <ns2:eventCrf>
                                     <ns2:name>MUST-FOR_NON_TTP_STUDY</ns2:name>
                                     <ns2:oid>F_MUSTFOR_NON__007</ns2:oid>
-                                    <ns2:status>data entry complete</ns2:status>
+                                    <ns2:status>invalid</ns2:status>
                                     <ns2:version>0.07</ns2:version>
                                 </ns2:eventCrf>
                             </ns2:eventCrfInformation>
