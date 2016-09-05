@@ -312,7 +312,7 @@ public class ClinicalDataOcChecksTests {
     public void eventStatusCheck() throws Exception {
         List<StudySubjectWithEventsType> incorrectEventStatus = incorrectEventStatusExample();
         List<ClinicalData> incorrectData = new ArrayList<>();
-        ClinicalData dPoint = new ClinicalData("Eventful", "age", "ssid1", "PersonID_01",
+        ClinicalData dPoint = new ClinicalData(1, "Eventful", "age", "ssid1", "PersonID_01",
                 "RepeatingEvent", "1", "MUST-FOR_NON_TTP_STUDY", null, "0.08", null, null, "12");
         incorrectData.add(dPoint);
         clinicalDataOcChecks = new ClinicalDataOcChecks(metaDataEventfulStudy, incorrectData, incorrectEventStatus);

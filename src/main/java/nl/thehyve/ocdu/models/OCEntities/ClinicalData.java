@@ -65,16 +65,10 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
     private String value;
     private String studyProtocolName;
 
-    @Override
-    public String getStudyProtocolName() {
-        return studyProtocolName;
-    }
+    private long lineNumber;
 
-    public void setStudyProtocolName(String studyProtocolName) {
-        this.studyProtocolName = studyProtocolName;
-    }
 
-    public ClinicalData(String study, String item, String ssid, String personID, String eventName, String eventRepeat, String crfName, UploadSession submission, String crfVersion, Integer groupRepeat, OcUser owner, String value) {
+    public ClinicalData(long lineNumber, String study, String item, String ssid, String personID, String eventName, String eventRepeat, String crfName, UploadSession submission, String crfVersion, Integer groupRepeat, OcUser owner, String value) {
         this.study = study;
         this.item = item;
         this.ssid = ssid;
@@ -89,10 +83,14 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
         this.owner = owner;
         this.value = value;
         this.originalItem = item; // TODO: Refactor away this constructor
+        this.lineNumber = lineNumber;
     }
 
     public ClinicalData() {
     }
+
+
+
 
     public String getPersonID() {
         return personID;
@@ -220,6 +218,15 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
 
     public Integer getGroupRepeat() {
         return groupRepeat;
+    }
+
+    @Override
+    public String getStudyProtocolName() {
+        return studyProtocolName;
+    }
+
+    public void setStudyProtocolName(String studyProtocolName) {
+        this.studyProtocolName = studyProtocolName;
     }
 
 
@@ -384,7 +391,8 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
         } else {
             groupRepeatPart = " non-repeating group ";
         }
-        String offenderMsg = "Subject " + CD_SEP_PREFIX + ssid + CD_SEP_POSTEFIX
+        String offenderMsg = "Line number: [ " +  + lineNumber + " ], "
+                + "Subject " + CD_SEP_PREFIX + ssid + CD_SEP_POSTEFIX
                 + " item " + CD_SEP_PREFIX + item + CD_SEP_POSTEFIX
                 + CD_SEP_PREFIX  + groupRepeatPart + CD_SEP_POSTEFIX
                 + " in CRF "  + CD_SEP_PREFIX + crfName + CD_SEP_POSTEFIX

@@ -47,7 +47,7 @@ public class ClinicalDataFactory extends UserSubmittedDataFactory {
             List<ClinicalData> clinicalData = new ArrayList<>();
             List<List<ClinicalData>> clinicalDataAggregates = lines.skip(1). // skip header
                     filter(s -> parseLine(s).length > 2). // smallest legal file consists of no less than 3 columns
-                    map(s -> parseLine(s, columnsIndex, coreColumns)).collect(Collectors.toList());
+                    map(s -> parseLine(clinicalData.size() + 1, s, columnsIndex, coreColumns)).collect(Collectors.toList());
             clinicalDataAggregates.forEach(aggregate -> clinicalData.addAll(aggregate));
             return clinicalData;
         } catch (IOException e) {
@@ -83,7 +83,7 @@ public class ClinicalDataFactory extends UserSubmittedDataFactory {
         } else return array[index];
     }
 
-    private List<ClinicalData> parseLine(String line, Map<String,
+    private List<ClinicalData> parseLine(long lineNumber, String line, Map<String,
             Integer> headerMap, HashMap<String, Integer> coreColumns) {
         String[] split = parseLine(line);
 
@@ -112,7 +112,7 @@ public class ClinicalDataFactory extends UserSubmittedDataFactory {
             if (groupRepeat == null) item = colName; // Consequences of encoding group repeat in the column name
 
             String value = getOptionalFromArray(split, headerMap.get(colName));
-            ClinicalData dat = new ClinicalData(study, item, ssid, personID, eventName, eventRepeat, crf,
+            ClinicalData dat = new ClinicalData(lineNumber, study, item, ssid, personID, eventName, eventRepeat, crf,
                     getSubmission(), crfVer, groupRepeat, getUser(), value.trim()); // Mind the trim() on value.
             dat.setSite(site);
             if (StringUtils.isNotEmpty(value)) // ignore empty

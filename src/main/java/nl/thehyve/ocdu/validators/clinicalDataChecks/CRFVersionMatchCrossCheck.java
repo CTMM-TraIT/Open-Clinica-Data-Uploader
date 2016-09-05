@@ -78,7 +78,7 @@ public class CRFVersionMatchCrossCheck implements ClinicalDataCrossCheck {
                     for (EventCrfInformationList eventCrfInformationList : eventResponseType.getEventCrfInformation()) {
                         List<EventCrfType>  eventCrfTypeList = eventCrfInformationList.getEventCrf();
                         for (EventCrfType eventCrfType : eventCrfTypeList) {
-                            ClinicalData clinicalData = new ClinicalData(studyIdentifier,
+                            ClinicalData clinicalData = new ClinicalData(1, studyIdentifier,
                                     null,
                                     subjectWithEventsType.getLabel(),
                                     null,

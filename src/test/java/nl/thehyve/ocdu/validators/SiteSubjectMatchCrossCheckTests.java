@@ -88,11 +88,11 @@ public class SiteSubjectMatchCrossCheckTests {
     public void setUp() throws Exception {
         clinicalDataList = new ArrayList<>();
         //public ClinicalData(String study, String item, String ssid, String eventName, Integer eventRepeat, String crfName, UploadSession submission, String crfVersion, Integer groupRepeat, OcUser owner, String value) {
-        ClinicalData data = new ClinicalData("HematologyStudyForty", "bloodpressure", "Subject_0001", "PersonID_0001",  "FUP", "1", "BaseLine-FUP", null, "0.5", 1, null, "80/120");
+        ClinicalData data = new ClinicalData(1, "HematologyStudyForty", "bloodpressure", "Subject_0001", "PersonID_0001",  "FUP", "1", "BaseLine-FUP", null, "0.5", 1, null, "80/120");
         data.setSite("Wrong site");
         clinicalDataList.add(data);
 
-        data = new ClinicalData("HematologyStudyForty", "bloodpressure", "Subject_0002", "PersonID_0002",  "FUP", "1", "BaseLine-FUP", null, "0.5", 1, null, "80/120");
+        data = new ClinicalData(1, "HematologyStudyForty", "bloodpressure", "Subject_0002", "PersonID_0002",  "FUP", "1", "BaseLine-FUP", null, "0.5", 1, null, "80/120");
         data.setSite("Correct site");
         clinicalDataList.add(data);
 
