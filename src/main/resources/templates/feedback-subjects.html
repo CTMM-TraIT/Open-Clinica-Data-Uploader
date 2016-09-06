@@ -3,7 +3,7 @@
 <head th:replace="header :: header_scripts ('Subject Registration Feedback')"  />
 <body role="document">
 <nav th:replace="header :: header_nav_bar"/>
-<div class="container ocdu-container">
+<div class="container ocdu-container scrolling-container">
     <div>
         <h2 class="step-title">Feedback of Subject Registration</h2>
 
@@ -12,6 +12,8 @@
     <div id="feedback-tables">
         <div id="progression-section"><span class="loader"></span><div class="progress-text">Checking subjects ...</div></div>
     </div>
+    <div id="feedback-errors"></div>
+    <div id="feedback-warnings"></div>
 
     <hr>
     <button type="button" class="btn btn-primary aligned-btn-primary" id="data-feedback-back-btn" onclick="backBtnHandler()">Back</button>

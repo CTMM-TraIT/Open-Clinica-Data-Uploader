@@ -9,28 +9,86 @@ var displayMessages = function displayMessages(data) {
         $('#feedback-tables').append(html);
     }//if
     else {
-        $('#feedback-tables').empty();
-        var error_word = 'errors';
-        if (data.length == 1) error_word = 'error';
-        var html_title = '<h3><span> <strong>' + data.length + ' ' + error_word + ' found... </strong> </span></h3>';
-        $('#feedback-tables').append(html_title);
+        /*        $('#feedback-tables').empty();
+         var error_word = 'errors';
+         if (data.length == 1) error_word = 'error';
+         var html_title = '<h3><span> <strong>' + data.length + ' ' + error_word + ' found... </strong> </span></h3>';
+         $('#feedback-tables').append(html_title);
 
+         for (var i = 0; i < data.length; i++) {
+         var fb = data[i];
+         var msg = fb['message'];
+         var vals = fb['offendingValues'];
+         var errorid = "error" + i;
+         var middlepart = '<div class="panel-heading"><h4 class="panel-title"><a data-toggle="collapse" href="#' + errorid + '"> ' + msg + '</a></h4></div>';
+         var listpart = '<ul class="list-group">';
+
+         for (var j = 0; j < vals.length; j++) {
+         listpart += '<li class="list-group-item">' + vals[j] + '</li>'
+         }
+         listpart += '</ul>';
+         middlepart += '<div id="' + errorid + '" class="panel-collapse collapse in">' + listpart + '</div>';
+         var html = '<div class="panel-group"><div class="panel panel-default">' + middlepart + '</div></div>'
+         $('#feedback-tables').append(html);
+         }//for*/
+        $('#feedback-errors').empty();
+        $('#feedback-warnings').empty();
+        var numberOfErrors = 0;
         for (var i = 0; i < data.length; i++) {
             var fb = data[i];
-            var msg = fb['message'];
-            var vals = fb['offendingValues'];
-            var errorid = "error" + i;
-            var middlepart = '<div class="panel-heading"><h4 class="panel-title"><a data-toggle="collapse" href="#' + errorid + '"> ' + msg + '</a></h4></div>';
-            var listpart = '<ul class="list-group">';
-
-            for (var j = 0; j < vals.length; j++) {
-                listpart += '<li class="list-group-item">' + vals[j] + '</li>'
+            if (fb['error'] == true) {
+                numberOfErrors++;
             }
-            listpart += '</ul>';
-            middlepart += '<div id="' + errorid + '" class="panel-collapse collapse in">' + listpart + '</div>';
-            var html = '<div class="panel-group"><div class="panel panel-default">' + middlepart + '</div></div>'
-            $('#feedback-tables').append(html);
-        }//for
+        }
+        var numberOfWarnings = data.length - numberOfErrors;
+        if (numberOfErrors != 0) {
+            var error_word = numberOfErrors + ' errors found.';
+            var html_title = '<h3><span> <strong>' + error_word + '</strong> </span></h3>';
+            $('#feedback-errors').append(html_title);
+
+            for (var i = 0; i < data.length; i++) {
+                var fb = data[i];
+                if (fb['error'] == true) {
+                    var msg = fb['message'];
+                    var vals = fb['offendingValues'];
+                    var errorid = "error" + i;
+                    var middlepart = '<div class="panel-heading"><h4 class="panel-title"><a data-toggle="collapse" href="#' + errorid + '"> ' + msg + '</a></h4></div>';
+                    var listpart = '<ul class="list-group">';
+
+                    for (var j = 0; j < vals.length; j++) {
+                        listpart += '<li class="list-group-item">' + vals[j] + '</li>'
+                    }
+                    listpart += '</ul>';
+                    middlepart += '<div id="' + errorid + '" class="panel-collapse collapse in">' + listpart + '</div>';
+                    var html = '<div class="panel-group"><div class="panel panel-default">' + middlepart + '</div></div>'
+                    $('#feedback-errors').append(html);
+                }
+            }//for
+        }
+
+        if (numberOfWarnings != 0) {
+            var error_word = numberOfWarnings + ' warnings found.';
+            var html_title = '<h3><span> <strong>' + error_word + '</strong> </span></h3>';
+            $('#feedback-warnings').append(html_title);
+            for (var i = 0; i < data.length; i++) {
+                var fb = data[i];
+                if (fb['error'] == false) {
+                    var msg = fb['message'];
+                    var vals = fb['offendingValues'];
+                    var successId = "success" + i;
+                    var middlepart = '<div class="panel-heading"><h4 class="panel-title"><a data-toggle="collapse" href="#' + successId + '"> ' + msg + '</a></h4></div>';
+                    var listpart = '<ul class="list-group">';
+
+                    for (var j = 0; j < vals.length; j++) {
+                        listpart += '<li class="list-group-item">' + vals[j] + '</li>'
+                    }
+                    listpart += '</ul>';
+                    middlepart += '<div id="' + successId + '" class="panel-collapse collapse in">' + listpart + '</div>';
+                    var html = '<div class="panel-group"><div class="panel panel-default">' + middlepart + '</div></div>'
+                    $('#feedback-warnings').append(html);
+                }
+            }//for
+        }
     }//else
 };
 
@@ -72,7 +130,7 @@ $(document).ready(function () {
     if (_SESSION_CONFIG[_CURRENT_SESSION_NAME]['NEED_TO_VALIDATE_SUBJECTS']) {
         //waiting for the ajax call
         makeProgressSectionVisible(true);
-        
+
         $.ajax({
             url: baseApp + "/validate/patients",
             type: "GET",

@@ -135,7 +135,7 @@ public class PatientDataOcChecksTests {
 
         List<ValidationErrorMessage> errorList = patientDataOcChecks.getErrors();
         assertEquals(1, errorList.size());
-        assertThat(errorList.get(0).getMessage(), containsString("Absent in the data file"));
+        assertThat(errorList.get(0).getMessage(), containsString("One or more subjects are absent in the data file"));
     }
 
     @Test
@@ -282,12 +282,12 @@ public class PatientDataOcChecksTests {
         subject.setSite("myownsitethatdoesnotexist");
         SitePatientDataCheck check = new SitePatientDataCheck();
         ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData);
-        assertThat(error.getMessage(), containsString("exist"));
+        assertThat(error.getMessage(), containsString("Study does not have sites and site(s) are specified for subjects"));
 
         MetaData localMetaData = new MetaData();
         localMetaData.setSiteDefinitions(null);
         error = check.getCorrespondingError(0, subject, localMetaData, testSubjectWithEventsTypeList, presentInData);
-        assertThat(error.getMessage(), containsString("exist"));
+        assertThat(error.getMessage(), containsString("Study does not have sites and site(s) are specified for subjects"));
     }
 
     @Test
@@ -396,7 +396,7 @@ public class PatientDataOcChecksTests {
         PresentInData check = new PresentInData();
         ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData);
 
-        assertThat(error.getMessage(), containsString("Absent in the data file"));
+        assertThat(error.getMessage(), containsString("One or more subjects are absent in the data file"));
         presentInData.add(s1);
         error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData);
         assertThat("Returns null for subject present in the data-file", error, nullValue());

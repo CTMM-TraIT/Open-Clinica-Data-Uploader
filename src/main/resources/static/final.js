@@ -15,7 +15,7 @@ var displayMessages = function displayMessages(data) {
     }
     var numberOfSuccess =  data.length - numberOfErrors;
     if (numberOfErrors != 0) {
-        var error_word = numberOfErrors + 'errors found.';
+        var error_word = numberOfErrors + ' errors found.';
         var html_title = '<h3><span> <strong>' + error_word + '</strong> </span></h3>';
         $('#feedback-errors').append(html_title);
 

@@ -15,8 +15,8 @@ public class PresentInData implements PatientDataCheck {
     @Override
     public ValidationErrorMessage getCorrespondingError(int index, Subject subject, MetaData metaData, List<StudySubjectWithEventsType> subjectWithEventsTypes, Set<String> ssidsInData) {
         if (!ssidsInData.contains(subject.getSsid())) {
-            ValidationErrorMessage error = new ValidationErrorMessage(getCommonErrorMessage(index, subject.getSsid()) +" Absent in the data file. Please use generated template.");
-            error.addOffendingValue(subject.getSsid());
+            ValidationErrorMessage error = new ValidationErrorMessage("One or more subjects are absent in the data file. Please use generated template.");
+            error.addOffendingValue(getCommonErrorMessage(index, subject.getSsid()));
             return error;
         }
         return null;

@@ -43,19 +43,30 @@ public class PatientDataOcChecks {
     }
 
     public List<ValidationErrorMessage> getErrors() {
-        List<ValidationErrorMessage> errors = new ArrayList<>();
-        int index = 1;
-        for (Subject subject : subjects) {
-            for (PatientDataCheck check : checks) {
+        List<ValidationErrorMessage> combinedErrors = new ArrayList<>();
+        for (PatientDataCheck check : checks) {
+            List<ValidationErrorMessage> errors = new ArrayList<>();
+            int index = 1;
+            for (Subject subject : subjects) {
                 ValidationErrorMessage error = check.getCorrespondingError(index, subject, metadata, subjEventData,
                         ssidsInData);
                 if (error != null) {
+                    error.setSubject(subject.getSsid());
                     errors.add(error);
                 }
+                index++;
             }
-            index++;
+            if (! errors.isEmpty()) {
+                String cause = errors.get(0).getMessage();
+                boolean isError = errors.get(0).isError();
+                ValidationErrorMessage combinedErrorMessage = new ValidationErrorMessage(cause);
+                combinedErrorMessage.setError(isError);
+                for (ValidationErrorMessage validationErrorMessage : errors) {
+                    combinedErrorMessage.addAllOffendingValues(validationErrorMessage.getOffendingValues());
+                }
+                combinedErrors.add(combinedErrorMessage);
+            }
         }
-        return errors;
+        return combinedErrors;
     }
-
 }

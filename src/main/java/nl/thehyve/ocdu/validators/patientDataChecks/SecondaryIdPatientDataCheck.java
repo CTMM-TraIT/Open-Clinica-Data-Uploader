@@ -29,12 +29,12 @@ public class SecondaryIdPatientDataCheck implements PatientDataCheck {
 
         if (!StringUtils.isBlank(secondaryId)) {
             if (secondaryId.length() > MAX_SECONDARY_ID_LENGTH) {
-                error = new ValidationErrorMessage(commonMessage + "The length of secondary ID is over " + MAX_SECONDARY_ID_LENGTH + " characters.");
+                error = new ValidationErrorMessage("The length of secondary ID is over " + MAX_SECONDARY_ID_LENGTH + " characters.");
             }
         }
 
         if(error != null) {
-            error.addOffendingValue("Secondary ID: " + subject.getSecondaryId());
+            error.addOffendingValue(commonMessage + " secondary ID: " + subject.getSecondaryId());
         }
 
         return error;

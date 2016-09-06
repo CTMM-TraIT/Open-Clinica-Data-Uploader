@@ -25,6 +25,7 @@ public class DuplicatePersonIdDataCheck implements PatientDataCheck {
 
         String ssid = subject.getSsid();
         String commonMessage = getCommonErrorMessage(index, ssid);
+        String duplicateSubjectLabel = "";
 
         ValidationErrorMessage error = null;
         String personId = subject.getPersonId();
@@ -39,12 +40,13 @@ public class DuplicatePersonIdDataCheck implements PatientDataCheck {
                             .collect(Collectors.toList());
             if (! subjectPresentWithPersonIDList.isEmpty()) {
                 StudySubjectWithEventsType subjectWithEventsType = subjectPresentWithPersonIDList.get(0);
-                error = new ValidationErrorMessage(commonMessage + "Duplicate Person ID in data. Is already present for subject with label " + subjectWithEventsType.getLabel());
+                duplicateSubjectLabel = subjectWithEventsType.getLabel();
+                error = new ValidationErrorMessage("Duplicate Person ID in data");
             }
         }
 
         if(error != null) {
-            error.addOffendingValue("Person ID: " + subject.getPersonId() + " for subject label " + ssid);
+            error.addOffendingValue(commonMessage + " person ID: " + subject.getPersonId() + " for subject label " + ssid + ", is already present for subject with label " + duplicateSubjectLabel);
         }
 
         return error;

@@ -34,28 +34,29 @@ public class DateOfEnrollmentPatientDataCheck implements PatientDataCheck {
         Date currentDate = new Date();
 
         if (StringUtils.isBlank(dateOfEntrollment)) {
-            error = new ValidationErrorMessage(commonMessage + "Date of Enrollment is not provided. Today's date is used. ");
+            error = new ValidationErrorMessage("Date of Enrollment is not provided. Today's date will be used. ");
             subject.setDateOfEnrollment(currentDate.toString());
+            error.setError(false);
         } else {
             DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
             dateFormat.setLenient(false);
             if (!UtilChecks.isDate(dateOfEntrollment)) {
-                error = new ValidationErrorMessage(commonMessage + "Enrollment date format is invalid. The date format should be dd-mm-yyyy. For example, 23-10-2012.");
+                error = new ValidationErrorMessage("Enrollment date format is invalid. The date format should be dd-mm-yyyy. For example, 23-10-2012.");
             } else  {
                 try {
                     Date date = dateFormat.parse(dateOfEntrollment);
                     if ((currentDate.before(date))) {
-                        error = new ValidationErrorMessage(commonMessage + "Date of Enrollment should be in the past.");
+                        error = new ValidationErrorMessage("Date of Enrollment should be in the past.");
                     }
                 } catch (Exception e) {
-                    error = new ValidationErrorMessage(commonMessage + "Enrollment date format is invalid. The date format should be dd-mm-yyyy. For example, 23-10-2012.");
+                    error = new ValidationErrorMessage("Enrollment date format is invalid. The date format should be dd-mm-yyyy. For example, 23-10-2012.");
                     e.printStackTrace();
                 }
             }
         }
 
         if(error != null) {
-            error.addOffendingValue("Date of Enrollment: " + subject.getDateOfEnrollment());
+            error.addOffendingValue(commonMessage + " date of enrollment: " + subject.getDateOfEnrollment());
         }
 
         return error;

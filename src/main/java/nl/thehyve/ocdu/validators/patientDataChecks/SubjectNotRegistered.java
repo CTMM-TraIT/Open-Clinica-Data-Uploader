@@ -26,9 +26,9 @@ public class SubjectNotRegistered implements PatientDataCheck {
 
     private ValidationErrorMessage getError(int index, Subject subject, MetaData metaData) {
         String errorMsg = getCommonErrorMessage(index, subject.getSsid());
-        ValidationErrorMessage error = new ValidationErrorMessage(errorMsg + " Subject is already registered at study: "
+        ValidationErrorMessage error = new ValidationErrorMessage(" One or more subjects are already registered in study: "
                 + metaData.getStudyName());
-        error.addOffendingValue(subject.getSsid());
+        error.addOffendingValue(errorMsg);
         return error;
     }
 }
