@@ -93,7 +93,7 @@ function next_btn() {
 }
 
 function upload_subjects() {
-    makeProgressSectionVisible(true);
+    makeProgressSectionVisible(false);
     $('#message-board').empty();
     $.ajax({
         url: baseApp + "/upload/subjects",

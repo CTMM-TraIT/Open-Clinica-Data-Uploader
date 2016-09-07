@@ -114,7 +114,7 @@ function update_submission() {
 }
 
 function upload_event_data() {
-    makeProgressSectionVisible(true);
+    makeProgressSectionVisible(false);
     $('#template_error').remove();
     $(loading_html).insertAfter('#message-board');
     $('#message-board').empty();

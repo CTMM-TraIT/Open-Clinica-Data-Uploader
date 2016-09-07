@@ -81,6 +81,7 @@ function performODMUpload() {
                 }
             }
             $('#odm-upload-proceed-btn').remove();
+            $('#odm-upload-back-btn').remove();
         },
         error: function (jqXHR, textStatus, errorThrown) {
             makeProgressSectionVisible(false);
