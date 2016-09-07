@@ -12,7 +12,7 @@ var displayMessages = function displayMessages(data) {
     else {
         $('#feedback-tables').empty();
         var error_word = 'errors'; if(data.length == 1) error_word = 'error';
-        var html_title = '<p>'+data.length +' '+error_word+' found ...</p>';
+        var html_title = '<h2 class="form-step-title">'+data.length +' '+error_word+' found ...</h2>';
         $('#feedback-tables').append(html_title);
 
         for (var i = 0; i < data.length; i++) {
@@ -24,7 +24,7 @@ var displayMessages = function displayMessages(data) {
             var listpart = '<ul class="list-group">';
 
             for (var j = 0; j < vals.length; j++) {
-                listpart += '<li class="list-group-item">'+vals[j]+'</li>'
+                listpart += '<li class="list-group-item">' + vals[j]+'</li>'
             }
             listpart += '</ul>';
             middlepart += '<div id="'+errorid+'" class="panel-collapse collapse in">'+listpart+'</div>';

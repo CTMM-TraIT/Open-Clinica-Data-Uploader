@@ -46,6 +46,11 @@ public class Event implements OcEntity, UserSubmitted, EventReference {
     private String endTime;
     private String repeatNumber;
 
+    /**
+     * The line number in the file containing the event definitions. Is needed for error-reporting
+     */
+    private long lineNumber;
+
     @Override
     public UploadSession getSubmission() {
         return submission;
@@ -150,6 +155,14 @@ public class Event implements OcEntity, UserSubmitted, EventReference {
         this.repeatNumber = repeatNumber;
     }
 
+    public long getLineNumber() {
+        return lineNumber;
+    }
+
+    public void setLineNumber(long lineNumber) {
+        this.lineNumber = lineNumber;
+    }
+
     @Override
     public String toString() {
         return "Event{" +
@@ -163,6 +176,7 @@ public class Event implements OcEntity, UserSubmitted, EventReference {
                 ", startTime=" + startTime +
                 ", endDate=" + endDate +
                 ", endTime=" + endTime +
+                ", lineNumber=" + lineNumber +
                 '}';
     }
 

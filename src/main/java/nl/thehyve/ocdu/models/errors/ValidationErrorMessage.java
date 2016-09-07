@@ -17,6 +17,11 @@ public class ValidationErrorMessage extends AbstractMessage {
         super(message);
     }
 
+    public ValidationErrorMessage(long lineNumber, String message) {
+        super(message);
+        this.lineNumber = lineNumber;
+    }
+
     public void addOffendingValue(String value) {
         offendingValues.add(value);
     }

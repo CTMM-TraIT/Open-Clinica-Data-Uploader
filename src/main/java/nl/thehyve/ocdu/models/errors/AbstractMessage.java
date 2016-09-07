@@ -8,6 +8,7 @@ public abstract class AbstractMessage {
     protected boolean isError = true; // Error by default
     protected String message;
     protected String subject;
+    protected long lineNumber;
 
 
     public AbstractMessage(String message) {
@@ -33,5 +34,13 @@ public abstract class AbstractMessage {
 
     public void setSubject(String subject) {
         this.subject = subject;
+    }
+
+    public long getLineNumber() {
+        return lineNumber;
+    }
+
+    public void setLineNumber(long lineNumber) {
+        this.lineNumber = lineNumber;
     }
 }

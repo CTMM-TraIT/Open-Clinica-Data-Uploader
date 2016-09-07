@@ -8,6 +8,8 @@ package nl.thehyve.ocdu.models.errors;
 public class MissingEventError extends ValidationErrorMessage {
 
     public MissingEventError() {
-        super("One or more events are present in the data which are not scheduled in OpenClinica and which are not present in the event-file. OpenClinica will report incorrectly that data has been uploaded for these events");
+        super("One or more events are present in the data which are not scheduled in OpenClinica and which are not present in the event-file. "
+                + "Please also verifiy that for new subjects the site is only specified in the subject data file."
+                + "OpenClinica will report incorrectly that data has been uploaded for these events");
     }
 }

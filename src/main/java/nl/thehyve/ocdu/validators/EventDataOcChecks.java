@@ -13,6 +13,10 @@ import java.text.DateFormat;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class EventDataOcChecks {
@@ -46,6 +50,7 @@ public class EventDataOcChecks {
             this.eventNames =
                     metadata.getEventDefinitions().stream()
                             .map(EventDefinition::getName)
+                            .map(s -> s.toUpperCase())
                             .collect(Collectors.toSet());
         }
 
@@ -63,189 +68,217 @@ public class EventDataOcChecks {
     public List<ValidationErrorMessage> getErrors() {
         List<ValidationErrorMessage> errors = new ArrayList<>();
 
+        errors.addAll(validate());
+
+        return errors;
+    }
+
+    protected List<ValidationErrorMessage> validate() {
+        ArrayList<ValidationErrorMessage> errors = new ArrayList<>();
+
+        validateEvent(errors, "Subject id has to be specified.", event -> StringUtils.isBlank(event.getSsid()), event -> event.getSsid());
+
+        validateEvent(errors, "Event name has to be specified.", event -> StringUtils.isBlank(event.getEventName()), event -> event.getEventName());
+
+        validateEvent(errors, "Study name has to be specified.", event -> StringUtils.isBlank(event.getStudy()), event -> event.getStudy());
+
+        validateEvent(errors, "Start date has to be specified.", event -> StringUtils.isBlank(event.getStartDate()), event -> event.getStartDate());
+
+        validateEvent(errors, "Repeat number has to be specified.", event -> StringUtils.isBlank(event.getRepeatNumber()), event -> event.getRepeatNumber());
+
+        validateEvent(errors,
+                       "Study identifier in your event registration file does not match study identifier " + "in your data file. Expected: " + metadata.getProtocolName(),
+                      event -> (StringUtils.isNotBlank(event.getStudy()) && !event.getStudy().equals(metadata.getProtocolName())),
+                      event -> event.getStudy());
+
+        validateEvent(errors, "Event does not exist",
+                    event -> ((! StringUtils.isBlank(event.getEventName())) && (! eventNames.contains(event.getEventName().toUpperCase()))),
+                    event -> event.getEventName());
+
+        validateEvent(errors, "Site does not exist. Use the Unique Protocol ID of the site(s)",
+                event -> (StringUtils.isNotBlank(event.getSite()) && !siteNames.contains(event.getSite())),
+                event -> event.getSite());
+
+        validateEvent(errors,
+                "Location name is too long. It has not to exceed " + LOCATION_STRING_MAX_LENGTH + " character in length.",
+                event -> (StringUtils.isNotBlank(event.getLocation()) && event.getLocation().length() > LOCATION_STRING_MAX_LENGTH),
+                event -> event.getLocation());
+
+        validateEvent(errors,
+                "Location is not allowed in this study, remove the column or leave fields empty",
+                event -> (StringUtils.isNotBlank(event.getLocation()) && metadata.getLocationRequirementSetting().equals(ProtocolFieldRequirementSetting.BANNED)),
+                event -> event.getLocation());
+
+        validateEvent(errors,
+                "Location is required in this study, but one or more of events in your file lack it",
+                event -> (StringUtils.isBlank(event.getLocation()) && metadata.getLocationRequirementSetting().equals(ProtocolFieldRequirementSetting.MANDATORY)),
+                event -> event.getLocation());
+
+        validateStartDate(errors);
+        validateStartTime(errors);
+        validateEndDate(errors);
+        validateEndTime(errors);
+        validateStartEndRanges(errors);
+        validateRepeatNumber(errors);
+        validateDuplicateEvents(errors);
+
+        return errors;
+    }
+
+
+    private void validateEvent(Collection<ValidationErrorMessage> errorMessageCollection,
+                                      String errorMessage,
+                                      Predicate<Event> predicate,
+                                      Function<Event, String> value) {
+        ValidationErrorMessage result = new ValidationErrorMessage(errorMessage);
+        for (Event event : events) {
+            if (predicate.test(event)) {
+                String strValue = value.apply(event);
+                if (StringUtils.isBlank(strValue)) {
+                    strValue = "Empty";
+                }
+                result.addOffendingValue("Line number: " + event.getLineNumber() + ", subject: " + event.getSsid() + ", value: " + strValue);
+            }
+        }
+        if (! result.getOffendingValues().isEmpty()) {
+            errorMessageCollection.add(result);
+        }
+    }
+
+    private void validateDuplicateEvents(List<ValidationErrorMessage> validationErrorMessageList) {
+        ValidationErrorMessage duplicatedEvent = new ValidationErrorMessage("An event for the given subject is duplicated.");
         Map<List<String>, Event> keyToEventMap = new HashMap<>();
         for (Event event : events) {
-            errors.addAll(validate(event));
-
             ArrayList<String> key = new ArrayList<>();
             key.add(event.getSsid());
             key.add(event.getEventName());
             key.add(event.getRepeatNumber());
             if (keyToEventMap.containsKey(key)) {
-                ValidationErrorMessage duplicatedEvent = new ValidationErrorMessage(
-                        "An event for the given subject is duplicated.");
-                duplicatedEvent.setSubject(event.getSsid());
-                duplicatedEvent.addAllOffendingValues(key);
-                errors.add(duplicatedEvent);
+                duplicatedEvent.addOffendingValue("Line number: " + event.getLineNumber() + ", subject: " + event.getSsid() + " value(s): " + key);
             } else {
                 keyToEventMap.put(key, event);
             }
         }
+        if (! duplicatedEvent.getOffendingValues().isEmpty()) {
+            validationErrorMessageList.add(duplicatedEvent);
+        }
 
-        return errors;
     }
 
-    protected List<ValidationErrorMessage> validate(Event event) {
-        ArrayList<ValidationErrorMessage> errors = new ArrayList<>();
-        String subjectID = event.getSsid();
-        if (StringUtils.isBlank(event.getSsid())) {
-            ValidationErrorMessage subjectIdRequired = new ValidationErrorMessage("Subject id has to be specified.");
-            subjectIdRequired.setSubject(subjectID);
-            errors.add(subjectIdRequired);
-        }
-
-        if (StringUtils.isBlank(event.getEventName())) {
-            ValidationErrorMessage eventNameRequired = new ValidationErrorMessage("Event name has to be specified.");
-            eventNameRequired.setSubject(subjectID);
-            errors.add(eventNameRequired);
-        }
-
-        if (StringUtils.isBlank(event.getStudy())) {
-            ValidationErrorMessage studyNameRequired = new ValidationErrorMessage("Study name has to be specified.");
-            studyNameRequired.setSubject(subjectID);
-            errors.add(studyNameRequired);
-        }
-
-        if (StringUtils.isBlank(event.getStartDate())) {
-            ValidationErrorMessage startDateRequired = new ValidationErrorMessage("Start date has to be specified.");
-            startDateRequired.setSubject(subjectID);
-            errors.add(startDateRequired);
-        }
-
-        if (StringUtils.isBlank(event.getRepeatNumber())) {
-            ValidationErrorMessage repeatNumberRequired = new ValidationErrorMessage(
-                    "Repeat number has to be specified.");
-            repeatNumberRequired.setSubject(subjectID);
-            errors.add(repeatNumberRequired);
-        }
-
-        if (StringUtils.isNotBlank(event.getStudy()) && !event.getStudy().equals(metadata.getProtocolName())) {
-            ValidationErrorMessage noSuchStudy =
-                    new ValidationErrorMessage(event.getSsid() + " Study identifier in your event registration file does not match study identifier " +
-                            "in your data file. Expected:" + metadata.getProtocolName());
-            noSuchStudy.setSubject(subjectID);
-            noSuchStudy.addOffendingValue(event.getStudy());
-            errors.add(noSuchStudy);
-        }
-
-        if (StringUtils.isNotBlank(event.getEventName()) && !eventNames.contains(event.getEventName())) {
-            ValidationErrorMessage noSuchStudy = new ValidationErrorMessage("Event does not exist.");
-            noSuchStudy.setSubject(subjectID);
-            noSuchStudy.addOffendingValue(event.getEventName());
-            errors.add(noSuchStudy);
-        }
-
-        if (StringUtils.isNotBlank(event.getSite()) && !siteNames.contains(event.getSite())) {
-            ValidationErrorMessage noSuchSite = new ValidationErrorMessage("Site does not exist.");
-            noSuchSite.setSubject(subjectID);
-            noSuchSite.addOffendingValue(event.getSite());
-            errors.add(noSuchSite);
-        }
-
-        if (StringUtils.isNotBlank(event.getLocation()) && event.getLocation().length() > LOCATION_STRING_MAX_LENGTH) {
-            ValidationErrorMessage locationTooLong = new ValidationErrorMessage("Location name is to long. " +
-                    "It has not to exceed " + LOCATION_STRING_MAX_LENGTH + " character in length.");
-            locationTooLong.setSubject(subjectID);
-            locationTooLong.addOffendingValue(event.getLocation());
-            errors.add(locationTooLong);
-        }
-
-        if (StringUtils.isNotBlank(event.getLocation()) &&
-                metadata.getLocationRequirementSetting().equals(ProtocolFieldRequirementSetting.BANNED)) {
-            ValidationErrorMessage locationBannedButPresent = new ValidationErrorMessage("Location is not " +
-                    "allowed in this study, remove the column or leave fields empty");
-            locationBannedButPresent.setSubject(subjectID);
-            errors.add(locationBannedButPresent);
-        }
-        if (StringUtils.isBlank(event.getLocation()) &&
-                metadata.getLocationRequirementSetting().equals(ProtocolFieldRequirementSetting.MANDATORY)) {
-            ValidationErrorMessage locationRequiredButAbsent = new ValidationErrorMessage("Location is " +
-                    "required in this study, but one or more of events in your file lack it");
-            locationRequiredButAbsent.setSubject(subjectID);
-            errors.add(locationRequiredButAbsent);
-        }
-
-        Optional<Date> startDateOpt = Optional.empty();
-        if (StringUtils.isNotBlank(event.getStartDate())) {
-            startDateOpt = parseDateOpt(event.getStartDate());
-            if (!startDateOpt.isPresent()) {
-                ValidationErrorMessage dateInvalid = new ValidationErrorMessage("Start date is invalid. The date format should be dd-mm-yyyy. For example, 12-10-2014.");
-                dateInvalid.setSubject(subjectID);
-                dateInvalid.addOffendingValue(event.getStartDate());
-                errors.add(dateInvalid);
-            }
-        }
-
-        Optional<Date> startTimeOpt = Optional.empty();
-        if (StringUtils.isNotBlank(event.getStartTime())) {
-            startTimeOpt = parseTimeOpt(event.getStartTime());
-            if (!startTimeOpt.isPresent()) {
-                ValidationErrorMessage timeInvalid = new ValidationErrorMessage("Start time is invalid. The time format should be hh:mm. For example, 13:29.");
-                timeInvalid.setSubject(subjectID);
-                timeInvalid.addOffendingValue(event.getStartTime());
-                errors.add(timeInvalid);
-            }
-        }
-
-        Optional<Date> endDateOpt = Optional.empty();
-        if (StringUtils.isNotBlank(event.getEndDate())) {
-            endDateOpt = parseDateOpt(event.getEndDate());
-            if (!endDateOpt.isPresent()) {
-                ValidationErrorMessage dateInvalid = new ValidationErrorMessage("End date is invalid. The date format should be dd-mm-yyyy. For example, 12-10-2014.");
-                dateInvalid.setSubject(subjectID);
-                dateInvalid.addOffendingValue(event.getEndDate());
-                errors.add(dateInvalid);
-            }
-        }
-
-        Optional<Date> endTimeOpt = Optional.empty();
-        if (StringUtils.isNotBlank(event.getEndTime())) {
-            endTimeOpt = parseTimeOpt(event.getEndTime());
-            if (!endTimeOpt.isPresent()) {
-                ValidationErrorMessage timeInvalid = new ValidationErrorMessage("End time is invalid. The time format should be hh:mm. For example, 13:29.");
-                timeInvalid.setSubject(subjectID);
-                timeInvalid.addOffendingValue(event.getEndTime());
-                errors.add(timeInvalid);
-            }
-        }
-
-        if (startDateOpt.isPresent() && endDateOpt.isPresent()) {
-            Date startDate = startDateOpt.get();
-            Date endDate = endDateOpt.get();
-            if (endDate.before(startDate)) {
-                ValidationErrorMessage dateRangeInvalid = new ValidationErrorMessage("Date range is invalid.");
-                dateRangeInvalid.setSubject(subjectID);
-                dateRangeInvalid.addOffendingValue(event.getStartDate());
-                dateRangeInvalid.addOffendingValue(event.getEndDate());
-                errors.add(dateRangeInvalid);
-            } else if (startDate.equals(endDate) && startTimeOpt.isPresent() && endTimeOpt.isPresent()) {
-                Date startTime = startTimeOpt.get();
-                Date endTime = endTimeOpt.get();
-                if (endTime.before(startTime)) {
-                    ValidationErrorMessage timeRangeInvalid = new ValidationErrorMessage("Time range is invalid.");
-                    timeRangeInvalid.setSubject(subjectID);
-                    timeRangeInvalid.addOffendingValue(event.getStartTime());
-                    timeRangeInvalid.addOffendingValue(event.getEndTime());
-                    errors.add(timeRangeInvalid);
+    private void validateRepeatNumber(List<ValidationErrorMessage> validationErrorMessageList) {
+        ValidationErrorMessage invalidRepeatNumber = new ValidationErrorMessage("Repeat number is not a positive number.");
+        for (Event event : events) {
+            if (StringUtils.isNotBlank(event.getRepeatNumber())) {
+                Optional<Integer> repeatNumberOpt = parseIntOpt(event.getRepeatNumber());
+                if (!repeatNumberOpt.isPresent() || repeatNumberOpt.get() < 1) {
+                    invalidRepeatNumber.addOffendingValue("Line number: " + event.getLineNumber() + ", subject: " + event.getSsid() + ", " + event.getRepeatNumber());
                 }
             }
         }
+        if (! invalidRepeatNumber.getOffendingValues().isEmpty()) {
+            validationErrorMessageList.add(invalidRepeatNumber);
+        }
+    }
 
-        if (StringUtils.isNotBlank(event.getRepeatNumber())) {
-            Optional<Integer> repeatNumberOpt = parseIntOpt(event.getRepeatNumber());
-            if (!repeatNumberOpt.isPresent() || repeatNumberOpt.get() < 1) {
-                ValidationErrorMessage noSuchStudy = new ValidationErrorMessage(
-                        "Repeat number is not a positive number.");
-                noSuchStudy.setSubject(subjectID);
-                noSuchStudy.addOffendingValue(event.getRepeatNumber());
-                errors.add(noSuchStudy);
+    private void validateStartEndRanges(List<ValidationErrorMessage> validationErrorMessageList) {
+        ValidationErrorMessage dateRangeInvalid = new ValidationErrorMessage("Date range is invalid.");
+        ValidationErrorMessage timeRangeInvalid = new ValidationErrorMessage("End time is before start time.");
+
+        for (Event event : events) {
+            Optional<Date> startDateOpt = parseDateOpt(event.getStartDate());
+            Optional<Date> startTimeOpt = parseTimeOpt(event.getStartTime());
+            Optional<Date> endDateOpt = parseDateOpt(event.getEndDate());
+            Optional<Date> endTimeOpt = parseTimeOpt(event.getEndTime());
+            if (startDateOpt.isPresent() && endDateOpt.isPresent()) {
+                Date startDate = startDateOpt.get();
+                Date endDate = endDateOpt.get();
+                if (endDate.before(startDate)) {
+                    dateRangeInvalid.addOffendingValue("Line number: " + event.getLineNumber() + ", subject: " + event.getSsid() + ", start date: " + event.getStartDate() + ", end date: " + event.getEndDate() + ". End date is before start date");
+                } else if (startDate.equals(endDate) && startTimeOpt.isPresent() && endTimeOpt.isPresent()) {
+                    Date startTime = startTimeOpt.get();
+                    Date endTime = endTimeOpt.get();
+                    if (endTime.before(startTime)) {
+                        timeRangeInvalid.addOffendingValue("Line number: " + event.getLineNumber() + ", subject: " + event.getSsid() + ", start time: " + event.getStartTime() + ", end time: " + event.getEndTime());
+                    }
+                }
             }
         }
+        if (! dateRangeInvalid.getOffendingValues().isEmpty()) {
+            validationErrorMessageList.add(dateRangeInvalid);
+        }
+        if (! timeRangeInvalid.getOffendingValues().isEmpty()) {
+            validationErrorMessageList.add(timeRangeInvalid);
+        }
+    }
 
-        return errors;
+    private void validateStartDate(List<ValidationErrorMessage> validationErrorMessageList) {
+        ValidationErrorMessage validationErrorMessage = new ValidationErrorMessage("Start date is invalid or date does not exist. The date format should be dd-mm-yyyy. For example, 12-10-2014.");
+        for (Event event : events) {
+            Optional<Date> startDateOpt = Optional.empty();
+            if (StringUtils.isNotBlank(event.getStartDate())) {
+                startDateOpt = parseDateOpt(event.getStartDate());
+                if (!startDateOpt.isPresent()) {
+                    validationErrorMessage.addOffendingValue("Line number: " + event.getLineNumber() + ", subject: " + event.getSsid() + ", " + event.getStartDate());
+                }
+            }
+        }
+        if (! validationErrorMessage.getOffendingValues().isEmpty()) {
+            validationErrorMessageList.add(validationErrorMessage);
+        }
+    }
+
+    private void validateStartTime(List<ValidationErrorMessage> validationErrorMessageList) {
+        ValidationErrorMessage validationErrorMessage = new ValidationErrorMessage("Start time is invalid. The time format should be hh:mm. For example, 13:29.");
+        for (Event event : events) {
+            Optional<Date> startTimeOpt = Optional.empty();
+            if (StringUtils.isNotBlank(event.getStartTime())) {
+                startTimeOpt = parseTimeOpt(event.getStartTime());
+                if (!startTimeOpt.isPresent()) {
+                    validationErrorMessage.addOffendingValue("Line number: " + event.getLineNumber() + ", subject: " + event.getSsid() + ", " + event.getStartTime());
+                }
+            }
+        }
+        if (! validationErrorMessage.getOffendingValues().isEmpty()) {
+            validationErrorMessageList.add(validationErrorMessage);
+        }
+    }
+
+    private void validateEndDate(List<ValidationErrorMessage> validationErrorMessageList) {
+        ValidationErrorMessage validationErrorMessage = new ValidationErrorMessage("End date is invalid or date does not exist. The date format should be dd-mm-yyyy. For example, 12-10-2014.");
+        for (Event event : events) {
+            Optional<Date> endDateOpt = Optional.empty();
+            if (StringUtils.isNotBlank(event.getEndDate())) {
+                endDateOpt = parseDateOpt(event.getEndDate());
+                if (!endDateOpt.isPresent()) {
+                    validationErrorMessage.addOffendingValue("Line number: " + event.getLineNumber() + ", subject: " + event.getSsid() + ", " + event.getEndDate());
+                }
+            }
+        }
+        if (! validationErrorMessage.getOffendingValues().isEmpty()) {
+            validationErrorMessageList.add(validationErrorMessage);
+        }
+    }
+
+    private void validateEndTime(List<ValidationErrorMessage> validationErrorMessageList) {
+        ValidationErrorMessage validationErrorMessage = new ValidationErrorMessage("End time is invalid. The time format should be hh:mm. For example, 13:29.");
+        for (Event event : events) {
+            Optional<Date> endTimeOpt = Optional.empty();
+            if (StringUtils.isNotBlank(event.getEndTime())) {
+                endTimeOpt = parseTimeOpt(event.getEndTime());
+                if (!endTimeOpt.isPresent()) {
+                    validationErrorMessage.addOffendingValue("Line number: " + event.getLineNumber() + ", subject: " + event.getSsid() + ", " + event.getEndTime());
+                }
+            }
+        }
+        if (! validationErrorMessage.getOffendingValues().isEmpty()) {
+            validationErrorMessageList.add(validationErrorMessage);
+        }
     }
 
     Optional<Date> parseDateOpt(String dateString) {
+        if (StringUtils.isBlank(dateString)) {
+            return Optional.empty();
+        }
         ParsePosition pos = new ParsePosition(0);
         Date time = SIMPLE_DATE_FORMAT.parse(dateString, pos);
         //TODO What if empty space left
@@ -256,6 +289,9 @@ public class EventDataOcChecks {
     }
 
     Optional<Date> parseTimeOpt(String timeString) {
+        if (StringUtils.isBlank(timeString)) {
+            return Optional.empty();
+        }
         ParsePosition pos = new ParsePosition(0);
         Date time = SIMPLE_TIME_FORMAT.parse(timeString, pos);
         //TODO What if empty space left

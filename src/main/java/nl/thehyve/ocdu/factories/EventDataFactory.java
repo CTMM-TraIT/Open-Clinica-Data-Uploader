@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 
 /**
  * The only way Event objects should be created outside tests.
- * This factory is responsible for deserializing Event objects from user text file (event-subject pairs to be registered).
+ * This factory is responsible for deserialising Event objects from user text file (event-subject pairs to be registered).
  * It does not save anything to the database nor does any validation - FileValidator needs to check text file
  * before EventDataFactory  can process it.
  */
@@ -55,11 +55,17 @@ public class EventDataFactory extends UserSubmittedDataFactory {
             Map<String, Integer> columnsIndex = createColumnsIndexMap(headerRow.get());
 
             try (Stream<String> lines = Files.lines(tabularFilePath)) {
-                return lines.skip(1)
-                        .map(UserSubmittedDataFactory::parseLine)
-                        .map(row -> mapRow(row, columnsIndex))
-                        //TODO Maybe we should return stream instead?
-                        .collect(Collectors.toList());
+                List<Event> eventList = lines.skip(1)
+                                            .map(UserSubmittedDataFactory::parseLine)
+                                            .map(row -> mapRow(row, columnsIndex))
+                                            //TODO Maybe we should return stream instead?
+                                            .collect(Collectors.toList());
+                long lineNumber = 1;
+                for (Event event : eventList) {
+                    event.setLineNumber(lineNumber);
+                    lineNumber++;
+                }
+                return eventList;
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -112,7 +118,7 @@ public class EventDataFactory extends UserSubmittedDataFactory {
                 RegisteredEventInformation.determineEventsToSchedule(metaData, studySubjectWithEventsTypeList, patientsInEvent);
 
         List<String> result = new ArrayList<>();
-        String delim = "\t";
+        String delimiter = "\t";
         List<String> header = new ArrayList<>();
         header.add("Study Subject ID");
         header.add("Event Name");
@@ -125,7 +131,7 @@ public class EventDataFactory extends UserSubmittedDataFactory {
         header.add("End Date");
         header.add("End Time");
         header.add("Repeat Number");
-        result.add(String.join(delim, header) + "\n");
+        result.add(String.join(delimiter, header) + "\n");
 
         for (Event eventToSchedule : eventToScheduleList) {
                 List<String> row = new ArrayList<>();
@@ -140,16 +146,13 @@ public class EventDataFactory extends UserSubmittedDataFactory {
                 row.add("");//End Date
                 row.add("");//End Time
                 row.add(eventToSchedule.getRepeatNumber());//Repeat Number
-                result.add(String.join(delim, row) + "\n");
+                result.add(String.join(delimiter, row) + "\n");
         }
         return result;
     }
 
     private boolean isLocationInTemplate(MetaData metaData) {
         ProtocolFieldRequirementSetting locationRequirementSetting = metaData.getLocationRequirementSetting();
-        if (locationRequirementSetting.equals(ProtocolFieldRequirementSetting.BANNED)) {
-            return false;
-        }
-        return true;
+        return (! ProtocolFieldRequirementSetting.BANNED.equals(locationRequirementSetting));
     }
 }
