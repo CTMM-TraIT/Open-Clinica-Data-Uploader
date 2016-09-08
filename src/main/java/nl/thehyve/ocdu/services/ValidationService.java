@@ -59,6 +59,9 @@ public class ValidationService {
     @Autowired
     DataService dataService;
 
+    @Autowired
+    MetaDataService metaDataService;
+
     /**
      * Returns errors in consistency against OpenClinica study definition (metadata) in user submitted data.
      *
@@ -67,14 +70,13 @@ public class ValidationService {
      * @return
      * @throws Exception
      */
-    public List<ValidationErrorMessage> getDataErrors(UploadSession submission, String wsPwdHash) throws Exception {
+    public List<ValidationErrorMessage> getDataErrors(UploadSession submission, String wsPwdHash, MetaDataProvider metaDataProvider) throws Exception {
         List<ClinicalData> bySubmission = clinicalDataRepository.findBySubmission(submission);
         determineStudy(bySubmission, submission);
         OcUser submitter = submission.getOwner();
         Study study = dataService.findStudy(submission.getStudy(), submitter, wsPwdHash);
+        MetaData metadata = metaDataService.retrieveMetaData(metaDataProvider, submitter, wsPwdHash, submission);
 
-        MetaData metadata = openClinicaService
-                .getMetadata(submitter.getUsername(), wsPwdHash, submitter.getOcEnvironment(), study);
         List<StudySubjectWithEventsType> subjectWithEventsTypes = openClinicaService
                 .getStudySubjectsType(submitter.getUsername(), wsPwdHash, submitter.getOcEnvironment(), study.getIdentifier(), "");
         List<ValidationErrorMessage> errors = new ArrayList<>();
@@ -90,7 +92,7 @@ public class ValidationService {
     }
 
     public ValidationErrorMessage checkForMissingEventsInEventDataAndOpenClinica(MetaData metaData, List<StudySubjectWithEventsType> subjectWithEventsTypeList, List<Event> eventList, List<ClinicalData> clinicalDataList) {
-        // public visability for unit-testing
+        // public visibility for unit-testing
         List<String> eventsPresentInOpenClinica = RegisteredEventInformation.createEventKeyListFromStudySubjectWithEventsTypeList(metaData, subjectWithEventsTypeList);
         List<String> eventsPresentInEventData = RegisteredEventInformation.createEventKeyListFromEventList(eventList);
         Set<String> eventsPresentInClinicalData = RegisteredEventInformation.createEventKeyListFromClinicalData(clinicalDataList);
@@ -102,9 +104,9 @@ public class ValidationService {
         }
         MissingEventError missingEventError = new MissingEventError();
         for (String offendingValue : eventsPresentInClinicalData) {
-            String[] partList = StringUtils.split(offendingValue, ClinicalData.KEY_SEPARATOR);
-            String errorMessage = "Subject: " + partList[1] + ", event: " + partList[2];
-            if ((partList.length < 4) && StringUtils.isNotEmpty(partList[4])) {
+            String[] partList = StringUtils.splitPreserveAllTokens(offendingValue, ClinicalData.KEY_SEPARATOR);
+            String errorMessage = "Subject: " + partList[2] + ", event: " + partList[3];
+            if ((partList.length == 5) && StringUtils.isNotEmpty(partList[4])) {
                 errorMessage += ", repeat number: " + partList[4];
             }
             errorMessage +=  ".";
@@ -122,12 +124,11 @@ public class ValidationService {
      * @return
      * @throws Exception
      */
-    public List<ValidationErrorMessage> getEventsErrors(UploadSession submission, String wsPwdHash) throws Exception {
+    public List<ValidationErrorMessage> getEventsErrors(UploadSession submission, String wsPwdHash, MetaDataProvider metaDataProvider) throws Exception {
         List<Event> events = eventRepository.findBySubmission(submission);
         OcUser submitter = submission.getOwner();
         Study study = dataService.findStudy(submission.getStudy(), submitter, wsPwdHash);
-        MetaData metadata = openClinicaService
-                .getMetadata(submitter.getUsername(), wsPwdHash, submitter.getOcEnvironment(), study);
+        MetaData metadata = metaDataService.retrieveMetaData(metaDataProvider, submitter, wsPwdHash, submission);
         events.forEach(event -> event.setStudyProtocolName(metadata.getProtocolName())); //TODO: Refactor setting studyProtocolName out of validation , this is not the right place to do it
         eventRepository.save(events);
         EventDataOcChecks checks = new EventDataOcChecks(metadata, events);
@@ -155,13 +156,13 @@ public class ValidationService {
      * @return
      * @throws Exception
      */
-    public List<ValidationErrorMessage> getPatientsErrors(UploadSession submission, String wsPwdHash) throws Exception {
+    public List<ValidationErrorMessage> getPatientsErrors(UploadSession submission, String wsPwdHash, MetaDataProvider metaDataProvider) throws Exception {
         List<Subject> bySubmission = subjectRepository.findBySubmission(submission);
         Set<String> subjectsInData = clinicalDataRepository.findBySubmission(submission)
                 .stream().map(ClinicalData::getSsid).collect(Collectors.toSet());
         OcUser submitter = submission.getOwner();
         Study study = dataService.findStudy(submission.getStudy(), submitter, wsPwdHash);
-        MetaData metadata = openClinicaService.getMetadata(submitter.getUsername(), wsPwdHash, submitter.getOcEnvironment(), study);
+        MetaData metadata = metaDataService.retrieveMetaData(metaDataProvider, submitter, wsPwdHash, submission);
         bySubmission.forEach(subject -> subject.setStudyProtocolName(metadata.getProtocolName())); //TODO: Refactor setting studyOID out of validation , this is not the right place to do it
         subjectRepository.save(bySubmission);
         List<StudySubjectWithEventsType> subjectWithEventsTypes = openClinicaService
@@ -196,13 +197,12 @@ public class ValidationService {
      * @return
      * @throws Exception
      */
-    public Collection<ValidationErrorMessage> dataPremappingValidation(UploadSession submission, String wsPwdHash) throws Exception {
+    public Collection<ValidationErrorMessage> dataPremappingValidation(UploadSession submission, String wsPwdHash, MetaDataProvider metaDataProvider) throws Exception {
         List<ClinicalData> bySubmission = clinicalDataRepository.findBySubmission(submission);
         determineStudy(bySubmission, submission);
         OcUser submitter = submission.getOwner();
         Study study = dataService.findStudy(submission.getStudy(), submitter, wsPwdHash);
-        MetaData metadata = openClinicaService
-                .getMetadata(submitter.getUsername(), wsPwdHash, submitter.getOcEnvironment(), study);
+        MetaData metadata = metaDataService.retrieveMetaData(metaDataProvider, submitter, wsPwdHash, submission);
         List<StudySubjectWithEventsType> subjectWithEventsTypes = openClinicaService
                 .getStudySubjectsType(submitter.getUsername(), wsPwdHash, submitter.getOcEnvironment(), study.getIdentifier(), "");
         List<ValidationErrorMessage> errors = new ArrayList<>();

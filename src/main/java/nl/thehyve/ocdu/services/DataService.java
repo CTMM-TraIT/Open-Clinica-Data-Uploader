@@ -28,6 +28,9 @@ public class DataService {
     @Autowired
     ClinicalDataRepository clinicalDataRepository;
 
+    @Autowired
+    MetaDataService metaDataService;
+
     /**
      * Returns a simple structure containing target path for user submission.
      * i.e. study/event/crf/version.
@@ -87,8 +90,8 @@ public class DataService {
      * @return
      * @throws Exception
      */
-    public MetaDataTree getMetadataTree(UploadSession submission, String ocwsHash) throws Exception {
-        MetaData metaData = getMetaData(submission, ocwsHash);
+    public MetaDataTree getMetadataTree(UploadSession submission, String ocwsHash, MetaDataProvider metaDataProvider) throws Exception {
+        MetaData metaData = getMetaData(submission, ocwsHash, metaDataProvider);
         MetaDataTree tree = buildTree(metaData);
         OcTreePath selection = inferSelection(submission);
         tree = OcTreePath.filter(tree, selection);
@@ -185,14 +188,14 @@ public class DataService {
      * @return
      * @throws Exception
      */
-    public MetaData getMetaData(UploadSession submission, String ocwsHash) throws Exception {
+    public MetaData getMetaData(UploadSession submission, String ocwsHash, MetaDataProvider metaDataProvider) throws Exception {
         OcUser owner = submission.getOwner();
         FieldsDetermined info = getInfo(submission);
         Study study = findStudy(info.getStudy(), owner, ocwsHash);
         if (study == null) {
             return null;
         }
-        return openClinicaService.getMetadata(owner.getUsername(), ocwsHash, owner.getOcEnvironment(), study);
+        return metaDataService.retrieveMetaData(metaDataProvider, owner, ocwsHash, submission);
     }
 
     /**
@@ -216,9 +219,9 @@ public class DataService {
         }
     }
 
-    public Collection<String> getTargetCrf(UploadSession submission, String ocwsHash) throws Exception {
+    public Collection<String> getTargetCrf(UploadSession submission, String ocwsHash, MetaDataProvider metaDataProvider) throws Exception {
         OcTreePath selection = inferSelection(submission);
-        MetaDataTree metadataTree = getMetadataTree(submission, ocwsHash, selection);
+        MetaDataTree metadataTree = getMetadataTree(submission, ocwsHash, selection, metaDataProvider);
         if (metadataTree == null) {
             return Collections.emptyList();
         }
@@ -233,8 +236,8 @@ public class DataService {
         return targetedPaths;
     }
 
-    private MetaDataTree getMetadataTree(UploadSession submission, String ocwsHash, OcTreePath selection) throws Exception {
-        MetaData metaData = getMetaData(submission, ocwsHash);
+    private MetaDataTree getMetadataTree(UploadSession submission, String ocwsHash, OcTreePath selection, MetaDataProvider metaDataProvider) throws Exception {
+        MetaData metaData = getMetaData(submission, ocwsHash, metaDataProvider);
         MetaDataTree tree = buildTree(metaData);
         tree = OcTreePath.filter(tree, selection);
         return tree;

@@ -75,14 +75,14 @@ public class FileService {
         }
     }
 
-    public Collection<ValidationErrorMessage> depositPatientFile(Path patientFile, OcUser user, UploadSession submission) throws Exception {
-        PatientsFileValidator validator = new PatientsFileValidator();
+    public Collection<ValidationErrorMessage> depositPatientFile(Path patientFile, OcUser user, UploadSession submission, boolean onlyYearOfBirthUsed) throws Exception {
+        PatientsFileValidator validator = new PatientsFileValidator(onlyYearOfBirthUsed);
         validator.validateFile(patientFile);
         Collection<ValidationErrorMessage> errorMsgs = new ArrayList<>();
         if (validator.isValid()) {
             List<Subject> bySubmission = subjectRepository.findBySubmission(submission);
             subjectRepository.delete(bySubmission);
-            PatientDataFactory factory = new PatientDataFactory(user, submission);
+            PatientDataFactory factory = new PatientDataFactory(user, submission, onlyYearOfBirthUsed);
 
             List<Subject> newEntries = factory.createPatientData(patientFile);
             subjectRepository.save(newEntries);

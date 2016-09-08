@@ -37,19 +37,22 @@ public class DateOfBirthPatientDataCheck implements PatientDataCheck {
 
         ValidationErrorMessage error = null;
         String dob = subject.getDateOfBirth();
-        if (!StringUtils.isBlank(dob) && DOBrequired == 3) { // 3 means not required
+        if (!StringUtils.isBlank(dob) && DOBrequired == MetaData.BIRTH_DATE_NOT_USED) { // 3 means not required
             error = new ValidationErrorMessage("Date of birth submission is not allowed by the study protocol");
-            error.addOffendingValue(commonMessage + " date of Birth: " + subject.getDateOfBirth());
-        } else if (!StringUtils.isBlank(dob) || DOBrequired < 3) {
+            error.addOffendingValue(commonMessage + " Date of birth: " + subject.getDateOfBirth());
+        } else if (!StringUtils.isBlank(dob) || DOBrequired < MetaData.BIRTH_DATE_NOT_USED) {
+            String label = " ";
             String msg = null;
-            if (DOBrequired == 1) {//FULL DATE
+            if (DOBrequired == MetaData.BIRTH_DATE_AS_FULL_DATE) {//FULL DATE
                 msg = checkFullDate(dob);
-            } else if (DOBrequired == 2) { // YEAR ONLY
+                label = " Date of birth: ";
+            } else if (DOBrequired == MetaData.BIRTH_DATE_AS_ONLY_YEAR) { // YEAR ONLY
                 msg = checkYearOnly(dob);
+                label = " Year of birth: ";
             }
             if (msg != null) {
                 error = new ValidationErrorMessage(commonMessage + msg);
-                error.addOffendingValue(commonMessage + " date of Birth: " + subject.getDateOfBirth());
+                error.addOffendingValue(commonMessage + label + subject.getDateOfBirth());
             }
         }
 

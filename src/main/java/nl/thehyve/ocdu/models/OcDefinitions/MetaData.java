@@ -12,6 +12,24 @@ import java.util.Optional;
  */
 @Entity
 public class MetaData {
+
+
+    /**
+     * OpenClinica code for the study option 'Collect subject Date of Birth; as a full date
+     */
+    public static final int BIRTH_DATE_AS_FULL_DATE = 1;
+
+    /**
+     * OpenClinica code for the study option 'Collect subject Date of Birth; as only the year of birth
+     */
+    public static final int BIRTH_DATE_AS_ONLY_YEAR = 2;
+
+    /**
+     * OpenClinica code for the study option 'Collect subject Date of Birth; date of birth not used
+     */
+    public static final int BIRTH_DATE_NOT_USED = 3;
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;

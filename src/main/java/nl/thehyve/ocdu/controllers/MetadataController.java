@@ -2,10 +2,7 @@ package nl.thehyve.ocdu.controllers;
 
 import nl.thehyve.ocdu.models.MetaDataTree;
 import nl.thehyve.ocdu.models.UploadSession;
-import nl.thehyve.ocdu.services.DataService;
-import nl.thehyve.ocdu.services.OcUserService;
-import nl.thehyve.ocdu.services.UploadSessionNotFoundException;
-import nl.thehyve.ocdu.services.UploadSessionService;
+import nl.thehyve.ocdu.services.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +50,8 @@ public class MetadataController {
         try {
             UploadSession currentUploadSession = uploadSessionService.getCurrentUploadSession(session);
             String pwd = ocUserService.getOcwsHash(session);
-            MetaDataTree tree = dataService.getMetadataTree(currentUploadSession, pwd );
+            MetaDataProvider metaDataProvider = new HttpSessionMetaDataProvider(session);
+            MetaDataTree tree = dataService.getMetadataTree(currentUploadSession, pwd, metaDataProvider);
             return new ResponseEntity<>(tree, HttpStatus.OK);
         } catch (UploadSessionNotFoundException e) {
             e.printStackTrace();
@@ -75,7 +73,8 @@ public class MetadataController {
         try {
             UploadSession currentUploadSession = uploadSessionService.getCurrentUploadSession(session);
             String pwd = ocUserService.getOcwsHash(session);
-            Collection<String> targetPaths = dataService.getTargetCrf(currentUploadSession, pwd );
+            MetaDataProvider metaDataProvider = new HttpSessionMetaDataProvider(session);
+            Collection<String> targetPaths = dataService.getTargetCrf(currentUploadSession, pwd, metaDataProvider);
             return new ResponseEntity<>(targetPaths, HttpStatus.OK);
         } catch (UploadSessionNotFoundException e) {
             e.printStackTrace();

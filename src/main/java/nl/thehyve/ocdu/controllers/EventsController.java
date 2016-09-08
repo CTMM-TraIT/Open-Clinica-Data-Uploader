@@ -8,10 +8,7 @@ import nl.thehyve.ocdu.models.UploadSession;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import nl.thehyve.ocdu.repositories.ClinicalDataRepository;
 import nl.thehyve.ocdu.repositories.EventRepository;
-import nl.thehyve.ocdu.services.DataService;
-import nl.thehyve.ocdu.services.OcUserService;
-import nl.thehyve.ocdu.services.OpenClinicaService;
-import nl.thehyve.ocdu.services.UploadSessionService;
+import nl.thehyve.ocdu.services.*;
 import nl.thehyve.ocdu.validators.EventDataOcChecks;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +56,9 @@ public class EventsController {
             String username = user.getUsername();
             String pwdHash = ocUserService.getOcwsHash(session);
             String url = user.getOcEnvironment();
-            MetaData metaData = dataService.getMetaData(uploadSession, pwdHash);
+
+            MetaDataProvider metaDataProvider = new HttpSessionMetaDataProvider(session);
+            MetaData metaData = dataService.getMetaData(uploadSession, pwdHash, metaDataProvider);
             Study study = dataService.findStudy(uploadSession.getStudy(), user, username);
 
             List<Event> eventList = eventRepository.findBySubmission(uploadSession);

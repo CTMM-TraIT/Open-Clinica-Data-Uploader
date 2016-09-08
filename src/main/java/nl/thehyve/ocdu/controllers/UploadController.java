@@ -1,5 +1,6 @@
 package nl.thehyve.ocdu.controllers;
 
+import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.OcItemMapping;
 import nl.thehyve.ocdu.models.OcUser;
 import nl.thehyve.ocdu.models.UploadSession;
@@ -17,7 +18,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -52,6 +56,15 @@ public class UploadController {
     @Autowired
     ValidationService validationService;
 
+    @Autowired
+    OpenClinicaService openClinicaService;
+
+    @Autowired
+    DataService dataService;
+
+    @Autowired
+    MetaDataService metaDataService;
+
     @RequestMapping(value = "/data", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Collection<ValidationErrorMessage>> uploadFile(
@@ -65,8 +78,11 @@ public class UploadController {
             Collection<ValidationErrorMessage> fileFormatErrors = fileService.depositDataFile(locallySavedDataFile, user, currentUploadSession, pwd);
             Collection<ValidationErrorMessage> allErrors = new ArrayList<>();
             if (fileFormatErrors.size() == 0) {
+                MetaDataProvider metaDataProvider = new HttpSessionMetaDataProvider(session);
+                // Discard any metadata previously stored on the HttpSession
+                metaDataProvider.discard();
                 Collection<ValidationErrorMessage> mappingPreventingErrors =
-                        validationService.dataPremappingValidation(currentUploadSession, pwd);
+                        validationService.dataPremappingValidation(currentUploadSession, pwd, metaDataProvider);
                 allErrors.addAll(mappingPreventingErrors);
             }
             allErrors.addAll(fileFormatErrors);
@@ -153,7 +169,13 @@ public class UploadController {
             OcUser user = ocUserService.getCurrentOcUser(session);
             Path locallySavedDataFile = saveFile(uploadPatientData);
             UploadSession currentUploadSession = uploadSessionService.getCurrentUploadSession(session);
-            Collection<ValidationErrorMessage> fileFormatErrors = fileService.depositPatientFile(locallySavedDataFile, user, currentUploadSession);
+
+            MetaDataProvider metaDataProvider = new HttpSessionMetaDataProvider(session);
+            String pwdHash = ocUserService.getOcwsHash(session);
+            MetaData metaData = metaDataService.retrieveMetaData(metaDataProvider, user, pwdHash, currentUploadSession);
+
+            boolean onlyYearOfBirthUsed = (metaData.getBirthdateRequired() == 2);
+            Collection<ValidationErrorMessage> fileFormatErrors = fileService.depositPatientFile(locallySavedDataFile, user, currentUploadSession, onlyYearOfBirthUsed);
             return new ResponseEntity<>(fileFormatErrors, HttpStatus.OK);
         } catch (Exception e) {
             System.out.println(e.getMessage());

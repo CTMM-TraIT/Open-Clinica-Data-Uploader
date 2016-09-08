@@ -9,7 +9,7 @@ public class MissingEventError extends ValidationErrorMessage {
 
     public MissingEventError() {
         super("One or more events are present in the data which are not scheduled in OpenClinica and which are not present in the event-file. "
-                + "Please also verifiy that for new subjects the site is only specified in the subject data file."
+                + "If sites are specified for new subjects in the subject-file, then the same site must also be present in the event-file. "
                 + "OpenClinica will report incorrectly that data has been uploaded for these events");
     }
 }

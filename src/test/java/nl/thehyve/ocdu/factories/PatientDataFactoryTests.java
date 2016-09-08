@@ -51,7 +51,7 @@ public class PatientDataFactoryTests {
         this.user = new OcUser();
         this.user.setUsername(username);
         this.uploadSession = new UploadSession("testSubmission", UploadSession.Step.MAPPING, new Date(), this.user);
-        this.factory = new PatientDataFactory(user, uploadSession);
+        this.factory = new PatientDataFactory(user, uploadSession, false);
         try {
             MessageFactory messageFactory = MessageFactory.newInstance();
             FileInputStream in = new FileInputStream(new File("docs/responseExamples/Sjogren_STUDY1.xml"));
@@ -101,8 +101,14 @@ public class PatientDataFactoryTests {
 
     @Test
     public void testGeneratePatientRegistrationTemplate() {
+        metadata.setBirthdateRequired(MetaData.BIRTH_DATE_AS_FULL_DATE);
         List<String> template = factory.generatePatientRegistrationTemplate(this.metadata, this.subjectMap, true, subjectSiteMap);
         assertEquals("Study Subject ID\tGender\tDate of Birth\tPerson ID\tDate of Enrollment\tSecondary ID\tStudy\tSite (optional)\n", template.get(0));
+        assertEquals("test_ssid_1\t\t\t\t\tSjogren\ttestSite\n", template.get(1));
+
+        metadata.setBirthdateRequired(MetaData.BIRTH_DATE_AS_ONLY_YEAR);
+        template = factory.generatePatientRegistrationTemplate(this.metadata, this.subjectMap, true, subjectSiteMap);
+        assertEquals("Study Subject ID\tGender\tYear of Birth\tPerson ID\tDate of Enrollment\tSecondary ID\tStudy\tSite (optional)\n", template.get(0));
         assertEquals("test_ssid_1\t\t\t\t\tSjogren\ttestSite\n", template.get(1));
     }
 

@@ -267,17 +267,17 @@ public class OpenClinicaService {
                 XMLGregorianCalendar startDate = SoapUtils.getFullXmlDate(event.getStartDate());
                 eventType.setStartDate(startDate);
 
-                if (StringUtils.isNotEmpty(event.getEndDate())) {
+                if (StringUtils.isNotBlank(event.getEndDate())) {
                     XMLGregorianCalendar endDate = SoapUtils.getFullXmlDate(event.getEndDate());
                     eventType.setEndDate(endDate);
                 }
 
-                if (StringUtils.isNotEmpty(event.getStartTime())) {
+                if (StringUtils.isNotBlank(event.getStartTime())) {
                     XMLGregorianCalendar startTime = SoapUtils.getFullXmlTime(event.getStartTime());
                     eventType.setStartTime(startTime);
                 }
 
-                if (StringUtils.isNotEmpty(event.getEndTime())) {
+                if (StringUtils.isNotBlank(event.getEndTime())) {
                     XMLGregorianCalendar endTime = SoapUtils.getFullXmlTime(event.getEndTime());
                     eventType.setEndTime(endTime);
                 }

@@ -11,10 +11,7 @@ import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import nl.thehyve.ocdu.repositories.ClinicalDataRepository;
 import nl.thehyve.ocdu.repositories.EventRepository;
 import nl.thehyve.ocdu.repositories.SubjectRepository;
-import nl.thehyve.ocdu.services.DataService;
-import nl.thehyve.ocdu.services.OcUserService;
-import nl.thehyve.ocdu.services.OpenClinicaService;
-import nl.thehyve.ocdu.services.UploadSessionService;
+import nl.thehyve.ocdu.services.*;
 import nl.thehyve.ocdu.validators.ClinicalDataChecksRunner;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +56,9 @@ public class ODMUploadController {
     @Autowired
     ClinicalDataRepository clinicalDataRepository;
 
+    @Autowired
+    MetaDataService metaDataService;
+
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     public ResponseEntity<Collection<AbstractMessage>> uploadODM(HttpSession session,
                                                                  @RequestParam("CRFStatusAfterUpload") String crfStatusAfterUploadParam,
@@ -81,8 +81,9 @@ public class ODMUploadController {
             String url = user.getOcEnvironment();
 
             Study study = dataService.findStudy(uploadSession.getStudy(), user, pwdHash);
-            MetaData metaData =
-                    openClinicaService.getMetadata(userName, pwdHash, user.getOcEnvironment(), study);
+
+            MetaDataProvider metaDataProvider = new HttpSessionMetaDataProvider(session);
+            MetaData metaData = metaDataService.retrieveMetaData(metaDataProvider, user, pwdHash, uploadSession);
 
             List<StudySubjectWithEventsType> studySubjectWithEventsTypeList =
                     openClinicaService.getStudySubjectsType(userName, pwdHash, url, study.getIdentifier(), "");

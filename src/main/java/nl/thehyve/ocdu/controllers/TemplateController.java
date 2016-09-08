@@ -49,6 +49,9 @@ public class TemplateController {
     @Autowired
     ClinicalDataRepository clinicalDataRepository;
 
+    @Autowired
+    MetaDataService metaDataService;
+
 
     @RequestMapping(value = "/get-subject-template", method = RequestMethod.GET)
     public ResponseEntity<List<String>> getSubjectTemplate(@RequestParam("registerSite") boolean registerSite, HttpSession session) {
@@ -64,8 +67,11 @@ public class TemplateController {
             Map<String, String> subjectMap = openClinicaService.createMapSubjectLabelToSubjectOID(username, pwdHash, url, clinicalDataList);
 
             Study study = dataService.findStudy(uploadSession.getStudy(), user, pwdHash);
-            MetaData metadata = openClinicaService.getMetadata(username, pwdHash, user.getOcEnvironment(), study);
-            PatientDataFactory pdf = new PatientDataFactory(user, uploadSession);
+
+            MetaDataProvider metaDataProvider = new HttpSessionMetaDataProvider(session);
+            MetaData metadata = metaDataService.retrieveMetaData(metaDataProvider, user, pwdHash, uploadSession);
+            boolean onlyYearOfBirthUsed = metadata.getBirthdateRequired() == MetaData.BIRTH_DATE_AS_ONLY_YEAR;
+            PatientDataFactory pdf = new PatientDataFactory(user, uploadSession, onlyYearOfBirthUsed);
 
             Map<String, String> subjectSiteMap = new HashMap<>();
             for (ClinicalData clinicalData : clinicalDataList) {
@@ -92,7 +98,9 @@ public class TemplateController {
             String pwdHash = ocUserService.getOcwsHash(session);
             String url = user.getOcEnvironment();
             Study study = dataService.findStudy(uploadSession.getStudy(), user, pwdHash);
-            MetaData metadata = openClinicaService.getMetadata(username, pwdHash, user.getOcEnvironment(), study);
+            MetaDataProvider metaDataProvider = new HttpSessionMetaDataProvider(session);
+            MetaData metadata = metaDataService.retrieveMetaData(metaDataProvider, user, pwdHash, uploadSession);
+
             EventDataFactory edf = new EventDataFactory(user, uploadSession);
             Set<ImmutablePair> patientsInEvent = dataService.getPatientsInEvent(uploadSession);
             List<StudySubjectWithEventsType> subjectWithEventsTypes = openClinicaService

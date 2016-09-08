@@ -26,20 +26,27 @@ import java.util.stream.Stream;
  */
 public class PatientDataFactory extends UserSubmittedDataFactory {
 
+    private boolean onlyYearOfBirthUsed;
+
     public final static String STUDY_SUBJECT_ID = "Study Subject ID";
     public final static String GENDER = "Gender";
     public final static String DATE_OF_BIRTH = "Date of Birth";
+    public final static String YEAR_OF_BIRTH = "Year of Birth";
     public final static String DATE_OF_ENROLLMENT = "Date of Enrollment";
     public final static String PERSON_ID = "Person ID";
     public final static String SECONDARY_ID = "Secondary ID";
     public final static String STUDY = "Study";
     public final static String SITE = "Site (optional)";
     public final static String[] MANDATORY_HEADERS = {STUDY_SUBJECT_ID, STUDY, SITE};
-    public static final String[] ALL_PERMITTED_COLUMNS = {STUDY_SUBJECT_ID, STUDY, SITE, GENDER,
+    public static final String[] ONLY_YEAR_OF_BIRTH_ALL_PERMITTED_COLUMNS = {STUDY_SUBJECT_ID, STUDY, SITE, GENDER,
+            YEAR_OF_BIRTH, DATE_OF_ENROLLMENT, PERSON_ID, SECONDARY_ID};
+
+    public static final String[] COMPLETE_BIRTH_DATE_ALL_PERMITTED_COLUMNS = {STUDY_SUBJECT_ID, STUDY, SITE, GENDER,
             DATE_OF_BIRTH, DATE_OF_ENROLLMENT, PERSON_ID, SECONDARY_ID};
 
-    public PatientDataFactory(OcUser user, UploadSession submission) {
+    public PatientDataFactory(OcUser user, UploadSession submission, boolean onlyYearOfBirthUsed) {
         super(user, submission);
+        this.onlyYearOfBirthUsed = onlyYearOfBirthUsed;
     }
 
     public List<Subject> createPatientData(Path patientFile) {
@@ -74,7 +81,11 @@ public class PatientDataFactory extends UserSubmittedDataFactory {
         subject.setSubmission(getSubmission());
         setValue(arr.toArray(new String[arr.size()]), columnsIndex, STUDY_SUBJECT_ID, subject::setSsid);
         setValue(arr.toArray(new String[arr.size()]), columnsIndex, GENDER, subject::setGender);
-        setValue(arr.toArray(new String[arr.size()]), columnsIndex, DATE_OF_BIRTH, subject::setDateOfBirth);
+        if (onlyYearOfBirthUsed) {
+            setValue(arr.toArray(new String[arr.size()]), columnsIndex, YEAR_OF_BIRTH, subject::setDateOfBirth);
+        } else {
+            setValue(arr.toArray(new String[arr.size()]), columnsIndex, DATE_OF_BIRTH, subject::setDateOfBirth);
+        }
         setValue(arr.toArray(new String[arr.size()]), columnsIndex, PERSON_ID, subject::setPersonId);
         setValue(arr.toArray(new String[arr.size()]), columnsIndex, DATE_OF_ENROLLMENT, subject::setDateOfEnrollment);
         setValue(arr.toArray(new String[arr.size()]), columnsIndex, SECONDARY_ID, subject::setSecondaryId);
@@ -100,7 +111,14 @@ public class PatientDataFactory extends UserSubmittedDataFactory {
 
         header.add(STUDY_SUBJECT_ID);
         if (metadata.isGenderRequired()) header.add(GENDER);
-        if (metadata.getBirthdateRequired() != 3) header.add(DATE_OF_BIRTH);
+        if (metadata.getBirthdateRequired() != 3) {
+            if (metadata.getBirthdateRequired() == 1) {
+                header.add(DATE_OF_BIRTH);
+            }
+            else {
+                header.add(YEAR_OF_BIRTH);
+            }
+        }
         if (metadata.getPersonIDUsage() != ProtocolFieldRequirementSetting.BANNED) header.add(PERSON_ID);
         header.add(DATE_OF_ENROLLMENT);
         header.add(SECONDARY_ID);

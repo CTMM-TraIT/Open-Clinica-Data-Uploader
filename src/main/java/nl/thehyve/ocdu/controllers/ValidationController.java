@@ -36,7 +36,8 @@ public class ValidationController {
         try {
             UploadSession currentUploadSession = uploadSessionService.getCurrentUploadSession(session);
             String pwdHash = ocUserService.getOcwsHash(session);
-            List<ValidationErrorMessage> dataErrors = validationService.getDataErrors(currentUploadSession, pwdHash);
+            MetaDataProvider metaDataProvider = new HttpSessionMetaDataProvider(session);
+            List<ValidationErrorMessage> dataErrors = validationService.getDataErrors(currentUploadSession, pwdHash, metaDataProvider);
             return new ResponseEntity<>(dataErrors, HttpStatus.OK);
         } catch (UploadSessionNotFoundException e) {
             e.printStackTrace();
@@ -57,7 +58,8 @@ public class ValidationController {
         try {
             UploadSession currentUploadSession = uploadSessionService.getCurrentUploadSession(session);
             String pwdHash = ocUserService.getOcwsHash(session);
-            List<ValidationErrorMessage> patientsErrors = validationService.getPatientsErrors(currentUploadSession, pwdHash);
+            MetaDataProvider metaDataProvider = new HttpSessionMetaDataProvider(session);
+            List<ValidationErrorMessage> patientsErrors = validationService.getPatientsErrors(currentUploadSession, pwdHash, metaDataProvider);
             if(patientsErrors.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.OK);
             }
@@ -76,7 +78,8 @@ public class ValidationController {
         try {
             UploadSession currentUploadSession = uploadSessionService.getCurrentUploadSession(session);
             String pwdHash = ocUserService.getOcwsHash(session);
-            List<ValidationErrorMessage> eventsErrors = validationService.getEventsErrors(currentUploadSession, pwdHash);
+            MetaDataProvider metaDataProvider = new HttpSessionMetaDataProvider(session);
+            List<ValidationErrorMessage> eventsErrors = validationService.getEventsErrors(currentUploadSession, pwdHash, metaDataProvider);
             return new ResponseEntity<>(eventsErrors,HttpStatus.OK);
         } catch (UploadSessionNotFoundException e) {
             e.printStackTrace();

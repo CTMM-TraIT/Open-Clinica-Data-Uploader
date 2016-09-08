@@ -2,10 +2,7 @@ package nl.thehyve.ocdu.controllers;
 
 import nl.thehyve.ocdu.models.UploadSession;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
-import nl.thehyve.ocdu.services.OcUserService;
-import nl.thehyve.ocdu.services.UploadSessionNotFoundException;
-import nl.thehyve.ocdu.services.UploadSessionService;
-import nl.thehyve.ocdu.services.ValidationService;
+import nl.thehyve.ocdu.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,9 +40,10 @@ public class PreUploadOverviewController {
         try {
             UploadSession currentUploadSession = uploadSessionService.getCurrentUploadSession(session);
             String pwdHash = ocUserService.getOcwsHash(session);
-            List<ValidationErrorMessage> patientsErrors = validationService.getPatientsErrors(currentUploadSession, pwdHash);
-            List<ValidationErrorMessage> eventErrors = validationService.getEventsErrors(currentUploadSession, pwdHash);
-            List<ValidationErrorMessage> dataErrors = validationService.getDataErrors(currentUploadSession, pwdHash);
+            MetaDataProvider metaDataProvider = new HttpSessionMetaDataProvider(session);
+            List<ValidationErrorMessage> patientsErrors = validationService.getPatientsErrors(currentUploadSession, pwdHash, metaDataProvider);
+            List<ValidationErrorMessage> eventErrors = validationService.getEventsErrors(currentUploadSession, pwdHash, metaDataProvider);
+            List<ValidationErrorMessage> dataErrors = validationService.getDataErrors(currentUploadSession, pwdHash, metaDataProvider);
             List<ValidationErrorMessage> accumulatedErrors = new ArrayList<>();
             accumulatedErrors.addAll(patientsErrors);
             accumulatedErrors.addAll(eventErrors);
