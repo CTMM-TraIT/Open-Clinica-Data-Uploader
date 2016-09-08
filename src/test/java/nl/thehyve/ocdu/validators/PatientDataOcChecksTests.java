@@ -9,7 +9,6 @@ import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import nl.thehyve.ocdu.soap.ResponseHandlers.GetStudyMetadataResponseHandler;
 import nl.thehyve.ocdu.validators.patientDataChecks.*;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
@@ -23,9 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 
 /**
@@ -288,6 +285,28 @@ public class PatientDataOcChecksTests {
         localMetaData.setSiteDefinitions(null);
         error = check.getCorrespondingError(0, subject, localMetaData, testSubjectWithEventsTypeList, presentInData);
         assertThat(error.getMessage(), containsString("Study does not have sites and site(s) are specified for subjects"));
+    }
+
+
+    @Test
+    public void testWarningSubjectMissingSite() {
+        Subject subject = new Subject();
+        subject.setSsid("1234");
+        SiteDefinition siteDefinition = new SiteDefinition();
+        siteDefinition.setUniqueID("St. Elsewhere");
+        siteDefinition.setGenderRequired(true);
+        siteDefinition.setSiteOID("SITE_0123");
+        siteDefinition.setName("Saint Elsewhere's");
+        List<SiteDefinition> siteDefinitionList = new ArrayList<>();
+        siteDefinitionList.add(siteDefinition);
+        metadata.setSiteDefinitions(siteDefinitionList);
+
+        //sites do not exist
+        subject.setStudy("S_STUDY1");
+        subject.setSite("");
+        MissingSiteWarningCheck check = new MissingSiteWarningCheck();
+        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData);
+        assertThat(error.getMessage(), containsString("No site given for some subjects. If you continue these subjects will be created on study level."));
     }
 
     @Test

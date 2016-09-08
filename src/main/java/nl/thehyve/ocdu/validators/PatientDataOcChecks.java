@@ -10,7 +10,6 @@ import org.openclinica.ws.beans.StudySubjectWithEventsType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Created by bo on 6/7/16.
@@ -40,6 +39,7 @@ public class PatientDataOcChecks {
         checks.add(new SitePatientDataCheck());
         checks.add(new SubjectNotRegistered());
         checks.add(new PresentInData());
+        checks.add(new MissingSiteWarningCheck());
     }
 
     public List<ValidationErrorMessage> getErrors() {
