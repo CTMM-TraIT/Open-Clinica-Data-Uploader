@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.openclinica.ws.beans.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -385,10 +386,16 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
         return ssid;
     }
 
-    public List<String> getValues() {
+    public List<String> getValues(Boolean isMultiSelect) {
+        if( (isMultiSelect == null) || (isMultiSelect == false)) {
+            List<String> ret = new ArrayList<>();
+            ret.add(value);
+            return ret;
+        }
         String[] split = value.split(",", -1); // -1 means we will not discard empty values, e.g ,,
         List<String> values = Arrays.asList(split);
         return values;
+
     }
 
     public String toOffenderString() {

@@ -117,9 +117,6 @@ public class UtilChecks {
         if (containsAlphaNumeric(input)) {
             return false;
         }
-        if (!input.contains(".")) {
-            return false;
-        }
         if (input.contains(",")) {
             return false;
         }

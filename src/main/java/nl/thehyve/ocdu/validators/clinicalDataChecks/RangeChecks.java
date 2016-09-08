@@ -27,7 +27,7 @@ public class RangeChecks implements ClinicalDataCrossCheck {
             if (itemDefinition != null) { // Nonexistent item is a separate error
                 List<RangeCheck> rangeCheckList = itemDefinition.getRangeCheckList();
                 rangeCheckList.forEach(rangeCheck -> {
-                    List<String> values = clinicalData.getValues();
+                    List<String> values = clinicalData.getValues(itemDefMap.get(clinicalData).isMultiselect());
                     for (String value : values) {
                         if (UtilChecks.isFloat(value) || UtilChecks.isInteger(value)) {
                             BigDecimal intValue = BigDecimal.valueOf(Double.parseDouble(value)); // Do not attempt floating point comparison

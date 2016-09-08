@@ -28,19 +28,22 @@ public class CodeListCrossCheck implements ClinicalDataCrossCheck {
             codeListMap.put(codeListDefinition.getOcid(), codeListDefinition);
         });
         data.stream().forEach(clinicalData -> {
-            List<String> values = clinicalData.getValues();
-            ItemDefinition def = itemDefMap.get(clinicalData);
+            ItemDefinition itemDefinition = itemDefMap.get(clinicalData);
+            if (itemDefinition != null) {
+                List<String> values = clinicalData.getValues(itemDefinition.isMultiselect());
+                ItemDefinition def = itemDefMap.get(clinicalData);
 
-            if (def != null && shownMap.get(clinicalData)) { // Non existent item is a separate error, hidden values are not validated
-                String codeListRef = def.getCodeListRef();
-                if (codeListRef != null) {
-                    CodeListDefinition codeListdef = codeListMap.get(codeListRef);
-                    for (String value : values) {
-                        if (codeListdef != null && !codeListdef.isAllowed(value)) {
-                            String msg = clinicalData.toOffenderString() + " value not in: " + codeListdef;
-                            if (value.contains(" ")) msg += " (value contains whitespaces)";
-                            else if (value.equals("")) msg += " (value is an empty string)";
-                            error.addOffendingValue(msg);
+                if (def != null && shownMap.get(clinicalData)) { // Non existent item is a separate error, hidden values are not validated
+                    String codeListRef = def.getCodeListRef();
+                    if (codeListRef != null) {
+                        CodeListDefinition codeListdef = codeListMap.get(codeListRef);
+                        for (String value : values) {
+                            if (codeListdef != null && !codeListdef.isAllowed(value)) {
+                                String msg = clinicalData.toOffenderString() + " value not in: " + codeListdef;
+                                if (value.contains(" ")) msg += " (value contains whitespaces)";
+                                else if (value.equals("")) msg += " (value is an empty string)";
+                                error.addOffendingValue(msg);
+                            }
                         }
                     }
                 }

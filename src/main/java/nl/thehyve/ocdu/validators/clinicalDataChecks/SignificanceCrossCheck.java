@@ -33,7 +33,7 @@ public class SignificanceCrossCheck implements ClinicalDataCrossCheck {
     }
 
     private void addOffendingValues(TooManySignificantDigits error, ClinicalData clinicalData, ItemDefinition definition) {
-        for (String value : clinicalData.getValues()) {
+        for (String value : clinicalData.getValues(definition.isMultiselect())) {
             int digitsAfterDM = getDigitsAfterDM(value);
             if (digitsAfterDM > definition.getSignificantDigits()) {
                 error.addOffendingValue(clinicalData.toOffenderString() + " expected number of significant digits: "

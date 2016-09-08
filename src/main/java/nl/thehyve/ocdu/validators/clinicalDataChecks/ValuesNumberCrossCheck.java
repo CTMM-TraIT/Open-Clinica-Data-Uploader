@@ -26,7 +26,7 @@ public class ValuesNumberCrossCheck implements ClinicalDataCrossCheck {
             TooManyValues error = new TooManyValues();
             violators.forEach(clinicalData -> {
                 String msg = clinicalData.toOffenderString() + " Number of values (separated by comma): " +
-                        clinicalData.getValues().size();
+                        clinicalData.getValues(itemDefMap.get(clinicalData).isMultiselect()).size();
                 error.addOffendingValue(msg);
             });
             return error;
@@ -39,7 +39,7 @@ public class ValuesNumberCrossCheck implements ClinicalDataCrossCheck {
         if (itemDefinition == null) {
             return false; // Missing item is a different error
         }
-        boolean hasMultipleValues = dataPoint.getValues().size() > 1;
+        boolean hasMultipleValues = dataPoint.getValues(itemDefMap.get(dataPoint).isMultiselect()).size() > 1;
         if (hasMultipleValues && itemDefinition.getResponseType() == ResponseType.SINGLE_SELECT) {
             return true;
         } else {

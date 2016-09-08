@@ -78,7 +78,7 @@ public class UtilChecksTests {
         Assert.assertEquals(false, UtilChecks.isFloat("C'est ci pas un ile flottant"));
         Assert.assertEquals(false, UtilChecks.isFloat("314,0"));
         Assert.assertEquals(false, UtilChecks.isFloat("314,.0"));
-        Assert.assertEquals(false, UtilChecks.isFloat("314"));
+        Assert.assertEquals(true, UtilChecks.isFloat("314"));
 
         Assert.assertEquals(false, UtilChecks.isFloat("-1.0-"));
 

@@ -10,6 +10,7 @@ import nl.thehyve.ocdu.models.UploadSession;
 import nl.thehyve.ocdu.models.errors.*;
 import nl.thehyve.ocdu.soap.ResponseHandlers.GetStudyMetadataResponseHandler;
 import nl.thehyve.ocdu.validators.clinicalDataChecks.ClinicalDataCrossCheck;
+import nl.thehyve.ocdu.validators.clinicalDataChecks.DataTypeCrossCheck;
 import nl.thehyve.ocdu.validators.clinicalDataChecks.MultipleCrfCrossCheck;
 import nl.thehyve.ocdu.validators.clinicalDataChecks.StudyStatusAvailable;
 import nl.thehyve.ocdu.validators.fileValidators.DataPreMappingValidator;
@@ -224,8 +225,9 @@ public class ClinicalDataOcChecksTests {
         List<ClinicalData> incorrectClinicalData = factory.createClinicalData(testFileTooManyValues);
         clinicalDataOcChecks = new ClinicalDataOcChecks(metaData, incorrectClinicalData, testSubjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = clinicalDataOcChecks.getErrors();
-        assertEquals(2, errors.size());
-        assertThat(errors, hasItem(isA(TooManyValues.class)));
+        assertEquals(3, errors.size());
+        assertThat(errors, hasItem(isA(EnumerationError.class)));
+        assertThat(errors, hasItem(isA(DataTypeMismatch.class)));
         assertThat(errors, hasItem(isA(FieldLengthExceeded.class)));
     }
 
