@@ -14,7 +14,7 @@ public class EventDefinition implements ODMElement {
     private long id;
 
     @OneToMany(targetEntity = CRFDefinition.class)
-    private List crfDefinitions;
+    private List<CRFDefinition> crfDefinitions;
 
     private String studyEventOID;
     private String name;
@@ -83,7 +83,7 @@ public class EventDefinition implements ODMElement {
         return crfDefinitions;
     }
 
-    public void setCrfDefinitions(List crfDefinitions) {
+    public void setCrfDefinitions(List<CRFDefinition> crfDefinitions) {
         this.crfDefinitions = crfDefinitions;
     }
 

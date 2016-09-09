@@ -1,0 +1,79 @@
+.headerText {
+    margin-top: 0px;
+    height: 20px;
+    width: 100%;
+    background: #F39205;
+}
+
+.headerText {
+    padding-left: 51%;
+    text-align: left;
+    color: #FFFFFF;
+    font-family: Tahoma, Arial, Helvetica, sans-serif;
+    font-size: 10pt;
+}
+
+
+.logo-container {
+    align: center;
+    text-align: center;
+}
+
+.login-container {
+    margin: auto;
+    box-sizing: border-box;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #e2e2e2;
+    max-width: 360px;
+}
+
+.ocdu-container {
+    margin: auto;
+    width: 400px;
+    max-width: 400px;
+    min-height: 100%;
+    padding-top: 10px;
+    overflow:auto;
+    padding-bottom: 20%; /* must be the same as the height of the .copyright-container */
+}
+
+.welcome-message-container {
+    text-align: center;
+    padding: 20px;
+}
+
+.log-in-button {
+
+    margin: 5px;
+    padding: 10px;
+    text-align: center;
+    display: inline;
+    width: 40%;
+    font-size: 15px;
+    line-height: 0.75;
+}
+
+.form-group {
+    text-align: center;
+}
+
+.oc-environment-list {
+    margin: 10px;
+}
+
+.content-wrapper {
+    min-height: 100%;
+}
+
+.copyright-container {
+    position: relative;
+    margin-top: 1%;
+    height: 10%;
+    clear:both;
+    text-align: center;
+}
+
+body {
+    height: 100%;
+}

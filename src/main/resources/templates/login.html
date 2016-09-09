@@ -4,38 +4,38 @@
 <head>
     <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
     <link th:href="@{/css/style-login.css}" rel="stylesheet"/>
+    <link th:href="@{/css/style-custom-login.css}" rel="stylesheet"/>
     <title>Login</title>
 </head>
 <body>
-
-<div class="container ocdu-container">
-
-    <div class="container" align="center">
-        <div class="row">
-            <h1 class="text-center login-title"><bold>Log in OCDU</bold></h1>
-            <form th:action="@{/login}" method="post" class="form-signin">
-                <div class="form-group">
-                    <input type="text" name="username" class="form-control" placeholder="Username"/>
-                    <input type="password" name="password" class="form-control" placeholder="Password"/>
-                    OpenClinica Environment: <select name="ocEnvironment" >
-                         <option th:each="ocenv : ${environments}" th:value="${ocenv.url}"  th:text="${ocenv.name}"></option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-lg btn-primary btn-block">Log in</button>
-            </form>
+    <div class="content-wrapper">
+        <div th:utext="#{layout.header.bar.content}">
         </div>
+        <div class="ocdu-container">
+            <div class="logo-container" th:utext="#{layout.logo.content}"></div>
+            <div class="welcome-message-container" th:utext="#{layout.welcome.content}"></div>
+            <div class="login-container">
+                <h1 class="text-center login-title"><bold>Login</bold></h1>
+                <form th:action="@{/login}" method="post" class="form-signin">
+                    <div class="form-group">
+                        <input type="text" name="username" class="form-control" placeholder="Username"/>
+                        <input type="password" name="password" class="form-control" placeholder="Password"/>
+                        OpenClinica Environment: <select name="ocEnvironment" class="oc-environment-list">
+                             <option th:each="ocenv : ${environments}" th:value="${ocenv.url}"  th:text="${ocenv.name}"></option>
+                        </select>
+                        <button type="submit" class="btn btn-lg btn-primary btn-block log-in-button">Log in</button>
+                    </div>
+                </form>
+            </div>
+            <div class="alert alert-info" th:if="${param.logout}">
+                You have logged out.
+            </div>
 
+            <div class="alert alert-danger" th:if="${param.error}">
+                Invalid username and password.
+            </div>
+        </div>
+        <div class="copyright-container" th:utext="#{layout.copyright.content}"></div>
     </div>
-    <div class="alert alert-info" th:if="${param.logout}">
-        You have logged out.
-    </div>
-
-    <div class="alert alert-danger" th:if="${param.error}">
-        Invalid username and password.
-    </div>
-
-
-</div>
-
 </body>
 </html>

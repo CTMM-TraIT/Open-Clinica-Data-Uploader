@@ -1,6 +1,5 @@
 package nl.thehyve.ocdu.validators;
 
-import junit.framework.Assert;
 import nl.thehyve.ocdu.TestUtils;
 import nl.thehyve.ocdu.factories.ClinicalDataFactory;
 import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
@@ -10,7 +9,6 @@ import nl.thehyve.ocdu.models.UploadSession;
 import nl.thehyve.ocdu.models.errors.*;
 import nl.thehyve.ocdu.soap.ResponseHandlers.GetStudyMetadataResponseHandler;
 import nl.thehyve.ocdu.validators.clinicalDataChecks.ClinicalDataCrossCheck;
-import nl.thehyve.ocdu.validators.clinicalDataChecks.DataTypeCrossCheck;
 import nl.thehyve.ocdu.validators.clinicalDataChecks.MultipleCrfCrossCheck;
 import nl.thehyve.ocdu.validators.clinicalDataChecks.StudyStatusAvailable;
 import nl.thehyve.ocdu.validators.fileValidators.DataPreMappingValidator;
@@ -58,7 +56,6 @@ public class ClinicalDataOcChecksTests {
     private static Path testFileEventGapWithinData;
     private static Path testFileNonExistentEvent;
     private static Path testFileNonExistentCRF;
-    private static Path testFileNonExistentStudy;
     private static Path testFileItemLengthExceeded;
     private static Path testFileNonExistentItem;
     private static Path testFileCorrectNoSite;
@@ -89,7 +86,6 @@ public class ClinicalDataOcChecksTests {
             testFileEventGapWithinData = Paths.get("docs/exampleFiles/eventGapInData.txt");
             testFileNonExistentEvent = Paths.get("docs/exampleFiles/nonExistentEvent.txt");
             testFileNonExistentCRF = Paths.get("docs/exampleFiles/nonExistentCrf.txt");
-            testFileNonExistentStudy = Paths.get("docs/exampleFiles/nonexistentStudy.txt");
             testFileItemLengthExceeded = Paths.get("docs/exampleFiles/itemLengthExceeded.txt");
             testFileNonExistentItem = Paths.get("docs/exampleFiles/nonExistentItem.txt");
             testFileCorrectNoSite = Paths.get("docs/exampleFiles/data_no_site.txt");
