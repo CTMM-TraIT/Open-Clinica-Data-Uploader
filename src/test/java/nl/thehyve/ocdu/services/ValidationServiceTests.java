@@ -102,13 +102,13 @@ public class ValidationServiceTests {
         clinicalData.setEventRepeat("4");
         validationErrorMessage =
                 validationService.checkForMissingEventsInEventDataAndOpenClinica(metaData, studySubjectWithEventsTypeList, eventList, clinicalDataList);
-        assertThat(validationErrorMessage.getMessage(), containsString("One or more events are present in the data which are not scheduled in OpenClinica"));
+        assertThat(validationErrorMessage.getMessage(), containsString("One or more events are present in the data file which are not scheduled in OpenClinica."));
 
         // TestCase 4
         eventList.clear();
         validationErrorMessage =
                 validationService.checkForMissingEventsInEventDataAndOpenClinica(metaData, studySubjectWithEventsTypeList, eventList, clinicalDataList);
-        assertThat(validationErrorMessage.getMessage(), containsString("One or more events are present in the data which are not scheduled in OpenClinica"));
+        assertThat(validationErrorMessage.getMessage(), containsString("One or more events are present in the data file which are not scheduled in OpenClinica."));
     }
 
     @Test
@@ -137,11 +137,11 @@ public class ValidationServiceTests {
         event.setRepeatNumber("3");
         validationErrorMessage =
                 validationService.checkForMissingEventsInEventDataAndOpenClinica(metaData, studySubjectWithEventsTypeList, eventList, clinicalDataList);
-        assertThat(validationErrorMessage.getMessage(), containsString("One or more events are present in the data which are not scheduled in OpenClinica"));
+        assertThat(validationErrorMessage.getMessage(), containsString("One or more events are present in the data file which are not scheduled in OpenClinica."));
         // TestCase 4
         eventList.clear();
         validationErrorMessage =
                 validationService.checkForMissingEventsInEventDataAndOpenClinica(metaData, studySubjectWithEventsTypeList, eventList, clinicalDataList);
-        assertThat(validationErrorMessage.getMessage(), containsString("One or more events are present in the data which are not scheduled in OpenClinica"));
+        assertThat(validationErrorMessage.getMessage(), containsString("One or more events are present in the data file which are not scheduled in OpenClinica."));
     }
 }
