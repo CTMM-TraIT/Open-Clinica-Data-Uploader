@@ -1,10 +1,7 @@
 package nl.thehyve.ocdu.services;
 
 import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
-import nl.thehyve.ocdu.models.OcDefinitions.EventDefinition;
-import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
-import nl.thehyve.ocdu.models.OcDefinitions.ItemGroupDefinition;
-import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
+import nl.thehyve.ocdu.models.OcDefinitions.*;
 import nl.thehyve.ocdu.models.UploadSession;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -196,8 +193,27 @@ public class ODMService {
         Map<String, String> eventNameOIDMap =
                 metaData.getEventDefinitions().stream().collect(Collectors.toMap(EventDefinition::getName, EventDefinition::getStudyEventOID));
 
+        String eventName = clinicalDataList.get(0).getEventName();
+        String eventOID = eventNameOIDMap.get(eventName);
+        String crfName = clinicalDataList.get(0).getCrfName();
+        String crfVersion = clinicalDataList.get(0).getCrfVersion();
+        EventDefinition eventDefinition =
+                metaData.getEventDefinitions().stream().filter(eventDefinition1 -> eventDefinition1.getStudyEventOID().equals(eventOID)).findFirst().get();
+        CRFDefinition crfDefinition = eventDefinition.getCrfDefinitions().stream().filter( crfDefinition1 -> (
+                (crfDefinition1.getName().equals(crfName)) &&
+                (crfDefinition1.getVersion().equals(crfVersion)))).findFirst().get();
+
         Set<ItemDefinition> allItemDefinitions = new HashSet<>();
-                metaData.getItemGroupDefinitions().forEach(itemGroupDefinition -> allItemDefinitions.addAll(itemGroupDefinition.getItems()));
+        metaData.getItemGroupDefinitions().forEach(itemGroupDefinition -> {
+            for (ItemDefinition itemDefinition : itemGroupDefinition.getItems()) {
+                List<ItemPresentInForm> itemPresentInFormList = itemDefinition.getItemPresentInFormList();
+                for (ItemPresentInForm itemPresentInForm : itemPresentInFormList) {
+                    if (crfDefinition.getOid().equals(itemPresentInForm.getFormOID())) {
+                        allItemDefinitions.add(itemDefinition);
+                    }
+                }
+            }
+        });
 
         Map<String, String> itemNameOIDMap =
                 allItemDefinitions.stream().collect(Collectors.toMap(ItemDefinition::getName, ItemDefinition::getOid));
