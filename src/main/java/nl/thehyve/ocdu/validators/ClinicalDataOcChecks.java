@@ -41,6 +41,7 @@ public class ClinicalDataOcChecks extends ClinicalDataChecksRunner{
         crossChecks.add(new EventStatusCheck());
         crossChecks.add(new EventGapCrossCheck());
         crossChecks.add(new EventRepeatFormatCheck());
+        crossChecks.add(new EventStatusWarning());
 
         this.setChecks(crossChecks);
     }

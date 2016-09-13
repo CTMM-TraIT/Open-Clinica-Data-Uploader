@@ -9,6 +9,7 @@ import nl.thehyve.ocdu.models.UploadSession;
 import nl.thehyve.ocdu.models.errors.*;
 import nl.thehyve.ocdu.soap.ResponseHandlers.GetStudyMetadataResponseHandler;
 import nl.thehyve.ocdu.validators.clinicalDataChecks.ClinicalDataCrossCheck;
+import nl.thehyve.ocdu.validators.clinicalDataChecks.EventStatusWarning;
 import nl.thehyve.ocdu.validators.clinicalDataChecks.MultipleCrfCrossCheck;
 import nl.thehyve.ocdu.validators.clinicalDataChecks.StudyStatusAvailable;
 import nl.thehyve.ocdu.validators.fileValidators.DataPreMappingValidator;
@@ -52,6 +53,7 @@ public class ClinicalDataOcChecksTests {
     private static UploadSession testSubmission;
     private static ClinicalDataFactory factory;
     private static Path testFileCorrect;
+    private static Path testFileCRFStatusWarning;
     private static Path testFileInCorrectSsidLength;
     private static Path testFileEventGapWithinData;
     private static Path testFileNonExistentEvent;
@@ -83,6 +85,7 @@ public class ClinicalDataOcChecksTests {
 
             testFileCorrect = Paths.get("docs/exampleFiles/data.txt");
             testFileInCorrectSsidLength = Paths.get("docs/exampleFiles/tooLongSSID.txt");
+            testFileCRFStatusWarning = Paths.get("docs/exampleFiles/crfStatusWarning.txt");
             testFileEventGapWithinData = Paths.get("docs/exampleFiles/eventGapInData.txt");
             testFileNonExistentEvent = Paths.get("docs/exampleFiles/nonExistentEvent.txt");
             testFileNonExistentCRF = Paths.get("docs/exampleFiles/nonExistentCrf.txt");
@@ -134,6 +137,15 @@ public class ClinicalDataOcChecksTests {
         List<ValidationErrorMessage> errors = clinicalDataOcChecks.getErrors();
         assertEquals(1, errors.size());
         assertThat(errors, hasItem(isA(SSIDTooLong.class)));
+    }
+
+    @Test
+    public void crfStatusWarning() throws Exception {
+        List<ClinicalData> clinicalData = factory.createClinicalData(testFileCRFStatusWarning);
+        clinicalDataOcChecks = new ClinicalDataOcChecks(metaDataEventfulStudy, clinicalData, testSubjectWithEventsTypeList);
+        List<ValidationErrorMessage> errors = clinicalDataOcChecks.getErrors();
+        assertEquals(2, errors.size());
+        assertThat(errors, hasItem(isA(EventStatusWarningForOverwrite.class)));
     }
 
 
@@ -272,7 +284,7 @@ public class ClinicalDataOcChecksTests {
         List<ClinicalData> incorrectClinicalData = factory.createClinicalData(testFileMismatchingCRFVersion);
         clinicalDataOcChecks = new ClinicalDataOcChecks(metaDataEventfulStudy, incorrectClinicalData, testSubjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = clinicalDataOcChecks.getErrors();
-        assertEquals(1, errors.size());
+        assertEquals(2, errors.size());
         assertThat(errors, hasItem(isA(CRFVersionMismatchError.class)));
     }
 
