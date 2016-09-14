@@ -8,6 +8,6 @@ package nl.thehyve.ocdu.models.errors;
 public class EventStatusWarningForOverwrite extends ValidationErrorMessage {
 
     public EventStatusWarningForOverwrite() {
-        super("One or more of the events for which you are about to upload data has the status 'Data Entry Started' or 'Data Entry Completed'.");
+        super("One or more of the CRFs for which you are about to upload data has the status 'Data Entry Started' or 'Data Entry Completed'.");
     }
 }
