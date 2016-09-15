@@ -61,6 +61,9 @@ public class ODMUploadController {
     DataService dataService;
 
     @Autowired
+    MappingService mappingService;
+
+    @Autowired
     ClinicalDataRepository clinicalDataRepository;
 
     @Autowired
@@ -81,6 +84,7 @@ public class ODMUploadController {
 
 
             uploadSessionService.setCurrentUploadSession(session, uploadSession);
+            mappingService.saveMappingFile(uploadSession);
 
             OcUser user = ocUserService.getCurrentOcUser(session);
             String userName = user.getUsername();
