@@ -2,6 +2,8 @@ package nl.thehyve.ocdu.autonomous;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
@@ -17,8 +19,10 @@ public class AutonomousUploadTask {
 
     private static final Logger log = LoggerFactory.getLogger(AutonomousUploadTask.class);
 
+    @Autowired
     private FileCopyService fileCopyService;
 
+    @Scheduled(cron = "${autonomous.cron.schedule}")
     public void run() {
         log.info("Running autonomousUploadTask...");
         try {

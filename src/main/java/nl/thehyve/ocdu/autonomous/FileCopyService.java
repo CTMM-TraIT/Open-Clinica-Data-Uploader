@@ -5,6 +5,7 @@ import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -25,10 +26,13 @@ public class FileCopyService {
 
     private static final Logger log = LoggerFactory.getLogger(FileCopyService.class);
 
+    @Value("${autonomous.upload.source.directory}")
     private String sourceDirectory;
 
+    @Value("${autonomous.failed.files.directory}")
     private String failedFilesDirectory;
 
+    @Value("${autonomous.completed.files.directory}")
     private String completedFilesDirectory;
 
 
@@ -70,7 +74,7 @@ public class FileCopyService {
     public void successfulFile(Path path) throws Exception {
         String newFileName = addTimeStamp(path, completedFilesDirectory);
         FileUtils.moveFile(path.toFile(), new File(newFileName));
-        log.info("Successfully completed file '" + path + "' moved to completed files directory");
+        log.info("Successfully completed file '" + path + "', moved to completed files directory");
     }
 
     private static String addTimeStamp(Path aPath, String aDestinationDirectory) {
@@ -90,9 +94,6 @@ public class FileCopyService {
     public void setCompletedFilesDirectory(String completedFilesDirectory) {
         this.completedFilesDirectory = completedFilesDirectory;
     }
-
-
-
 
     private void checkReadWriteAccess() throws Exception {
         if (! Files.isReadable(new File(sourceDirectory).toPath())) {
