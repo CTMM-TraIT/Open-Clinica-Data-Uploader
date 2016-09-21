@@ -123,6 +123,7 @@ public class EventDataFactory extends UserSubmittedDataFactory {
         header.add("Study Subject ID");
         header.add("Event Name");
         header.add("Study");
+        header.add("Site");
         if (isLocationInTemplate(metaData)) {
             header.add("Location");
         }
@@ -138,6 +139,7 @@ public class EventDataFactory extends UserSubmittedDataFactory {
                 row.add(eventToSchedule.getSsid());//study subject id
                 row.add(eventToSchedule.getEventName());//event name
                 row.add(metaData.getStudyName());//study
+                row.add(eventToSchedule.getSite());
                 if (isLocationInTemplate(metaData)) {
                     row.add("");//location
                 }

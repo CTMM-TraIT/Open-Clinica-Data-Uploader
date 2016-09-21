@@ -136,8 +136,11 @@ public class RegisteredEventInformation {
             if (StringUtils.isEmpty(eventRepeatNumber)) {
                 eventRepeatNumber = "1";
             }
-            eventName = StringUtils.substringBeforeLast(eventName, "#");
+            String eventSiteCombination = StringUtils.substringBeforeLast(eventName, "#");
+            eventName = StringUtils.substringAfterLast(eventSiteCombination, "#");
+            String site = StringUtils.substringBefore(eventSiteCombination, "#");
             Event eventToSchedule = new Event();
+            eventToSchedule.setSite(site);
             eventToSchedule.setRepeatNumber(eventRepeatNumber);
             eventToSchedule.setSsid(studySubjectID);
             eventToSchedule.setEventName(eventName);

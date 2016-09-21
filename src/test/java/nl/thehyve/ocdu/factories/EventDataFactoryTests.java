@@ -137,13 +137,13 @@ public class EventDataFactoryTests {
         List<StudySubjectWithEventsType> studySubjectWithEventsTypeList = TestUtils.createStudySubjectWithEventList();
 
         Set<ImmutablePair> patInEv = new HashSet<>();
-        patInEv.add(new ImmutablePair("EV-00007", "RepeatingEvent"));
-        patInEv.add(new ImmutablePair("EV-00007", "Non-repeating Event"));
-        patInEv.add(new ImmutablePair("EV-00007", "RepeatingEvent#5"));
+        patInEv.add(new ImmutablePair("EV-00007", "#RepeatingEvent#1"));
+        patInEv.add(new ImmutablePair("EV-00007", "#Non-repeating Event#1"));
+        patInEv.add(new ImmutablePair("EV-00007", "Siteseeing#RepeatingEvent#5"));
         List<String> result = this.factory.generateEventSchedulingTemplate(this.metadata, studySubjectWithEventsTypeList, patInEv);
-        assertTrue(result.contains("EV-00007\tRepeatingEvent\tEventful\t\t\t\t\t1\n"));
-        assertTrue(result.contains("EV-00007\tRepeatingEvent\tEventful\t\t\t\t\t5\n"));
-        assertTrue(result.contains("EV-00007\tNon-repeating Event\tEventful\t\t\t\t\t1\n"));
+        assertTrue(result.contains("EV-00007\tRepeatingEvent\tEventful\tSiteseeing\t\t\t\t\t5\n"));
+        assertTrue(result.contains("EV-00007\tRepeatingEvent\tEventful\t\t\t\t\t\t1\n"));
+        assertTrue(result.contains("EV-00007\tNon-repeating Event\tEventful\t\t\t\t\t\t1\n"));
     }
 
     @Before

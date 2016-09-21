@@ -76,7 +76,7 @@ public class DataService {
     public Set<ImmutablePair> getPatientsInEvent(UploadSession submission) {
         List<ClinicalData> bySubmission = clinicalDataRepository.findBySubmission(submission);
         Set<ImmutablePair> ret = bySubmission.stream()
-                .map(clinicalData -> new ImmutablePair(clinicalData.getSsid(), clinicalData.getEventName() + "#" + clinicalData.getEventRepeat()))
+                .map(clinicalData -> new ImmutablePair(clinicalData.getSsid(), clinicalData.getSite() + "#" + clinicalData.getEventName() + "#" + clinicalData.getEventRepeat()))
                 .collect(Collectors.toSet());
         return ret;
     }
