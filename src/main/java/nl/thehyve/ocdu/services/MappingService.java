@@ -35,7 +35,7 @@ public class MappingService {
      * The Upload session specific mapping definition. Is found in specific directories under the property
      * <code>autonomous.upload.source.directory</code>.
      */
-    private static final String MAPPING_FILE_NAME = "mapping.yml";
+    public static final String MAPPING_FILE_NAME = "mapping.yml";
 
     @Autowired
     ClinicalDataRepository clinicalDataRepository;
