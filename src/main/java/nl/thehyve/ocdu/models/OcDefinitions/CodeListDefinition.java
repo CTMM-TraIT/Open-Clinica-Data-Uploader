@@ -1,7 +1,12 @@
 package nl.thehyve.ocdu.models.OcDefinitions;
 
+import nl.thehyve.ocdu.validators.UtilChecks;
+import org.apache.commons.lang3.StringUtils;
+
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Formatter;
 import java.util.List;
 
 /**
@@ -9,6 +14,8 @@ import java.util.List;
  */
 @Entity
 public class CodeListDefinition {
+
+    private static final int MAXIMAL_SCALE = 10;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -44,7 +51,29 @@ public class CodeListDefinition {
     }
 
 
-    public boolean isAllowed(String value) {
+    public boolean isAllowed(String value, String expectedType) {
+        if (UtilChecks.FLOAT_DATA_TYPE.equals(expectedType)) {
+            if (StringUtils.isBlank(value)) {
+                return false;
+            }
+            BigDecimal valueToCheck;
+            try {
+                valueToCheck = new BigDecimal(value.trim());
+            }
+            catch (NumberFormatException nfe) {
+                return false;
+            }
+            valueToCheck = valueToCheck.setScale(MAXIMAL_SCALE);
+            for (CodeListItemDefinition codeListItemDefinition : items) {
+                String strValue = codeListItemDefinition.getContent();
+                BigDecimal bigDecimal = new BigDecimal(strValue.trim());
+                bigDecimal = bigDecimal.setScale(MAXIMAL_SCALE);
+                if (bigDecimal.equals(valueToCheck)) {
+                    return true;
+                }
+            }
+            return false;
+        }
         return items.stream()
                 .anyMatch(codeListItemDefinition -> codeListItemDefinition.getContent().equals(value));
     }

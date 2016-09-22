@@ -53,6 +53,7 @@ public class ClinicalDataOcChecksTests {
     private static UploadSession testSubmission;
     private static ClinicalDataFactory factory;
     private static Path testFileCorrect;
+    private static Path testFileEmptyNonMandatoryMultiSelect;
     private static Path testFileCRFStatusWarning;
     private static Path testFileInCorrectSsidLength;
     private static Path testFileEventGapWithinData;
@@ -83,6 +84,7 @@ public class ClinicalDataOcChecksTests {
             testSubmission = new UploadSession("submission1", UploadSession.Step.MAPPING, new Date(), testUser);
             factory = new ClinicalDataFactory(testUser, testSubmission);
 
+            testFileEmptyNonMandatoryMultiSelect = Paths.get("docs/exampleFiles/emptyNonMandatoryMultiSelect.txt");
             testFileCorrect = Paths.get("docs/exampleFiles/data.txt");
             testFileInCorrectSsidLength = Paths.get("docs/exampleFiles/tooLongSSID.txt");
             testFileCRFStatusWarning = Paths.get("docs/exampleFiles/crfStatusWarning.txt");
@@ -237,6 +239,17 @@ public class ClinicalDataOcChecksTests {
         assertThat(errors, hasItem(isA(EnumerationError.class)));
         assertThat(errors, hasItem(isA(DataTypeMismatch.class)));
         assertThat(errors, hasItem(isA(FieldLengthExceeded.class)));
+    }
+
+
+    @Test
+    public void testBlankMultiSelectNonMandatory() throws Exception {
+        List<ClinicalData> incorrectClinicalData = factory.createClinicalData(testFileEmptyNonMandatoryMultiSelect);
+        clinicalDataOcChecks = new ClinicalDataOcChecks(metaData, incorrectClinicalData, testSubjectWithEventsTypeList);
+        List<ValidationErrorMessage> errors = clinicalDataOcChecks.getErrors();
+        assertEquals(2, errors.size());
+        assertThat(errors, hasItem(isA(EnumerationError.class)));
+        assertThat(errors, hasItem(isA(DataTypeMismatch.class)));
     }
 
     @Test

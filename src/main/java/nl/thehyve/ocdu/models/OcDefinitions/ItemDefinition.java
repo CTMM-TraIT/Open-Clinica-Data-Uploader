@@ -3,6 +3,7 @@ package nl.thehyve.ocdu.models.OcDefinitions;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Entity for the item definition, present in metadata returned by OpenClinica.
@@ -183,6 +184,16 @@ public class ItemDefinition implements ODMElement {
 
         return oid != null ? oid.equals(that.oid) : that.oid == null;
 
+    }
+
+    public boolean isRequiredInCRF(String formOID) {
+        Optional<ItemPresentInForm> itemPresentInFormOptional =
+                itemPresentInFormList.stream().filter( itemPresentInFormSearch -> itemPresentInFormSearch.getFormOID().equals(formOID)).findFirst();
+        if (itemPresentInFormOptional.isPresent()) {
+            ItemPresentInForm itemPresentInForm = itemPresentInFormOptional.get();
+            return itemPresentInForm.isRequired();
+        }
+        throw new IllegalStateException("Unable to determine the requiredness of item " + this.getName() + "," + this.getOid());
     }
 
     @Override

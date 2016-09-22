@@ -7,6 +7,7 @@ import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.errors.EnumerationError;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
+import org.apache.commons.lang3.StringUtils;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
 import java.util.HashMap;
@@ -22,6 +23,7 @@ public class CodeListCrossCheck implements ClinicalDataCrossCheck {
 
     @Override
     public ValidationErrorMessage getCorrespondingError(List<ClinicalData> data, MetaData metaData, Map<ClinicalData, ItemDefinition> itemDefMap, List<StudySubjectWithEventsType> studySubjectWithEventsTypeList, Map<ClinicalData, Boolean> shownMap, Map<String, Set<CRFDefinition>> eventMap) {
+        Map<ClinicalData, String> itemDataTypes = buildDataTypeMap(data, itemDefMap);
         EnumerationError error = new EnumerationError();
         Map<String, CodeListDefinition> codeListMap = new HashMap<>();
         metaData.getCodeListDefinitions().stream().forEach(codeListDefinition -> {
@@ -31,14 +33,14 @@ public class CodeListCrossCheck implements ClinicalDataCrossCheck {
             ItemDefinition itemDefinition = itemDefMap.get(clinicalData);
             if (itemDefinition != null) {
                 List<String> values = clinicalData.getValues(itemDefinition.isMultiselect());
-                ItemDefinition def = itemDefMap.get(clinicalData);
-
-                if (def != null && shownMap.get(clinicalData)) { // Non existent item is a separate error, hidden values are not validated
-                    String codeListRef = def.getCodeListRef();
+                if (shownMap.get(clinicalData)) { // Non existent item is a separate error, hidden values are not validated
+                    String codeListRef = itemDefinition.getCodeListRef();
                     if (codeListRef != null) {
                         CodeListDefinition codeListdef = codeListMap.get(codeListRef);
+                        String expectedType = itemDataTypes.get(clinicalData);
+                        boolean isNotEmpty = StringUtils.isNotEmpty(clinicalData.getValue());
                         for (String value : values) {
-                            if (codeListdef != null && !codeListdef.isAllowed(value)) {
+                            if ((codeListdef != null) && (!codeListdef.isAllowed(value, expectedType)) && isNotEmpty) {
                                 String msg = clinicalData.toOffenderString() + " value not in: " + codeListdef;
                                 if (value.contains(" ")) msg += " (value contains whitespaces)";
                                 else if (value.equals("")) msg += " (value is an empty string)";
@@ -53,5 +55,16 @@ public class CodeListCrossCheck implements ClinicalDataCrossCheck {
             return error;
         } else
             return null;
+    }
+
+    private Map<ClinicalData, String> buildDataTypeMap(List<ClinicalData> data, Map<ClinicalData, ItemDefinition> defMap) {
+        Map<ClinicalData, String> typeMap = new HashMap<>();
+        for (ClinicalData clinicalData : data) {
+            ItemDefinition def = defMap.get(clinicalData);
+            if (def != null) {
+                typeMap.put(clinicalData, def.getDataType());
+            }
+        }
+        return typeMap;
     }
 }

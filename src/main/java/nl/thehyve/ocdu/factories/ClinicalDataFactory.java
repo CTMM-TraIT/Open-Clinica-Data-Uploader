@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -47,10 +48,15 @@ public class ClinicalDataFactory extends UserSubmittedDataFactory {
             List<ClinicalData> clinicalData = new ArrayList<>();
             List<List<ClinicalData>> clinicalDataAggregates = lines.skip(1). // skip header
                     filter(s -> parseLine(s).length > 2). // smallest legal file consists of no less than 3 columns
-                    map(s -> parseLine(clinicalData.size() + 1, s, columnsIndex, coreColumns)).collect(Collectors.toList());
-            clinicalDataAggregates.forEach(aggregate -> clinicalData.addAll(aggregate));
+                    map(s -> parseLine(0, s, columnsIndex, coreColumns)).collect(Collectors.toList());
+            AtomicLong counter = new AtomicLong(2);
+            clinicalDataAggregates.forEach(aggregate -> {
+                aggregate.forEach( clinicalData1 -> clinicalData1.setLineNumber(counter.get()));
+                clinicalData.addAll(aggregate);
+                counter.incrementAndGet();
+            });
             return clinicalData;
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;

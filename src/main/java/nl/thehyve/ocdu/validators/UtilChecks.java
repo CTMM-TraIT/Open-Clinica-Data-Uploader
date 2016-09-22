@@ -20,6 +20,12 @@ import static java.time.temporal.ChronoField.*;
  */
 public class UtilChecks {
 
+    public final static String TEXT_DATA_TYPE = "text";
+    public final static String INTEGER_DATA_TYPE = "integer";
+    public final static String FLOAT_DATA_TYPE = "float";
+    public final static String DATE_DATA_TYPE = "date";
+    public final static String PARTIAL_DATE_DATA_TYPE = "partialDate";
+
     private static final String DATE_SEP = "-";
     private static DateTimeFormatter dateTimeFormatter = new DateTimeFormatterBuilder()
             .parseCaseInsensitive().appendValue(DAY_OF_MONTH, 2).appendLiteral(DATE_SEP)
@@ -127,6 +133,33 @@ public class UtilChecks {
             return false;
         }
     }
+
+
+    public static boolean allValuesMatch(List<String> values, String expectedType) {
+        for (String value : values) {
+            if (!matchType(value, expectedType)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean matchType(String value, String expectedType) {
+        if (expectedType == null || expectedType.equals(TEXT_DATA_TYPE)) {
+            return true;
+        } else if (expectedType.equals(INTEGER_DATA_TYPE)) {
+            return UtilChecks.isInteger(value);
+        } else if (expectedType.equals(FLOAT_DATA_TYPE)) {
+            return UtilChecks.isFloat(value);
+        } else if (expectedType.equals(DATE_DATA_TYPE)) {
+            return UtilChecks.isDate(value);
+        } else if (expectedType.equals(PARTIAL_DATE_DATA_TYPE)) {
+            return UtilChecks.isPDate(value);
+        } else {
+            return true; // no expectations, no disappointment
+        }
+    }
+
     private static boolean containsAlphaNumeric(String input) {
         return input.matches(".*[A-z].*");
     }
