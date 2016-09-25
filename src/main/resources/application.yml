@@ -1,6 +1,10 @@
 OpenClinicaEnvironments:
   ocEnvironments:
      -
+           url:
+           name:
+           version:
+     -
          url: http://localhost:8080/OpenClinica-ws
          name: Localhost_8080
          version: 3.6
