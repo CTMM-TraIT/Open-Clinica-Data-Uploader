@@ -18,8 +18,8 @@
                 <h1 class="text-center login-title"><bold>Login</bold></h1>
                 <form th:action="@{/login}" method="post" class="form-signin">
                     <div class="form-group">
-                        <input type="text" name="username" class="form-control" placeholder="Username"/>
-                        <input type="password" name="password" class="form-control" placeholder="Password"/>
+                        <input type="text" name="username" class="form-control" placeholder="Username" required/>
+                        <input type="password" name="password" class="form-control" placeholder="Password" required/>
                         OpenClinica Environment: <select name="ocEnvironment" class="oc-environment-list" required>
                              <option th:each="ocenv : ${environments}" th:value="${ocenv.url}"  th:text="${ocenv.name}"></option>
                         </select>

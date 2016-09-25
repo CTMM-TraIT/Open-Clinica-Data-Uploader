@@ -30,6 +30,8 @@ public class OcduApplicationTests {
         List<OCEnvironmentsConfig.OCEnvironment> ocEnvironments = ocEnvironmentsConfig.getOcEnvironments();
         assertEquals(true, ocEnvironments.size() > 0);
         OCEnvironmentsConfig.OCEnvironment ocEnvironment = ocEnvironments.get(0);
+        assertEquals(true, ocEnvironment.getName().isEmpty());
+        ocEnvironment = ocEnvironments.get(1);
         assertEquals(false, ocEnvironment.getName().isEmpty());
     }
 }
