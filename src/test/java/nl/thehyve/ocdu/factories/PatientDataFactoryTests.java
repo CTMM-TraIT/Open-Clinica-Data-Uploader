@@ -104,12 +104,12 @@ public class PatientDataFactoryTests {
         metadata.setBirthdateRequired(MetaData.BIRTH_DATE_AS_FULL_DATE);
         List<String> template = factory.generatePatientRegistrationTemplate(this.metadata, this.subjectMap, true, subjectSiteMap);
         assertEquals("Study Subject ID\tGender\tDate of Birth\tPerson ID\tDate of Enrollment\tSecondary ID\tStudy\tSite (optional)\n", template.get(0));
-        assertEquals("test_ssid_1\t\t\t\t\tSjogren\ttestSite\n", template.get(1));
+        assertEquals("test_ssid_1\t\t\t\t\t\tSjogren\ttestSite\n", template.get(1));
 
         metadata.setBirthdateRequired(MetaData.BIRTH_DATE_AS_ONLY_YEAR);
         template = factory.generatePatientRegistrationTemplate(this.metadata, this.subjectMap, true, subjectSiteMap);
         assertEquals("Study Subject ID\tGender\tYear of Birth\tPerson ID\tDate of Enrollment\tSecondary ID\tStudy\tSite (optional)\n", template.get(0));
-        assertEquals("test_ssid_1\t\t\t\t\tSjogren\ttestSite\n", template.get(1));
+        assertEquals("test_ssid_1\t\t\t\t\t\tSjogren\ttestSite\n", template.get(1));
     }
 
 

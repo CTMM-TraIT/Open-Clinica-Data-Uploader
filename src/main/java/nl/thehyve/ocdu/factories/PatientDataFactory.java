@@ -133,6 +133,7 @@ public class PatientDataFactory extends UserSubmittedDataFactory {
                 line.add(ssid);//ssid
                 if (metadata.isGenderRequired()) line.add("");//gender
                 if (metadata.getBirthdateRequired() != 3) line.add("");//date of birth
+                if (metadata.getPersonIDUsage() != ProtocolFieldRequirementSetting.BANNED) line.add("");//person ID
                 line.add("");//date of enrollment
                 line.add("");//secondary id
                 line.add(metadata.getStudyName());//study

@@ -247,9 +247,7 @@ public class ClinicalDataOcChecksTests {
         List<ClinicalData> incorrectClinicalData = factory.createClinicalData(testFileEmptyNonMandatoryMultiSelect);
         clinicalDataOcChecks = new ClinicalDataOcChecks(metaData, incorrectClinicalData, testSubjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = clinicalDataOcChecks.getErrors();
-        assertEquals(2, errors.size());
-        assertThat(errors, hasItem(isA(EnumerationError.class)));
-        assertThat(errors, hasItem(isA(DataTypeMismatch.class)));
+        assertEquals(0, errors.size());
     }
 
     @Test
