@@ -127,7 +127,7 @@ $(document).ready(function () {
         });
     }
     else {
-        var html = '<div class="alert alert-success"> <strong>No subject needs to be validated, click Next to proceed.</strong></div>';
+        var html = '<div class="alert alert-success"> <strong>All subjects in the data file are already registered in OpenClinica, validation is not required. Click Next to proceed.</strong></div>';
         $('#feedback-tables').append(html);
     }
 
