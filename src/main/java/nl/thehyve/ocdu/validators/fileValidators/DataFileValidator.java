@@ -49,7 +49,7 @@ public class DataFileValidator extends GenericFileValidator {
     private void studyExists(Set<String> usedStudies) {
         for (String studyName : usedStudies) {
             if (!studies.stream().anyMatch(study -> study.getIdentifier().equals(studyName))) {
-                FileFormatError error = new FileFormatError("Study \"" + studyName + "\" does not exist in OpenClinica or you are not authorized for this study.");
+                FileFormatError error = new FileFormatError("Study \"" + studyName + "\" does not exist in OpenClinica or you are not authorized for this study and/or site.");
                 addError(error);
             }
         }
