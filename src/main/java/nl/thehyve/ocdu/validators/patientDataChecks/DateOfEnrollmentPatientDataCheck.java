@@ -30,21 +30,23 @@ public class DateOfEnrollmentPatientDataCheck implements PatientDataCheck {
         String commonMessage = getCommonErrorMessage(index, ssid);
 
         ValidationErrorMessage error = null;
-        String dateOfEntrollment = subject.getDateOfEnrollment();
-        Date currentDate = new Date();
+        String dateOfEnrollment = subject.getDateOfEnrollment();
 
-        if (StringUtils.isBlank(dateOfEntrollment)) {
+        DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
+
+        Date currentDate = new Date();
+        if (StringUtils.isBlank(dateOfEnrollment)) {
             error = new ValidationErrorMessage("Date of Enrollment is not provided. Today's date will be used. ");
-            subject.setDateOfEnrollment(currentDate.toString());
+            dateOfEnrollment = dateFormat.format(new Date());
+            subject.setDateOfEnrollment(dateOfEnrollment);
             error.setError(false);
         } else {
-            DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
-            dateFormat.setLenient(false);
-            if (!UtilChecks.isDate(dateOfEntrollment)) {
+
+            if (!UtilChecks.isDate(dateOfEnrollment)) {
                 error = new ValidationErrorMessage("Enrollment date format is invalid. The date format should be dd-mm-yyyy. For example, 23-10-2012.");
             } else  {
                 try {
-                    Date date = dateFormat.parse(dateOfEntrollment);
+                    Date date = dateFormat.parse(dateOfEnrollment);
                     if ((currentDate.before(date))) {
                         error = new ValidationErrorMessage("Date of Enrollment should be in the past.");
                     }
