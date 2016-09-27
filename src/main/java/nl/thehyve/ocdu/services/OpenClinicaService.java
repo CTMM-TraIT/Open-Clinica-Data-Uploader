@@ -306,7 +306,8 @@ public class OpenClinicaService {
                 break;
             }
             else {
-                String detailedMessage = "Scheduled event " + eventName + " successfully for subject " + eventType.getStudySubjectRef().getLabel();
+                String eventOrdinal = SOAPResponseHandler.returnEventOrdinal(soapResponse);
+                String detailedMessage = "Successfully scheduled event '" + eventName + "', event ordinal: " + eventOrdinal+ " for subject " + eventType.getStudySubjectRef().getLabel();
                 SubmissionResult submissionResult = new SubmissionResult(detailedMessage);
                 submissionResult.setSubject(eventType.getStudySubjectRef().getLabel());
                 ret.add(submissionResult);

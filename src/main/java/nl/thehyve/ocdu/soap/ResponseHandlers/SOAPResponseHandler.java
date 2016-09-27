@@ -49,4 +49,13 @@ public class SOAPResponseHandler extends OCResponseHandler {
         return null;
     }
 
+    public static String returnEventOrdinal(SOAPMessage response) throws Exception {
+        Document document = toDocument(response);
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        Node eventOrdinalResponseNode = (Node) xpath.evaluate("//studyEventOrdinal", document, XPathConstants.NODE);
+        if (eventOrdinalResponseNode != null) {
+            return eventOrdinalResponseNode.getTextContent();
+        }
+        return "";
+    }
 }
