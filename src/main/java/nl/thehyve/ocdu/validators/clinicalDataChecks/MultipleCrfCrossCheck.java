@@ -21,7 +21,7 @@ public class MultipleCrfCrossCheck implements ClinicalDataCrossCheck {
     public ValidationErrorMessage getCorrespondingError(List<ClinicalData> data, MetaData metaData, Map<ClinicalData, ItemDefinition> itemDefMap, List<StudySubjectWithEventsType> studySubjectWithEventsTypeList, Map<ClinicalData, Boolean> shownMap, Map<String, Set<CRFDefinition>> eventMap) {
         Set<String> usedCrfs = new HashSet<>();
         data.stream().forEach(clinicalData -> {
-            usedCrfs.add(clinicalData.getCrfName() + clinicalData.getCrfVersion());
+            usedCrfs.add(" " + clinicalData.getCrfName() + ", " + clinicalData.getCrfVersion());
         });
         if (usedCrfs.size() != 1) {
             ValidationErrorMessage error = new MultipleCRFsError();
