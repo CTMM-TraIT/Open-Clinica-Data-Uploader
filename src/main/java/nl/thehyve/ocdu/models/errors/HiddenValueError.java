@@ -5,6 +5,6 @@ package nl.thehyve.ocdu.models.errors;
  */
 public class HiddenValueError extends ValidationErrorMessage {
     public HiddenValueError() {
-        super("One or more items in your file is hidden but contains non-empty value.");
+        super("One or more hidden items contain non-empty value(s). Items can be hidden because of a simple conditional display");
     }
 }

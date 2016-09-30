@@ -405,6 +405,7 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
         } else {
             groupRepeatPart = " non-repeating group";
         }
+        String valueStr = StringUtils.isEmpty(value) ? "[EMPTY_VALUE]" : value;
         String offenderMsg = "Line number [" +  + lineNumber + "]. "
                 + "Subject " + CD_SEP_PREFIX + ssid + CD_SEP_POSTEFIX
                 + " item " + CD_SEP_PREFIX + item + CD_SEP_POSTEFIX
@@ -413,7 +414,7 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
                 + " version "  + CD_SEP_PREFIX + crfVersion + CD_SEP_POSTEFIX
                 + " in event "  + CD_SEP_PREFIX + eventName + CD_SEP_POSTEFIX
                 + " event repeat "  + CD_SEP_PREFIX + eventRepeat + CD_SEP_POSTEFIX
-                + " value " +  CD_SEP_PREFIX + "<b>" + value + "</b>";
+                + " value " +  CD_SEP_PREFIX + "<b>" + valueStr + "</b>";
         String closingPoint = StringUtils.removeEnd(CD_SEP_POSTEFIX, ", ") + ".";
         offenderMsg += closingPoint;
         return offenderMsg;

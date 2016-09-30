@@ -35,7 +35,7 @@ public class MandatoryInCrfCrossCheck implements ClinicalDataCrossCheck {
             Set<String> mandatory = mandatoryMap.get(crfId);
             String value = clinicalData.getValue();
             if (mandatory != null && mandatory.contains(item) && value.equals("") && shownMap.get(clinicalData)) { // is mandatory and value is empty, item not hidden for given subject
-                error.addOffendingValue("Item: " + item + " cannot be empty as it is mandatory in CRF: " + crfId + " but was empty for subject: " + clinicalData.getSsid());
+                error.addOffendingValue(clinicalData.toOffenderString() + " Item cannot be empty as it is mandatory in CRF.");
             }
         });
         Map<String, Set<String>> userItems = new HashMap<>();
@@ -45,11 +45,16 @@ public class MandatoryInCrfCrossCheck implements ClinicalDataCrossCheck {
             String crfId = clinicalData.getCrfName() + clinicalData.getCrfVersion();
             Set<String> mandatoryItems = mandatoryMap.get(crfId);
             if (!userItems.containsKey(clinicalData.getSsid())) {
-                userItems.put(clinicalData.getSsid(), new HashSet<>());
-                mandatoryForSubject.put(clinicalData.getSsid(), mandatoryItems);
+                boolean shown = shownMap.get(clinicalData);
+                if (shown) {
+                    userItems.put(clinicalData.getSsid(), new HashSet<>());
+                    mandatoryForSubject.put(clinicalData.getSsid(), mandatoryItems);
+                }
             }
             Set<String> items = userItems.get(clinicalData.getSsid());
-            items.add(clinicalData.getItem());
+            if (items != null) {
+                items.add(clinicalData.getItem());
+            }
         });
         userItems.keySet().forEach(subject -> {
             Set<String> itemsUploadedForUser = userItems.get(subject);

@@ -146,8 +146,14 @@ public class ClinicalDataChecksRunner {
         }
         List<DisplayRule> displayRules = definition.getDisplayRules();
         boolean satisfied = true;
-        for (DisplayRule displayRule : displayRules)
-            satisfied = isDisplayRuleSatisfied(displayRule, data, clinicalData1.getSsid());
+        for (DisplayRule displayRule : displayRules) {
+            String crfName = clinicalData1.getCrfName();
+            String crfVersion = clinicalData1.getCrfVersion();
+            String crfOID = metadata.findFormOID(crfName, crfVersion);
+            if (displayRule.getAppliesInCrf().equals(crfOID)) {
+                satisfied = isDisplayRuleSatisfied(displayRule, data, clinicalData1.getSsid());
+            }
+        }
         return satisfied;
     }
 
