@@ -1,13 +1,10 @@
 package nl.thehyve.ocdu.factories;
 
-import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OCEntities.Subject;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.OcDefinitions.ProtocolFieldRequirementSetting;
 import nl.thehyve.ocdu.models.OcUser;
 import nl.thehyve.ocdu.models.UploadSession;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -91,7 +88,7 @@ public class PatientDataFactory extends UserSubmittedDataFactory {
         setValue(arr.toArray(new String[arr.size()]), columnsIndex, SECONDARY_ID, subject::setSecondaryId);
         setValue(arr.toArray(new String[arr.size()]), columnsIndex, STUDY, subject::setStudy);
         setValue(arr.toArray(new String[arr.size()]), columnsIndex, SITE, subject::setSite);
-
+        subject.addLeadingZerosInDates();
         return subject;
     }
 

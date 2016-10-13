@@ -55,6 +55,7 @@ public class OpenClinicaService {
             throws Exception {
         AbstractMessage returnMessage;
         SOAPMessage soapMessage = requestFactory.createCreateSubject(username, passwordHash, subject);
+        log.info(SoapUtils.soapMessageToString(soapMessage));
         SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
         SOAPConnection soapConnection = soapConnectionFactory.createConnection();
         SOAPMessage soapResponse = soapConnection.call(soapMessage, url + "/ws/studySubject/v1");

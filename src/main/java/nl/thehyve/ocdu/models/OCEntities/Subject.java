@@ -3,8 +3,14 @@ package nl.thehyve.ocdu.models.OCEntities;
 import nl.thehyve.ocdu.models.OcDefinitions.ODMElement;
 import nl.thehyve.ocdu.models.OcUser;
 import nl.thehyve.ocdu.models.UploadSession;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Represents user-submitted Subject information. Meant to store data as-is.
@@ -139,6 +145,31 @@ public class Subject implements OcEntity, UserSubmitted, ODMElement {
 
     public void setSite(String site) {
         this.site = site;
+    }
+
+    /**
+     * Adds any missing leading zeros to the month and day of month in both the
+     * {@llink #dateOfBirth} and {@link #dateOfEnrollment}.
+     */
+    public void addLeadingZerosInDates() {
+        dateOfEnrollment = fixLeadingZero(dateOfEnrollment);
+        dateOfBirth = fixLeadingZero(dateOfBirth);
+    }
+
+    private String fixLeadingZero(String dateValue) {
+        if (StringUtils.isEmpty(dateValue)) {
+            return dateValue;
+        }
+        DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
+        dateFormat.setLenient(false);
+        Date date;
+        try {
+            date = dateFormat.parse(dateValue);
+        }
+        catch (ParseException pe) {
+            return dateValue;
+        }
+        return dateFormat.format(date);
     }
 
     @Override
