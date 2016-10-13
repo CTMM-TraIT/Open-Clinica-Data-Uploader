@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by bo on 6/15/16.
@@ -17,7 +18,7 @@ public class PersonIdPatientDataCheck implements PatientDataCheck {
     @Override
     public ValidationErrorMessage getCorrespondingError(int index, Subject subject, MetaData metaData,
                                                         List<StudySubjectWithEventsType> subjectWithEventsTypes,
-                                                        List<String> ssidsInData) {
+                                                        Set<String> ssidsInData, List<String> subjectIDInSubjectInput) {
 
         String ssid = subject.getSsid();
         String commonMessage = getCommonErrorMessage(index, ssid);

@@ -7,6 +7,7 @@ import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Checks if there are duplicate subject ID in the input data.
@@ -16,14 +17,14 @@ public class DuplicateSubjectLabelDataCheck implements PatientDataCheck {
     @Override
     public ValidationErrorMessage getCorrespondingError(int index, Subject subject, MetaData metaData,
                                                         List<StudySubjectWithEventsType> subjectWithEventsTypes,
-                                                        List<String> ssidsInData) {
+                                                        Set<String> ssidsInData, List<String> subjectIDInSubjectInput) {
         ValidationErrorMessage error = null;
 
         String subjectLabel = subject.getSsid();
-        int frequency = Collections.frequency(ssidsInData, subjectLabel);
+        int frequency = Collections.frequency(subjectIDInSubjectInput, subjectLabel);
         if (frequency > 1) {
             error = new ValidationErrorMessage("Duplicate subject ID found in data");
-            error.setError(false);
+            error.setError(true);
         }
 
         if (error != null) {

@@ -10,6 +10,7 @@ import org.openclinica.ws.beans.StudySubjectWithEventsType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by bo on 6/7/16.
@@ -19,12 +20,12 @@ public class PatientDataOcChecks {
     private final List<Subject> subjects;
     private final MetaData metadata;
     private final List<StudySubjectWithEventsType> subjEventData;
-    private final List<String> ssidsInData;
+    private final Set<String> ssidsInData;
 
     private List<PatientDataCheck> checks = new ArrayList<>();
 
     public PatientDataOcChecks(MetaData metadata, List<Subject> subjects, List<StudySubjectWithEventsType> subjectWithEventsTypes,
-                               List<String> ssidsInData) {
+                               Set<String> ssidsInData) {
         this.metadata = metadata;
         this.subjects = subjects;
         this.subjEventData = subjectWithEventsTypes;
@@ -45,12 +46,13 @@ public class PatientDataOcChecks {
 
     public List<ValidationErrorMessage> getErrors() {
         List<ValidationErrorMessage> combinedErrors = new ArrayList<>();
+        List<String> subjectIDInInputList = subjects.stream().map(Subject::getSsid).collect(Collectors.toList());
         for (PatientDataCheck check : checks) {
             List<ValidationErrorMessage> errors = new ArrayList<>();
             int index = 1;
             for (Subject subject : subjects) {
                 ValidationErrorMessage error = check.getCorrespondingError(index, subject, metadata, subjEventData,
-                        ssidsInData);
+                        ssidsInData, subjectIDInInputList);
                 if (error != null) {
                     error.setSubject(subject.getSsid());
                     errors.add(error);

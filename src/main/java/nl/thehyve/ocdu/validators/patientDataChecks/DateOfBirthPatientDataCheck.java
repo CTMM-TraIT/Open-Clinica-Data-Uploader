@@ -19,7 +19,7 @@ public class DateOfBirthPatientDataCheck implements PatientDataCheck {
     @Override
     public ValidationErrorMessage getCorrespondingError(int index, Subject subject, MetaData metaData,
                                                         List<StudySubjectWithEventsType> subjectWithEventsTypes,
-                                                        List<String> ssidsInData) {
+                                                        Set<String> ssidsInData, List<String> subjectIDInSubjectInput) {
 
         int DOBrequired = metaData.getBirthdateRequired();
         for (int i = 0; i < metaData.getSiteDefinitions().size(); i++) {

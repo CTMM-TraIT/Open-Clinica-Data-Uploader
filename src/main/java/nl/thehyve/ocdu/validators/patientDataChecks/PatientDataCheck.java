@@ -6,6 +6,7 @@ import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by bo on 6/7/16.
@@ -13,7 +14,7 @@ import java.util.List;
 public interface PatientDataCheck {
     ValidationErrorMessage getCorrespondingError(int index, Subject subject, MetaData metaData,
                                                  List<StudySubjectWithEventsType> subjectWithEventsTypes,
-                                                 List<String> ssidsInData);
+                                                 Set<String> ssidsInData, List<String> subjectIDInSubjectInput);
 
     default String getCommonErrorMessage(int index, String ssid) {
         return "Line " + index + " (subjectID = " + ssid + ") : ";
