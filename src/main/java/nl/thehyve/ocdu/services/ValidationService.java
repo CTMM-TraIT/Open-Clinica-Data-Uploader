@@ -158,8 +158,8 @@ public class ValidationService {
      */
     public List<ValidationErrorMessage> getPatientsErrors(UploadSession submission, String wsPwdHash, MetaDataProvider metaDataProvider) throws Exception {
         List<Subject> bySubmission = subjectRepository.findBySubmission(submission);
-        Set<String> subjectsInData = clinicalDataRepository.findBySubmission(submission)
-                .stream().map(ClinicalData::getSsid).collect(Collectors.toSet());
+        List<String> subjectsInData = clinicalDataRepository.findBySubmission(submission)
+                .stream().map(ClinicalData::getSsid).collect(Collectors.toList());
         OcUser submitter = submission.getOwner();
         Study study = dataService.findStudy(submission.getStudy(), submitter, wsPwdHash);
         MetaData metadata = metaDataService.retrieveMetaData(metaDataProvider, submitter, wsPwdHash, submission);

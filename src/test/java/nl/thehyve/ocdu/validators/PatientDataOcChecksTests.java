@@ -16,10 +16,7 @@ import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPMessage;
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
@@ -32,7 +29,7 @@ public class PatientDataOcChecksTests {
 
     private MetaData metadata;
     private List<StudySubjectWithEventsType> testSubjectWithEventsTypeList;
-    private Set<String> presentInData;
+    private List<String> presentInData;
 
     @Before
     public void setup() {
@@ -44,7 +41,7 @@ public class PatientDataOcChecksTests {
 
             SOAPMessage mockedResponseGetMetadata = messageFactory.createMessage(null, in);
             metadata = GetStudyMetadataResponseHandler.parseGetStudyMetadataResponse(mockedResponseGetMetadata);
-            presentInData = new HashSet<>();
+            presentInData = new ArrayList<>();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -103,7 +100,7 @@ public class PatientDataOcChecksTests {
         subject.setDateOfBirth("1932");
         subjectList.add(subject);
 
-        Set<String> duplicatePresentInDataList = new HashSet<>();
+        List<String> duplicatePresentInDataList = new ArrayList<>();
         duplicatePresentInDataList.add("EV-XXXXX");
 
 
@@ -111,6 +108,31 @@ public class PatientDataOcChecksTests {
 
         List<ValidationErrorMessage> errorList = patientDataOcChecks.getErrors();
         assertEquals(0, errorList.size());
+    }
+
+    @Test
+    public void testDuplicateSubjectLabelInData() {
+        List<Subject> subjectList = new ArrayList<>();
+        Subject subject = new Subject();
+        subject.setSsid("EV-YYYYY");
+        subject.setGender("m");
+        subject.setPersonId("Wizzard");
+        subject.setStudy("Sjogren");
+        subject.setDateOfBirth("2000");
+        subject.setDateOfEnrollment("01-01-2010");
+        subjectList.add(subject);
+
+        List<String> presentInDataList = new ArrayList<>();
+        presentInDataList.add("EV-YYYYY");
+        presentInDataList.add("EV-YYYYY");
+        PatientDataOcChecks patientDataOcChecks = new PatientDataOcChecks(metadata, subjectList, testSubjectWithEventsTypeList, presentInDataList);
+
+        List<ValidationErrorMessage> errorList = patientDataOcChecks.getErrors();
+        assertEquals(1, errorList.size());
+        assertThat(errorList.get(0).getMessage(), containsString("Duplicate subject ID found in data"));
+        Collection<String> offendingValues = errorList.get(0).getOffendingValues();
+
+        assertEquals(true, offendingValues.contains("Line 1 (subjectID = EV-YYYYY) : "));
     }
 
     @Test
@@ -125,7 +147,7 @@ public class PatientDataOcChecksTests {
         subject.setDateOfEnrollment("01-01-2010");
         subjectList.add(subject);
 
-        Set<String> presentInDataList = new HashSet<>();
+        List<String> presentInDataList = new ArrayList<>();
         presentInDataList.add("EV-YYYYY");
 
         PatientDataOcChecks patientDataOcChecks = new PatientDataOcChecks(metadata, subjectList, testSubjectWithEventsTypeList, presentInDataList);

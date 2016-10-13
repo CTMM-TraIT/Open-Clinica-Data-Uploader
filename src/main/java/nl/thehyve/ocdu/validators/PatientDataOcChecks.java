@@ -19,12 +19,12 @@ public class PatientDataOcChecks {
     private final List<Subject> subjects;
     private final MetaData metadata;
     private final List<StudySubjectWithEventsType> subjEventData;
-    private final Set<String> ssidsInData;
+    private final List<String> ssidsInData;
 
     private List<PatientDataCheck> checks = new ArrayList<>();
 
     public PatientDataOcChecks(MetaData metadata, List<Subject> subjects, List<StudySubjectWithEventsType> subjectWithEventsTypes,
-                               Set<String> ssidsInData) {
+                               List<String> ssidsInData) {
         this.metadata = metadata;
         this.subjects = subjects;
         this.subjEventData = subjectWithEventsTypes;
@@ -39,6 +39,7 @@ public class PatientDataOcChecks {
         checks.add(new SitePatientDataCheck());
         checks.add(new SubjectNotRegistered());
         checks.add(new PresentInData());
+        checks.add(new DuplicateSubjectLabelDataCheck());
         checks.add(new MissingSiteWarningCheck());
     }
 
