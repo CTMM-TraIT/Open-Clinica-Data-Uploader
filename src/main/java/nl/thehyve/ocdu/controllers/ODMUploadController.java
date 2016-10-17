@@ -4,6 +4,7 @@ import nl.thehyve.ocdu.models.OCEntities.*;
 import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.OcDefinitions.ResponseType;
+import nl.thehyve.ocdu.models.OcDefinitions.SubjectIDGeneration;
 import nl.thehyve.ocdu.models.OcUser;
 import nl.thehyve.ocdu.models.UploadSession;
 import nl.thehyve.ocdu.models.errors.AbstractMessage;
@@ -14,6 +15,8 @@ import nl.thehyve.ocdu.repositories.SubjectRepository;
 import nl.thehyve.ocdu.services.*;
 import nl.thehyve.ocdu.validators.ClinicalDataChecksRunner;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +37,8 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/odm")
 public class ODMUploadController {
+
+    private static final Logger log = LoggerFactory.getLogger(ODMUploadController.class);
 
     @Autowired
     UploadSessionService uploadSessionService;
@@ -98,26 +103,36 @@ public class ODMUploadController {
 
 
             for (UploadDataUnit uploadDataUnit : uploadDataUnitList) {
-                if (! uploadDataUnit.isSubjectRegisteredInOpenClinica()) {
-                    AbstractMessage resultMessage = openClinicaService.registerPatient(userName, pwdHash, url, uploadDataUnit.getSubject());
-                    result.add(resultMessage);
-                    if (resultMessage.isError()) {
-                        continue;
+
+               if (! uploadDataUnit.isSubjectRegisteredInOpenClinica()) {
+                   if (metaData.getSubjectIDGeneration() == SubjectIDGeneration.MANUAL_ENTRY) {
+                       AbstractMessage resultMessage = openClinicaService.registerPatient(userName, pwdHash, url, uploadDataUnit.getSubject());
+                       result.add(resultMessage);
+                       if (resultMessage.isError()) {
+                           continue;
+                       }
                     }
+                   else {
+                       String detailedErrorMessage = "Subject " + uploadDataUnit.getSubject().getSsid() + " not registered in OpenClinica, study is configured to use auto-generated ID's";
+                       log.error(detailedErrorMessage);
+                       AbstractMessage message = new ValidationErrorMessage(detailedErrorMessage);
+                       result.add(message);
+                   }
                 }
+
                 List<Event> eventListPerSubject = uploadDataUnit.getEventList();
-                boolean eventErrorOccured = false;
+                boolean eventErrorOccurred = false;
                 if (! eventListPerSubject.isEmpty()) {
                     Collection<AbstractMessage> resultEventRegistration =
                             openClinicaService.scheduleEvents(userName, pwdHash, url, metaData, eventListPerSubject, studySubjectWithEventsTypeList);
                     result.addAll(resultEventRegistration);
                     for (AbstractMessage message : resultEventRegistration) {
                         if (message.isError()) {
-                            eventErrorOccured = true;
+                            eventErrorOccurred = true;
                         }
                     }
                 }
-                if (eventErrorOccured) {
+                if (eventErrorOccurred) {
                     continue;
                 }
 

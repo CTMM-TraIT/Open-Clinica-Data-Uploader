@@ -19,13 +19,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static nl.thehyve.ocdu.soap.ResponseHandlers.SoapUtils.toDocument;
@@ -46,16 +40,15 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
     public static final String presentInEventSelector = ".//*[local-name()='PresentInEventDefinition']";
     public static final String presentInCrfsSelector = ".//*[local-name()='PresentInForm']";
     public static final String CRF_VERSION_SELECTOR = ".//*[local-name()='VersionDescription']/text()[1]";
-    public static final String itemGroupRefSelector = ".//*[local-name()='ItemGroupRef']";
     public static final String itemRefSelector = ".//*[local-name()='ItemRef']";
     public static final String rangeChecksSelector = ".//*[local-name()='RangeCheck']";
     public static final String CODELIST_DEFINITION_SELECTOR = "//MetaDataVersion/CodeList";
     public static final String MULTIPLE_SELECT_DEFINITION_SELECTOR = "//MetaDataVersion/*[local-name()='MultiSelectList']";
     public static final String STUDY_SELECTOR = "//Study[1]";
-    public static final String SITES_SELECTOR = "//Study[position()>1]";
     public static final String ITEM_PRESENT_IN_FORM_SELECTOR = ".//*[local-name()='ItemPresentInForm']";
     public static final String STUDY_DESCRIPTION_SELECTOR = ".//*[local-name()='StudyDescriptionAndStatus']";
     public static final String STUDY_STATUS_SELECTOR = ".//*[local-name()='StudySytemStatus'][1]";
+    public static final String SUBJECT_ID_GENERATOR_SELECTOR = "//StudyParameterListRef[@StudyParameterListID='SPL_subjectIdGeneration']]";
 
 
     public static MetaData parseGetStudyMetadataResponse(SOAPMessage response) throws Exception { //TODO: handle exception
@@ -108,6 +101,7 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
         metaData.setStatus(studyStatus);
         Node studyRequirements = (Node) xpath.evaluate(studyRequirementPath , odm, XPathConstants.NODE);
         metaData.setLocationRequirementSetting(getLocationRequirements(studyRequirements));
+        metaData.setSubjectIDGeneration(parseSubjectIDGeneration(studyRequirements, SUBJECT_ID_GENERATOR_SELECTOR));
         return metaData;
     }
 
@@ -236,6 +230,16 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
         }//if
 
         return isGenderRequired;
+    }
+
+
+    private static SubjectIDGeneration parseSubjectIDGeneration(Node studyRequirements, String mypath) throws XPathExpressionException {
+        NodeList subjectIDGenerationNodeList =
+                (NodeList) xpath.evaluate(".//*[local-name()='StudyParameterListRef'][@*[local-name()='StudyParameterListID' and .='SPL_subjectIdGeneration']]",
+                        studyRequirements, XPathConstants.NODESET);
+        Node subjectIDGenerationNode = subjectIDGenerationNodeList.item(0);
+        String subjectIDGeneration = subjectIDGenerationNode.getAttributes().getNamedItem("Value").getTextContent();
+        return SubjectIDGeneration.fromString(subjectIDGeneration);
     }
 
     private static ProtocolFieldRequirementSetting parsePersonIDNotUsed(Document odm, String mypath) throws XPathExpressionException {

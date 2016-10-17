@@ -52,6 +52,8 @@ public class MetaData {
     private String status;
     private String protocolName;
 
+    private SubjectIDGeneration subjectIDGeneration;
+
     public void addEventDefinition(EventDefinition eventDef) {
         eventDefinitions.add(eventDef);
     }
@@ -223,6 +225,14 @@ public class MetaData {
         this.locationRequirementSetting = protocolFieldRequirementSetting;
     }
 
+    public SubjectIDGeneration getSubjectIDGeneration() {
+        return subjectIDGeneration;
+    }
+
+    public void setSubjectIDGeneration(SubjectIDGeneration subjectIDGeneration) {
+        this.subjectIDGeneration = subjectIDGeneration;
+    }
+
     public ProtocolFieldRequirementSetting getLocationRequirementSetting() {
         return locationRequirementSetting;
     }
@@ -236,4 +246,6 @@ public class MetaData {
     public String getProtocolName() {
         return protocolName;
     }
+
+
 }

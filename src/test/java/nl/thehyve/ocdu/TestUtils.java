@@ -1,5 +1,7 @@
 package nl.thehyve.ocdu;
 
+import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
+import nl.thehyve.ocdu.soap.ResponseHandlers.GetStudyMetadataResponseHandler;
 import nl.thehyve.ocdu.soap.ResponseHandlers.ListAllByStudyResponseHandler;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
@@ -33,5 +35,13 @@ public class TestUtils {
 
     public static List<StudySubjectWithEventsType> incorrectEventStatusExample() throws Exception {
         return  parseStudySubjectWEvType("docs/responseExamples/incorrectEventStatus.xml");
+    }
+
+    public static MetaData parseMetaData(String path) throws Exception {
+        File testMetaDataFile = new File(path);
+        FileInputStream in = new FileInputStream(testMetaDataFile);
+        MessageFactory messageFactory = MessageFactory.newInstance();
+        SOAPMessage mockedResponseGetMetadata = messageFactory.createMessage(null, in);//soapMessage;
+        return GetStudyMetadataResponseHandler.parseGetStudyMetadataResponse(mockedResponseGetMetadata);
     }
 }
