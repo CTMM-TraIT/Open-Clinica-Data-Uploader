@@ -27,19 +27,27 @@ public class EventStatusCheck implements ClinicalDataCrossCheck {
             EventsType eventsWrapper = studySubjectWithEventsType.getEvents();
             List<EventResponseType> events = eventsWrapper.getEvent();
             events.stream().forEach(eventResponseType -> {
-                List<EventCrfInformationList> eventCrfInformationListList = eventResponseType.getEventCrfInformation();
-                eventCrfInformationListList.stream().forEach(eventCrfInformationList-> {
-                    List<EventCrfType> eventCRFList = eventCrfInformationList.getEventCrf();
-                    eventCRFList.stream().forEach(eventCrfType -> {
-                        String status = eventCrfType.getStatus();
-                        if (isInvalidStatus(status) && subjectsInData.contains(studySubjectWithEventsType.getLabel())) {
-                            offenders.add("Subject " + ClinicalData.CD_SEP_PREFIX + studySubjectWithEventsType.getLabel() + ClinicalData.CD_SEP_POSTEFIX
-                                        + "Event " + ClinicalData.CD_SEP_PREFIX +  eventOidToEventNameMap.get(eventResponseType.getEventDefinitionOID())  + ClinicalData.CD_SEP_POSTEFIX
+                String eventStatus = eventResponseType.getStatus();
+                if (hasValidEventStatus(eventStatus)) {
+                    List<EventCrfInformationList> eventCrfInformationListList = eventResponseType.getEventCrfInformation();
+                    eventCrfInformationListList.stream().forEach(eventCrfInformationList -> {
+                        List<EventCrfType> eventCRFList = eventCrfInformationList.getEventCrf();
+                        eventCRFList.stream().forEach(eventCrfType -> {
+                            String status = eventCrfType.getStatus();
+                            if (isInvalidStatus(status) && subjectsInData.contains(studySubjectWithEventsType.getLabel())) {
+                                offenders.add("Subject " + ClinicalData.CD_SEP_PREFIX + studySubjectWithEventsType.getLabel() + ClinicalData.CD_SEP_POSTEFIX
+                                        + "Event " + ClinicalData.CD_SEP_PREFIX + eventOidToEventNameMap.get(eventResponseType.getEventDefinitionOID()) + ClinicalData.CD_SEP_POSTEFIX
                                         + "CRF " + ClinicalData.CD_SEP_PREFIX + eventCrfType.getName() + ClinicalData.CD_SEP_POSTEFIX
-                                        + "has status: "  + ClinicalData.CD_SEP_PREFIX + status + ClinicalData.CD_SEP_POSTEFIX);
-                        }
+                                        + "has status: " + ClinicalData.CD_SEP_PREFIX + status + ClinicalData.CD_SEP_POSTEFIX);
+                            }
+                        });
                     });
-                } );
+                }
+                else {
+                    offenders.add("Subject " + ClinicalData.CD_SEP_PREFIX + studySubjectWithEventsType.getLabel() + ClinicalData.CD_SEP_POSTEFIX
+                            + "Event " + ClinicalData.CD_SEP_PREFIX + eventOidToEventNameMap.get(eventResponseType.getEventDefinitionOID()) + ClinicalData.CD_SEP_POSTEFIX
+                            + "has status: " + ClinicalData.CD_SEP_PREFIX + eventStatus + ClinicalData.CD_SEP_POSTEFIX);
+                }
             });
         });
         error.addAllOffendingValues(offenders);
@@ -47,6 +55,10 @@ public class EventStatusCheck implements ClinicalDataCrossCheck {
             return error;
         } else
             return null;
+    }
+
+    private boolean hasValidEventStatus(String eventStatus) {
+        return eventStatus.equals("available");
     }
 
     private boolean isInvalidStatus(String status) {
