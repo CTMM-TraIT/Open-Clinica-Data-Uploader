@@ -40,7 +40,7 @@ public class SitesExistCrossCheckTests {
         SitesExistCrossCheck sitesExistCrossCheck = new SitesExistCrossCheck();
         ValidationErrorMessage validationErrorMessage =
                 sitesExistCrossCheck.getCorrespondingError(clinicalDataList, metaData, null, null, null, null);
-        Assert.assertEquals("One or more of sites you used in your data file does not exist; use the site's Unique Protocol ID. Invalid sites are: ", validationErrorMessage.getMessage());
+        Assert.assertEquals("One or more of sites you used in your data file does not exist; use the site's Unique identifier, not the site name. Invalid sites are: ", validationErrorMessage.getMessage());
         Assert.assertEquals(1, validationErrorMessage.getOffendingValues().size());
         Assert.assertEquals("[<i>Wrong site</i>,  in line 1 of subject: <i>Subject_0001</i>, ]", validationErrorMessage.getOffendingValues().toString());
     }

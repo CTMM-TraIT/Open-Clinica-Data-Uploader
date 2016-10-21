@@ -95,7 +95,7 @@ public class EventDataOcChecks {
                     event -> ((! StringUtils.isBlank(event.getEventName())) && (! eventNames.contains(event.getEventName().toUpperCase()))),
                     event -> event.getEventName());
 
-        validateEvent(errors, "Site does not exist. Use the Unique Protocol ID of the site(s)",
+        validateEvent(errors, "Site does not exist. Use the Unique identifier of the site(s)",
                 event -> (StringUtils.isNotBlank(event.getSite()) && !siteNames.contains(event.getSite())),
                 event -> event.getSite());
 

@@ -182,7 +182,7 @@ public class EventDataOcChecksTests {
         List<ValidationErrorMessage> errors = checks.validate();
 
         assertThat(errors, contains(allOf(
-                hasProperty("message", is("Site does not exist. Use the Unique Protocol ID of the site(s)")),
+                hasProperty("message", is("Site does not exist. Use the Unique identifier of the site(s)")),
                 hasProperty("offendingValues", contains("Line number: 1, subject: subj1, value: " + siteName ))
         )));
     }
