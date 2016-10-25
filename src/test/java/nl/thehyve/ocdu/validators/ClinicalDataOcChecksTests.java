@@ -208,16 +208,6 @@ public class ClinicalDataOcChecksTests {
         assertEquals(0, errors.size());
     }
 
-
-    @Test
-    public void nonExistentVersion() throws Exception {
-        List<ClinicalData> incorrectClinicalData = factory.createClinicalData(testFileNonExistentVersion);
-        clinicalDataOcChecks = new ClinicalDataOcChecks(metaData, incorrectClinicalData, testSubjectWithEventsTypeList);
-        List<ValidationErrorMessage> errors = clinicalDataOcChecks.getErrors();
-        assertEquals(1, errors.size());
-        assertThat(errors, hasItem(isA(CRFDoesNotExist.class)));
-    }
-
     @Test
     public void rangeCheckViolation() throws Exception {
         List<ClinicalData> incorrectClinicalData = factory.createClinicalData(testFileRangeCheckViolation);

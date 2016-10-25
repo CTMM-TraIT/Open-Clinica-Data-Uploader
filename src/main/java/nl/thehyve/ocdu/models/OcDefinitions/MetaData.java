@@ -3,9 +3,7 @@ package nl.thehyve.ocdu.models.OcDefinitions;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Created by piotrzakrzewski on 01/05/16.
@@ -102,6 +100,29 @@ public class MetaData {
         return "";
     }
 
+
+    /**
+     * Created a map with the formOID as key and the list of item names used in that form.
+     * @return
+     */
+    public Map<String, Set<String>> obtainFormOIDItemNameMap() {
+        Map<String, Set<String>> crfVersionItemNameMap = new HashMap<>();
+        for (EventDefinition eventDefinition : eventDefinitions) {
+            for (CRFDefinition crfDefinition : eventDefinition.getCrfDefinitions()) {
+                String formOID = crfDefinition.getOid();
+                Set<String> formItemNameSet = crfVersionItemNameMap.get(formOID);
+                if (formItemNameSet == null) {
+                    formItemNameSet = new HashSet<>();
+                    crfVersionItemNameMap.put(formOID, formItemNameSet);
+                }
+                List<ItemDefinition> itemDefinitionList = crfDefinition.getUngroupedItems();
+                for (ItemDefinition itemDefinition : itemDefinitionList) {
+                    formItemNameSet.add(itemDefinition.getName());
+                }
+            }
+        }
+        return crfVersionItemNameMap;
+    }
 
     public long getId() {
         return id;
