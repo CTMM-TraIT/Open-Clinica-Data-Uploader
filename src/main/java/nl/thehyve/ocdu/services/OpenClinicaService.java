@@ -55,7 +55,7 @@ public class OpenClinicaService {
             throws Exception {
         AbstractMessage returnMessage;
         SOAPMessage soapMessage = requestFactory.createCreateSubject(username, passwordHash, subject);
-        log.info(SoapUtils.soapMessageToString(soapMessage));
+//        log.info(SoapUtils.soapMessageToString(soapMessage));
         SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
         SOAPConnection soapConnection = soapConnectionFactory.createConnection();
         SOAPMessage soapResponse = soapConnection.call(soapMessage, url + "/ws/studySubject/v1");
@@ -294,7 +294,7 @@ public class OpenClinicaService {
 
         for (EventType eventType : eventTypeList) {
             SOAPMessage soapMessage = requestFactory.createScheduleEventRequest(username, passwordHash, eventType);
-            log.debug("SOAP -->\n" + SoapUtils.soapMessageToString(soapMessage));
+//            log.info("SOAP -->\n" + SoapUtils.soapMessageToString(soapMessage));
             SOAPMessage soapResponse = soapConnection.call(soapMessage, url + "/ws/event/v1");
             String responseError = SOAPResponseHandler.parseOpenClinicaResponse(soapResponse, "//scheduleResponse");
             String eventName = eventOIDToNameMap.get(eventType.getEventDefinitionOID());

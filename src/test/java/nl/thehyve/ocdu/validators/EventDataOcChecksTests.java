@@ -123,6 +123,22 @@ public class EventDataOcChecksTests {
     }
 
     @Test
+    public void testMissingEndTime() {
+        event.setStartTime("23:15");
+        event.setStartDate("15-07-1966");
+        event.setEndDate("15-07-1966");
+        event.setEndTime("");
+        List<Event> eventList = new ArrayList<>();
+        eventList.add(event);
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList);
+        List<ValidationErrorMessage> errors = checks.validate();
+
+        assertThat(errors, contains(
+                hasProperty("message", is("Event end-time must be present when an event start-date, start-time and end-date are provided"))
+        ));
+    }
+
+    @Test
     public void testRepeatNumberIsRequired() {
         event.setRepeatNumber(" ");
         List<Event> eventList = new ArrayList<>();

@@ -12,11 +12,12 @@ import org.apache.commons.lang3.StringUtils;
 import java.text.DateFormat;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class EventDataOcChecks {
@@ -118,9 +119,11 @@ public class EventDataOcChecks {
         validateStartTime(errors);
         validateEndDate(errors);
         validateEndTime(errors);
+        validateNonEmptyEndTime(errors);
         validateStartEndRanges(errors);
         validateRepeatNumber(errors);
         validateDuplicateEvents(errors);
+
 
         return errors;
     }
@@ -251,6 +254,34 @@ public class EventDataOcChecks {
                 endDateOpt = parseDateOpt(event.getEndDate());
                 if (!endDateOpt.isPresent()) {
                     validationErrorMessage.addOffendingValue("Line number: " + event.getLineNumber() + ", subject: " + event.getSsid() + ", " + event.getEndDate());
+                }
+            }
+        }
+        if (! validationErrorMessage.getOffendingValues().isEmpty()) {
+            validationErrorMessageList.add(validationErrorMessage);
+        }
+    }
+
+    /**
+     * Validates that an end-time is present when the start-time is provided and when the start-date is equal to the
+     * end-date.
+     * @param validationErrorMessageList
+     */
+    private void validateNonEmptyEndTime(List<ValidationErrorMessage> validationErrorMessageList) {
+        ValidationErrorMessage validationErrorMessage = new ValidationErrorMessage("Event end-time must be present when an event start-date, start-time and end-date are provided");
+        for (Event event : events) {
+            if (StringUtils.isNotBlank(event.getStartDate())
+                & StringUtils.isNotBlank(event.getStartTime())
+                & StringUtils.isNotBlank(event.getEndDate())
+                & StringUtils.isBlank(event.getEndTime())) {
+                Optional<Date> startDateOpt = parseDateOpt(event.getStartDate());
+                Optional<Date> endDateOpt = parseDateOpt(event.getEndDate());
+                if (startDateOpt.isPresent() && endDateOpt.isPresent()) {
+                    LocalDate startDate = Instant.ofEpochMilli(startDateOpt.get().getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
+                    LocalDate endDate = Instant.ofEpochMilli(endDateOpt.get().getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
+                    if (startDate.isEqual(endDate)) {
+                        validationErrorMessage.addOffendingValue("Line number: " + event.getLineNumber() + ", subject: " + event.getSsid());
+                    }
                 }
             }
         }
