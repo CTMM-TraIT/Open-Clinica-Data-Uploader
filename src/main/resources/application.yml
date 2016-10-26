@@ -1,9 +1,15 @@
+#
+# YAML-configuration file for the OpenClinica instances with which the OCDU application must communicate. Each instance
+# has a name which is displayed in a dropdown list on the log-in page.
+# Note that the URL-field must point to the OpenClinica Web-services instance. This is normally: HOST/OpenClinica-ws/
+#
+
 OpenClinicaEnvironments:
   ocEnvironments:
      -
-           url:
-           name:
-           version:
+        url:
+        name:
+        version:
      -
          url: http://localhost:8080/OpenClinica-ws
          name: Localhost_8080
