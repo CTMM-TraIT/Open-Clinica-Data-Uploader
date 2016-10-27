@@ -227,6 +227,7 @@ public class DataService {
         }
         String pathSep = "\\";
         Collection rootPathElements = new ArrayList();
+        rootPathElements.add(submission.getStudy());
         rootPathElements.add(selection.getEvent());
         rootPathElements.add(selection.getCrf());
         rootPathElements.add(selection.getVersion());
