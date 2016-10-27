@@ -157,7 +157,7 @@ public class ODMUploadController {
         Map<ClinicalData, ItemDefinition> clinicalDataItemDefinitionMap = clinicalDataChecksRunner.buildItemDefMap(clinicalDataList, metaData);
         for (ClinicalData clinicalData : clinicalDataList) {
             ItemDefinition itemDefinition = clinicalDataItemDefinitionMap.get(clinicalData);
-            if ("date".equals(itemDefinition.getDataType())) {
+            if ((itemDefinition != null) && ("date".equals(itemDefinition.getDataType()))) {
                 clinicalData.convertValueToISO_8601();
             }
         }
