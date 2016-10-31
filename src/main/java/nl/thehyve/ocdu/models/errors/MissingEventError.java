@@ -8,8 +8,8 @@ package nl.thehyve.ocdu.models.errors;
 public class MissingEventError extends ValidationErrorMessage {
 
     public MissingEventError() {
-        super("One or more events are present in the data file which are not scheduled in OpenClinica. " +
-                "To upload these data you must upload an event-file (via back-button). " +
-                "If you clck 'next' data for the unscheduled Events will not be uploaded.");
+        super("The (repeated) events indicated in the event registration file do not match the events present " +
+                "in the data file. To upload the data you must upload a new event-file (via back-button). If you "+
+                "click 'next' data for the unscheduled Events will not be uploaded");
     }
 }
