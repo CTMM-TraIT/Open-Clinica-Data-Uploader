@@ -14,13 +14,26 @@ public interface MetaDataProvider {
     public MetaData provide();
 
     /**
+     * Should provide the HTTP-session cookie for reuse.
+     * @return
+     */
+    public String provideSessionCookie();
+
+    /**
      * Should store the {@link MetaData} for retrieval later on
      * @param metaData
      */
     public void store(MetaData metaData);
 
     /**
-     * Should discard the previously stored {@link MetaData}
+     * Should discardMetaData the previously stored {@link MetaData}
      */
-    public void discard();
+    public void discardMetaData();
+
+
+    /**
+     * should store the OpenClinica session ID
+     * @param sessionID
+     */
+    public void storeOpenClinicaSessionID(String sessionID);
 }

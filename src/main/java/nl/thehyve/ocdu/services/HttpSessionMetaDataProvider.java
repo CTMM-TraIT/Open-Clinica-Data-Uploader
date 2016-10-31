@@ -13,6 +13,8 @@ public class HttpSessionMetaDataProvider implements MetaDataProvider {
 
     private static final String METADATA_SESSION_KEY = "STORED_METADATA";
 
+    private static final String OPEN_CLINICA_SESSION_ID_COOKIE = "OPEN_CLINICA_SESSION_ID_COOKIE";
+
     public HttpSessionMetaDataProvider(HttpSession session) {
         this.session = session;
     }
@@ -22,11 +24,19 @@ public class HttpSessionMetaDataProvider implements MetaDataProvider {
         return ret;
     }
 
-    public void discard() {
+    public String provideSessionCookie() {
+        return (String) session.getAttribute(OPEN_CLINICA_SESSION_ID_COOKIE);
+    }
+
+    public void discardMetaData() {
         session.removeAttribute(METADATA_SESSION_KEY);
     }
 
     public void store(MetaData metaData) {
         session.setAttribute(METADATA_SESSION_KEY, metaData);
+    }
+
+    public void storeOpenClinicaSessionID(String sessionID ) {
+        session.setAttribute(OPEN_CLINICA_SESSION_ID_COOKIE, sessionID);
     }
 }

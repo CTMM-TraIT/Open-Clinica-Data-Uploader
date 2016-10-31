@@ -80,7 +80,7 @@ public class UploadController {
             if (fileFormatErrors.size() == 0) {
                 MetaDataProvider metaDataProvider = new HttpSessionMetaDataProvider(session);
                 // Discard any metadata previously stored on the HttpSession
-                metaDataProvider.discard();
+                metaDataProvider.discardMetaData();
                 Collection<ValidationErrorMessage> mappingPreventingErrors =
                         validationService.dataPremappingValidation(currentUploadSession, pwd, metaDataProvider);
                 allErrors.addAll(mappingPreventingErrors);

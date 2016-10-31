@@ -3,6 +3,8 @@ package nl.thehyve.ocdu.soap;
 
 import nl.thehyve.ocdu.models.OCEntities.Study;
 import nl.thehyve.ocdu.models.OCEntities.Subject;
+import nl.thehyve.ocdu.services.HttpSessionMetaDataProvider;
+import nl.thehyve.ocdu.services.MetaDataProvider;
 import nl.thehyve.ocdu.soap.SOAPRequestDecorators.GetStudyMetadataRequestDecorator;
 import nl.thehyve.ocdu.soap.SOAPRequestDecorators.ImportDataRequestDecorator;
 import nl.thehyve.ocdu.soap.SOAPRequestDecorators.IsStudySubjectRequestDecorator;
@@ -16,8 +18,11 @@ import org.openclinica.ws.beans.SiteRefType;
 import org.openclinica.ws.beans.StudyRefType;
 import org.openclinica.ws.studysubject.v1.CreateRequest;
 import org.openclinica.ws.studysubject.v1.ObjectFactory;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.w3c.dom.Document;
 
+import javax.servlet.http.HttpSession;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
@@ -179,9 +184,17 @@ public class SOAPRequestFactory {
         SOAPEnvelope envelope = soapPart.getEnvelope();
         decorateEnvelope(envelope, nameSpace);
         decorateHeader(envelope, username, passwordHash);
+        addSessionCookieToMessage(soapMessage);
 
         return soapMessage;
     }
 
+    private void addSessionCookieToMessage(SOAPMessage soapMessage) {
+        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        HttpSession session = attr.getRequest().getSession(false);
+        MetaDataProvider provider = new HttpSessionMetaDataProvider(session);
+        String jSessionID = "JSESSIONID=" + provider.provideSessionCookie();
+        soapMessage.getMimeHeaders().setHeader("Cookie", jSessionID);
+    }
 
 }
