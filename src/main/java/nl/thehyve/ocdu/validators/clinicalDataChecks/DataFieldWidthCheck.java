@@ -4,6 +4,7 @@ import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OcDefinitions.CRFDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
@@ -29,6 +30,7 @@ public class DataFieldWidthCheck implements ClinicalDataCrossCheck {
         for (ClinicalData dataPoint : data) {
             if (isTooLong(dataPoint)) {
                 violators.add(dataPoint.toOffenderString());
+                dataPoint.addErrorClassification(ErrorClassification.SINGLE_ITEM_ERROR);
             }
         }
         error.addAllOffendingValues(violators);

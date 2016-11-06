@@ -2,13 +2,12 @@ package nl.thehyve.ocdu.models.OCEntities;
 
 import nl.thehyve.ocdu.models.OcUser;
 import nl.thehyve.ocdu.models.UploadSession;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import org.apache.commons.lang3.StringUtils;
 import org.openclinica.ws.beans.*;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -69,6 +68,9 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
     private long lineNumber;
 
 
+    private Set<ErrorClassification> errorClassificationSet;
+
+
     public ClinicalData(long lineNumber, String study, String item, String ssid, String personID, String eventName, String eventRepeat, String crfName, UploadSession submission, String crfVersion, Integer groupRepeat, OcUser owner, String value) {
         this.study = study;
         this.item = item;
@@ -85,12 +87,19 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
         this.value = value;
         this.originalItem = item; // TODO: Refactor away this constructor
         this.lineNumber = lineNumber;
+        errorClassificationSet = new HashSet<>();
     }
 
     public ClinicalData() {
     }
 
+    public boolean hasErrorOfType(ErrorClassification errorClassification) {
+        return errorClassificationSet.contains(errorClassification);
+    }
 
+    public void addErrorClassification(ErrorClassification errorClassification) {
+        errorClassificationSet.add(errorClassification);
+    }
 
 
     public String getPersonID() {

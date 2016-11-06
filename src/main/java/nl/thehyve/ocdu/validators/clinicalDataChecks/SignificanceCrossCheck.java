@@ -4,6 +4,7 @@ import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OcDefinitions.CRFDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.TooManySignificantDigits;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import nl.thehyve.ocdu.validators.UtilChecks;
@@ -24,6 +25,7 @@ public class SignificanceCrossCheck implements ClinicalDataCrossCheck {
             ItemDefinition definition = itemDefMap.get(clinicalData);
             if (definition != null) {
                 addOffendingValues(error, clinicalData, definition);
+                clinicalData.addErrorClassification(ErrorClassification.SINGLE_ITEM_ERROR);
             }
         });
         if (error.getOffendingValues().size() > 0) {

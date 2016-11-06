@@ -5,6 +5,7 @@ import nl.thehyve.ocdu.models.OcDefinitions.CRFDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.OcDefinitions.ResponseType;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.TooManyValues;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
@@ -28,6 +29,7 @@ public class ValuesNumberCrossCheck implements ClinicalDataCrossCheck {
                 String msg = clinicalData.toOffenderString() + " Number of values (separated by comma): " +
                         clinicalData.getValues(itemDefMap.get(clinicalData).isMultiselect()).size();
                 error.addOffendingValue(msg);
+                clinicalData.addErrorClassification(ErrorClassification.SINGLE_ITEM_ERROR);
             });
             return error;
         } else

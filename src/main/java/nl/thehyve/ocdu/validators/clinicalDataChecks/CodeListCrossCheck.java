@@ -6,6 +6,7 @@ import nl.thehyve.ocdu.models.OcDefinitions.CodeListDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.errors.EnumerationError;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
@@ -48,6 +49,7 @@ public class CodeListCrossCheck implements ClinicalDataCrossCheck {
                                     String msg = clinicalData.toOffenderString() + " value not in: " + codeListdef;
                                     if (value.contains(" ")) msg += " (value contains whitespaces)";
                                     else if (value.equals("")) msg += " (value is an empty string)";
+                                    clinicalData.addErrorClassification(ErrorClassification.SINGLE_ITEM_ERROR);
                                     error.addOffendingValue(msg);
                                 }
                             }

@@ -5,6 +5,7 @@ import nl.thehyve.ocdu.models.OcDefinitions.CRFDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.errors.DataTypeMismatch;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import nl.thehyve.ocdu.validators.UtilChecks;
 import org.apache.commons.lang3.StringUtils;
@@ -43,6 +44,7 @@ public class DataTypeCrossCheck implements ClinicalDataCrossCheck {
                 if (! UtilChecks.allValuesMatch(values, expectedType)) {
                     if (StringUtils.isNotEmpty(clinicalData.getValue()) && (itemDefinition.getCodeListRef() == null)) {
                         offenders.add(clinicalData.toOffenderString() + " Expected: " + humanReadbleTypes.get(itemDataTypes.get(clinicalData)));
+                        clinicalData.addErrorClassification(ErrorClassification.SINGLE_ITEM_ERROR);
                     }
                 }
             }
