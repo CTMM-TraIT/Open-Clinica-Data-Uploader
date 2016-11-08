@@ -4,8 +4,10 @@ import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OcDefinitions.CRFDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.SiteDoesNotExist;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
+import nl.thehyve.ocdu.validators.ErrorFilter;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
 import java.util.ArrayList;
@@ -36,13 +38,18 @@ public class SitesExistCrossCheck implements ClinicalDataCrossCheck {
             ValidationErrorMessage error =
                     new SiteDoesNotExist();
             List<String> nonExistentSiteNames = new ArrayList<>();
+            Set<String> offenderSubjectIDs = new HashSet<>();
             violators.stream().forEach(clinicalData ->
             { String siteName = ClinicalData.CD_SEP_PREFIX + clinicalData.getSite() + ClinicalData.CD_SEP_POSTEFIX + " in line " + clinicalData.getLineNumber() + " of subject: " + ClinicalData.CD_SEP_PREFIX + clinicalData.getSsid() + ClinicalData.CD_SEP_POSTEFIX;
-                if(!nonExistentSiteNames.contains(siteName)) nonExistentSiteNames.add(siteName);
+                if (!nonExistentSiteNames.contains(siteName)) {
+                    nonExistentSiteNames.add(siteName);
+                    offenderSubjectIDs.add(clinicalData.getSsid());
+                }
             });
             error.addAllOffendingValues(nonExistentSiteNames);
+            ErrorFilter errorFilter = new ErrorFilter(data);
+            errorFilter.addErrorToSubjects(offenderSubjectIDs, ErrorClassification.BLOCK_ENTIRE_CRF);
             return error;
         } else return null;
-
     }
 }

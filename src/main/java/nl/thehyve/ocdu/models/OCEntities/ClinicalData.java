@@ -67,8 +67,8 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
 
     private long lineNumber;
 
-
-    private Set<ErrorClassification> errorClassificationSet;
+    @Transient
+    private Set<ErrorClassification> errorClassificationSet = new HashSet<>();
 
 
     public ClinicalData(long lineNumber, String study, String item, String ssid, String personID, String eventName, String eventRepeat, String crfName, UploadSession submission, String crfVersion, Integer groupRepeat, OcUser owner, String value) {
@@ -87,7 +87,6 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
         this.value = value;
         this.originalItem = item; // TODO: Refactor away this constructor
         this.lineNumber = lineNumber;
-        errorClassificationSet = new HashSet<>();
     }
 
     public ClinicalData() {

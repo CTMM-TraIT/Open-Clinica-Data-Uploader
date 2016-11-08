@@ -4,6 +4,7 @@ import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OcDefinitions.CRFDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.EventDoesNotExist;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
@@ -38,7 +39,10 @@ public class EventExistsCrossCheck implements ClinicalDataCrossCheck {
             List<String> nonExistentEventNames = new ArrayList<>();
             violators.stream().forEach(clinicalData ->
             { String evName = clinicalData.getEventName();
-                if(!nonExistentEventNames.contains(evName))nonExistentEventNames.add(evName);
+                if (!nonExistentEventNames.contains(evName)) {
+                    nonExistentEventNames.add(evName);
+                }
+                clinicalData.addErrorClassification(ErrorClassification.BLOCK_ENTIRE_UPLOAD);
             });
             error.addAllOffendingValues(nonExistentEventNames);
             return error;

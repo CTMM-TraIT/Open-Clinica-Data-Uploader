@@ -2,9 +2,9 @@ package nl.thehyve.ocdu.validators.clinicalDataChecks;
 
 import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OcDefinitions.CRFDefinition;
-import nl.thehyve.ocdu.models.OcDefinitions.DisplayRule;
 import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.HiddenValueError;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
@@ -27,6 +27,7 @@ public class HiddenValueEmptyCheck implements ClinicalDataCrossCheck {
             if (nonEmpty && isHidden) {
                 error.addOffendingValue(clinicalData.toOffenderString() +
                         " Is hidden, it is not allowed to provide any value for it.");
+                clinicalData.addErrorClassification(ErrorClassification.BLOCK_ENTIRE_CRF);
             }
         });
         if (error.getOffendingValues().size() > 0) {

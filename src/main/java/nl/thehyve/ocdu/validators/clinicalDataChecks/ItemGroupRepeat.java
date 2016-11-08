@@ -4,8 +4,10 @@ import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OcDefinitions.CRFDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.RepeatInNonrepeatingItem;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
+import nl.thehyve.ocdu.validators.ErrorFilter;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
 import java.util.HashSet;
@@ -22,6 +24,7 @@ public class ItemGroupRepeat implements ClinicalDataCrossCheck {
     public ValidationErrorMessage getCorrespondingError(List<ClinicalData> data, MetaData metaData, Map<ClinicalData, ItemDefinition> itemDefMap, List<StudySubjectWithEventsType> studySubjectWithEventsTypeList, Map<ClinicalData, Boolean> shownMap, Map<String, Set<CRFDefinition>> eventMap) {
         RepeatInNonrepeatingItem error = new RepeatInNonrepeatingItem();
         Set<String> reportedItems = new HashSet<>();
+        Set<String> offenderSubjectIDs = new HashSet<>();
         data.stream().forEach(
                 clinicalData -> {
                     boolean repeating = !(clinicalData.getGroupRepeat() == null);
@@ -37,15 +40,19 @@ public class ItemGroupRepeat implements ClinicalDataCrossCheck {
                                     " does not belong to a repeating group, while its repeat literal in the submission " +
                                     "file is: " + clinicalData.getGroupRepeat());
                             reportedItems.add(reportedItem);
+                            offenderSubjectIDs.add(clinicalData.getSsid());
                         } else if (!repeating && expectedToBeRepeating && !reportedItems.contains(reportedItem)) {
                             error.addOffendingValue("Item: " + clinicalData.getItem() +
                                     " belongs to a repeating group, while it does not have a repeat specified");
                             reportedItems.add(reportedItem);
+                            offenderSubjectIDs.add(clinicalData.getSsid());
                         }
                     }
                 }
         );
         if (error.getOffendingValues().size() > 0) {
+            ErrorFilter errorFilter = new ErrorFilter(data);
+            errorFilter.addErrorToSubjects(offenderSubjectIDs, ErrorClassification.BLOCK_ENTIRE_CRF);
             return error;
         } else
             return null;

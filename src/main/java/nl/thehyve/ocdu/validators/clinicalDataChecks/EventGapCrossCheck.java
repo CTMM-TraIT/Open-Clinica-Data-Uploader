@@ -5,8 +5,10 @@ import nl.thehyve.ocdu.models.OcDefinitions.CRFDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.EventDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.EventGapError;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
+import nl.thehyve.ocdu.validators.ErrorFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.openclinica.ws.beans.EventResponseType;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
@@ -53,7 +55,7 @@ public class EventGapCrossCheck implements ClinicalDataCrossCheck {
                 combinedSubjectRepeats.put(subjectID, newSubjectRepeats.get(subjectID));
             }
         }
-
+        Set<String> subjectIDSetWithError = new HashSet<>();
         for (Map.Entry<String, Set<String>> repeatSetEntryList : combinedSubjectRepeats.entrySet()) {
             Set<String> repeatSet = repeatSetEntryList.getValue();
             List<String> repeatList = new ArrayList<>(repeatSet);
@@ -65,11 +67,13 @@ public class EventGapCrossCheck implements ClinicalDataCrossCheck {
                     String key = repeatSetEntryList.getKey();
                     String[] keyPartList = StringUtils.splitPreserveAllTokens(key, ClinicalData.KEY_SEPARATOR);
                     error.addOffendingValue("Subject: " + keyPartList[2] + ", Event: " + keyPartList[3]);
+                    subjectIDSetWithError.add(keyPartList[2]);
                 }
             }
         }
-
         if (error.getOffendingValues().size() > 0) {
+            ErrorFilter errorFilter = new ErrorFilter(data);
+            errorFilter.addErrorToSubjects(subjectIDSetWithError, ErrorClassification.BLOCK_ENTIRE_CRF);
             return error;
         }
         return null;

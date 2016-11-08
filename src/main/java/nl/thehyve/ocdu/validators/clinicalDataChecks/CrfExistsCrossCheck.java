@@ -5,6 +5,7 @@ import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OcDefinitions.CRFDefinition;
 import nl.thehyve.ocdu.models.errors.CRFDoesNotExist;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
@@ -35,7 +36,10 @@ public class CrfExistsCrossCheck implements ClinicalDataCrossCheck {
 
                 String msg = "CRF: " + crf + " version: " + version + " in event: " + eventName + " for subject: "
                         + clinicalData.getSsid();
-                if (!offendingNames.contains(msg)) offendingNames.add(msg);
+                if (!offendingNames.contains(msg)) {
+                    offendingNames.add(msg);
+                }
+                clinicalData.addErrorClassification(ErrorClassification.BLOCK_ENTIRE_CRF);
             });
             error.addAllOffendingValues(offendingNames);
             return error;

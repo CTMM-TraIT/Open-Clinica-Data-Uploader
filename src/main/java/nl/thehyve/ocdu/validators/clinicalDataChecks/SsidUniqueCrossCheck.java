@@ -4,8 +4,10 @@ import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OcDefinitions.CRFDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.SSIDDuplicated;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
+import nl.thehyve.ocdu.validators.ErrorFilter;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
 import java.util.*;
@@ -18,12 +20,14 @@ public class SsidUniqueCrossCheck implements ClinicalDataCrossCheck {
     @Override
     public ValidationErrorMessage getCorrespondingError(List<ClinicalData> data, MetaData metaData, Map<ClinicalData, ItemDefinition> itemDefMap, List<StudySubjectWithEventsType> studySubjectWithEventsTypeList, Map<ClinicalData, Boolean> shownMap, Map<String, Set<CRFDefinition>> eventMap) {
         HashMap<String, List<String>> rowMap = new HashMap<>();
+        Map<String, String> rowKeyToSubjectIDMap = new HashMap<>();
         data.stream().forEach(clinicalData -> {
             String rowString = toRowIdString(clinicalData);
             List<String> items;
             if (!rowMap.containsKey(rowString)) {
                 items = new ArrayList<>();
                 rowMap.put(rowString, items);
+                rowKeyToSubjectIDMap.put(rowString, clinicalData.getSsid());
             } else {
                 items = rowMap.get(rowString);
             }
@@ -33,6 +37,13 @@ public class SsidUniqueCrossCheck implements ClinicalDataCrossCheck {
         List<String> offenders = getOffenders(rowMap);
         error.addAllOffendingValues(offenders);
         if (error.getOffendingValues().size() > 0) {
+            Set<String> subjectIDsWithError = new HashSet<>();
+            for (String rowKey : offenders) {
+                String subjectID = rowKeyToSubjectIDMap.get(rowKey);
+                subjectIDsWithError.add(subjectID);
+            }
+            ErrorFilter errorFilter = new ErrorFilter(data);
+            errorFilter.addErrorToSubjects(subjectIDsWithError, ErrorClassification.BLOCK_ENTIRE_CRF);
             return error;
         } else
             return null;

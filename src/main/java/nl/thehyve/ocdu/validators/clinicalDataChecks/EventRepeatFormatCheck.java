@@ -4,8 +4,10 @@ import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OcDefinitions.CRFDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.EventRepeatFormatError;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
+import nl.thehyve.ocdu.validators.ErrorFilter;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
 import java.util.*;
@@ -24,6 +26,7 @@ public class EventRepeatFormatCheck implements ClinicalDataCrossCheck {
                 .collect(Collectors.groupingBy(ClinicalData::getSsid,
                         Collectors.mapping(ClinicalData::getEventRepeat, Collectors.toSet())));
 
+        Set<String> subjectIDSetWithError = new HashSet<>();
         for (Map.Entry<String, Set<String>> entry : repeatMap.entrySet()) {
             Set<String> repeatsPerSubject = entry.getValue();
             for (String repeatValue : repeatsPerSubject) {
@@ -31,10 +34,13 @@ public class EventRepeatFormatCheck implements ClinicalDataCrossCheck {
                     Integer.parseInt(repeatValue);
                 } catch (NumberFormatException nfe) {
                     error.addOffendingValue(entry.getKey());
+                    subjectIDSetWithError.add(entry.getKey());
                 }
             }
         }
         if (error.getOffendingValues().size() > 0) {
+            ErrorFilter errorFilter = new ErrorFilter(data);
+            errorFilter.addErrorToSubjects(subjectIDSetWithError, ErrorClassification.BLOCK_ENTIRE_CRF);
             return error;
         }
         return null;

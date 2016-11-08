@@ -4,8 +4,10 @@ import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OcDefinitions.CRFDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.RepeatInNonrepeatingEvent;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
+import nl.thehyve.ocdu.validators.ErrorFilter;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
 import java.util.List;
@@ -42,8 +44,17 @@ public class EventRepeatCrossCheck implements ClinicalDataCrossCheck {
                 .filter(clinicalData -> isViolator(clinicalData, metaData))
                 .map(clinicalData -> "Event " + clinicalData.getEventName() + " repeat: " + clinicalData.getEventRepeat())
                 .collect(Collectors.toSet());
+
+        Set<String> offenderSubjectIDs = data.stream().filter(clinicalData -> Integer.parseInt(clinicalData.getEventRepeat()) > 1)
+                .filter(clinicalData -> isViolator(clinicalData, metaData))
+                .map(clinicalData -> clinicalData.getSsid())
+                .collect(Collectors.toSet());
+
         offenders.forEach(offender -> error.addOffendingValue(offender));
+
         if (error.getOffendingValues().size() > 0) {
+            ErrorFilter errorFilter = new ErrorFilter(data);
+            errorFilter.addErrorToSubjects(offenderSubjectIDs, ErrorClassification.BLOCK_ENTIRE_CRF);
             return error;
         } else
             return null;

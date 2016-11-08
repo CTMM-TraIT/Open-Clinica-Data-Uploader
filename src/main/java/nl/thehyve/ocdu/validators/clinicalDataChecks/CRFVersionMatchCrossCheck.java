@@ -6,6 +6,7 @@ import nl.thehyve.ocdu.models.OcDefinitions.EventDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.errors.CRFVersionMismatchError;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import org.openclinica.ws.beans.EventCrfInformationList;
 import org.openclinica.ws.beans.EventCrfType;
@@ -52,6 +53,7 @@ public class CRFVersionMatchCrossCheck implements ClinicalDataCrossCheck {
                     if (!offendingNames.contains(msg)) {
                         offendingNames.add(msg);
                     }
+                    clinicalDataToUpload.addErrorClassification(ErrorClassification.BLOCK_ENTIRE_UPLOAD);
                 }
             }
         }

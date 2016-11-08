@@ -4,8 +4,10 @@ import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OcDefinitions.CRFDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.MandatoryItemInCrfMissing;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
+import nl.thehyve.ocdu.validators.ErrorFilter;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
 import java.util.*;
@@ -29,6 +31,7 @@ public class MandatoryInCrfCrossCheck implements ClinicalDataCrossCheck {
     }
 
     private void reportMissingValues(HashMap<String, Set<String>> mandatoryMap, List<ClinicalData> data, MandatoryItemInCrfMissing error, Map<ClinicalData, Boolean> shownMap) {
+        Set<String> subjectIDSetWithError = new HashSet<>();
         data.stream().forEach(clinicalData -> {
             String item = clinicalData.getItem();
             String crfId = clinicalData.getCrfName() + clinicalData.getCrfVersion();
@@ -36,6 +39,7 @@ public class MandatoryInCrfCrossCheck implements ClinicalDataCrossCheck {
             String value = clinicalData.getValue();
             if (mandatory != null && mandatory.contains(item) && value.equals("") && shownMap.get(clinicalData)) { // is mandatory and value is empty, item not hidden for given subject
                 error.addOffendingValue(clinicalData.toOffenderString() + " Item cannot be empty as it is mandatory in CRF.");
+                subjectIDSetWithError.add(clinicalData.getSsid());
             }
         });
         Map<String, Set<String>> userItems = new HashMap<>();
@@ -63,10 +67,13 @@ public class MandatoryInCrfCrossCheck implements ClinicalDataCrossCheck {
                 for (String mandatoryItem : mandatory) {
                     if (!itemsUploadedForUser.contains(mandatoryItem)) {
                         error.addOffendingValue("Subject: " + subject + " is missing mandatory item: " + mandatoryItem);
+                        subjectIDSetWithError.add(subject);
                     }
                 }
             }
         });
+        ErrorFilter errorFilter = new ErrorFilter(data);
+        errorFilter.addErrorToSubjects(subjectIDSetWithError, ErrorClassification.BLOCK_ENTIRE_CRF);
     }
 
 

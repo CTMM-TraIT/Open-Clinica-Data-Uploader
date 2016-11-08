@@ -5,13 +5,13 @@ import nl.thehyve.ocdu.models.OcDefinitions.CRFDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.OcDefinitions.ProtocolFieldRequirementSetting;
-import nl.thehyve.ocdu.models.errors.MandatoryItemInCrfMissing;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.MissingPersonIDError;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
+import nl.thehyve.ocdu.validators.ErrorFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +40,8 @@ public class MissingPersonIDCrossCheck implements ClinicalDataCrossCheck {
                                         .filter(clinicalData -> StringUtils.isEmpty(clinicalData.getPersonID()))
                                         .map(ClinicalData::getSsid)
                                         .collect(Collectors.toSet());
+            ErrorFilter errorFilter = new ErrorFilter(data);
+            errorFilter.addErrorToSubjects(violatorList, ErrorClassification.BLOCK_ENTIRE_CRF);
             error.addAllOffendingValues(violatorList);
         }
         if (error.getOffendingValues().size() > 0)

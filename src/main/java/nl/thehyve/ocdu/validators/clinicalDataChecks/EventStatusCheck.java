@@ -5,8 +5,10 @@ import nl.thehyve.ocdu.models.OcDefinitions.CRFDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.EventDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.EventStatusNotAllowed;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
+import nl.thehyve.ocdu.validators.ErrorFilter;
 import org.openclinica.ws.beans.*;
 
 import java.util.*;
@@ -22,8 +24,10 @@ public class EventStatusCheck implements ClinicalDataCrossCheck {
         Set<String> subjectsInData = data.stream().map(clinicalData -> clinicalData.getSsid()).collect(Collectors.toSet());
         Set<String> offenders = new HashSet<>();
         Set<String> eventsInData = eventMap.keySet();
+        Set<String> subjectIDSetWithError = new HashSet<>();
         Map<String, String> eventOidToEventNameMap = eventOIDsInData(metaData, eventsInData);
         studySubjectWithEventsTypeList.stream().forEach(studySubjectWithEventsType -> {
+            String subjectID = studySubjectWithEventsType.getLabel();
             EventsType eventsWrapper = studySubjectWithEventsType.getEvents();
             List<EventResponseType> events = eventsWrapper.getEvent();
             events.stream().forEach(eventResponseType -> {
@@ -34,8 +38,9 @@ public class EventStatusCheck implements ClinicalDataCrossCheck {
                         List<EventCrfType> eventCRFList = eventCrfInformationList.getEventCrf();
                         eventCRFList.stream().forEach(eventCrfType -> {
                             String status = eventCrfType.getStatus();
-                            if (isInvalidStatus(status) && subjectsInData.contains(studySubjectWithEventsType.getLabel())) {
-                                offenders.add("Subject " + ClinicalData.CD_SEP_PREFIX + studySubjectWithEventsType.getLabel() + ClinicalData.CD_SEP_POSTEFIX
+                            if (isInvalidStatus(status) && subjectsInData.contains(subjectID)) {
+                                subjectIDSetWithError.add(subjectID);
+                                offenders.add("Subject " + ClinicalData.CD_SEP_PREFIX + subjectID + ClinicalData.CD_SEP_POSTEFIX
                                         + "Event " + ClinicalData.CD_SEP_PREFIX + eventOidToEventNameMap.get(eventResponseType.getEventDefinitionOID()) + ClinicalData.CD_SEP_POSTEFIX
                                         + "CRF " + ClinicalData.CD_SEP_PREFIX + eventCrfType.getName() + ClinicalData.CD_SEP_POSTEFIX
                                         + "has status: " + ClinicalData.CD_SEP_PREFIX + status + ClinicalData.CD_SEP_POSTEFIX);
@@ -44,14 +49,20 @@ public class EventStatusCheck implements ClinicalDataCrossCheck {
                     });
                 }
                 else {
-                    offenders.add("Subject " + ClinicalData.CD_SEP_PREFIX + studySubjectWithEventsType.getLabel() + ClinicalData.CD_SEP_POSTEFIX
-                            + "Event " + ClinicalData.CD_SEP_PREFIX + eventOidToEventNameMap.get(eventResponseType.getEventDefinitionOID()) + ClinicalData.CD_SEP_POSTEFIX
-                            + "has status: " + ClinicalData.CD_SEP_PREFIX + eventStatus + ClinicalData.CD_SEP_POSTEFIX);
+                    if (subjectsInData.contains(subjectID)) {
+                        subjectIDSetWithError.add(subjectID);
+                        offenders.add("Subject " + ClinicalData.CD_SEP_PREFIX + subjectID + ClinicalData.CD_SEP_POSTEFIX
+                                + "Event " + ClinicalData.CD_SEP_PREFIX + eventOidToEventNameMap.get(eventResponseType.getEventDefinitionOID()) + ClinicalData.CD_SEP_POSTEFIX
+                                + "has status: " + ClinicalData.CD_SEP_PREFIX + eventStatus + ClinicalData.CD_SEP_POSTEFIX);
+
+                    }
                 }
             });
         });
         error.addAllOffendingValues(offenders);
         if (error.getOffendingValues().size() > 0) {
+            ErrorFilter errorFilter = new ErrorFilter(data);
+            errorFilter.addErrorToSubjects(subjectIDSetWithError, ErrorClassification.BLOCK_ENTIRE_CRF);
             return error;
         } else
             return null;
