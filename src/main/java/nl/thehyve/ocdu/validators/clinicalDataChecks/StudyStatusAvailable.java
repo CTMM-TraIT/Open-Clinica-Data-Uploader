@@ -4,8 +4,10 @@ import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OcDefinitions.CRFDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.StudyStatusError;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
+import nl.thehyve.ocdu.validators.UtilChecks;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
 import java.util.HashMap;
@@ -37,6 +39,7 @@ public class StudyStatusAvailable implements ClinicalDataCrossCheck {
         if (! STUDY_STATUS_ALLOWING_UPLOAD.equals(metaData.getStatus())) {
             ValidationErrorMessage error = new StudyStatusError();
             error.addOffendingValue("Study: " + metaData.getStudyName() + " has status: " +  OPENCLINCA_STATUS_MAP.get(metaData.getStatus()));
+            UtilChecks.addErrorClassificationToAll(data, ErrorClassification.BLOCK_ENTIRE_UPLOAD);
             return error;
         }
         return null;

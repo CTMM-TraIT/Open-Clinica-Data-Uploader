@@ -1,6 +1,7 @@
 package nl.thehyve.ocdu.validators;
 
 
+import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OCEntities.Subject;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
@@ -21,15 +22,17 @@ public class PatientDataOcChecks {
     private final MetaData metadata;
     private final List<StudySubjectWithEventsType> subjEventData;
     private final Set<String> ssidsInData;
+    private final List<ClinicalData> clinicalDataList;
 
     private List<PatientDataCheck> checks = new ArrayList<>();
 
     public PatientDataOcChecks(MetaData metadata, List<Subject> subjects, List<StudySubjectWithEventsType> subjectWithEventsTypes,
-                               Set<String> ssidsInData) {
+                               Set<String> ssidsInData, List<ClinicalData> clinicalDataList) {
         this.metadata = metadata;
         this.subjects = subjects;
         this.subjEventData = subjectWithEventsTypes;
         this.ssidsInData = ssidsInData;
+        this.clinicalDataList = clinicalDataList;
         checks.add(new GenderPatientDataCheck());
         checks.add(new DateOfBirthPatientDataCheck());
         checks.add(new PersonIdPatientDataCheck());
@@ -53,7 +56,7 @@ public class PatientDataOcChecks {
             int index = 1;
             for (Subject subject : subjects) {
                 ValidationErrorMessage error = check.getCorrespondingError(index, subject, metadata, subjEventData,
-                        ssidsInData, subjectIDInInputList);
+                        ssidsInData, subjectIDInInputList, clinicalDataList);
                 if (error != null) {
                     error.setSubject(subject.getSsid());
                     errors.add(error);

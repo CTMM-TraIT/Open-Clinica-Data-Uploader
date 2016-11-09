@@ -1,9 +1,12 @@
 package nl.thehyve.ocdu.validators.patientDataChecks;
 
+import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OCEntities.Subject;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.OcDefinitions.SiteDefinition;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
+import nl.thehyve.ocdu.validators.UtilChecks;
 import org.apache.commons.lang3.StringUtils;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
@@ -19,7 +22,7 @@ public class DateOfBirthPatientDataCheck implements PatientDataCheck {
     @Override
     public ValidationErrorMessage getCorrespondingError(int index, Subject subject, MetaData metaData,
                                                         List<StudySubjectWithEventsType> subjectWithEventsTypes,
-                                                        Set<String> ssidsInData, List<String> subjectIDInSubjectInput) {
+                                                        Set<String> ssidsInData, List<String> subjectIDInSubjectInput, List<ClinicalData> clinicalDataList) {
 
         int DOBrequired = metaData.getBirthdateRequired();
         for (int i = 0; i < metaData.getSiteDefinitions().size(); i++) {
@@ -40,6 +43,7 @@ public class DateOfBirthPatientDataCheck implements PatientDataCheck {
         if (!StringUtils.isBlank(dob) && DOBrequired == MetaData.BIRTH_DATE_NOT_USED) { // 3 means not required
             error = new ValidationErrorMessage("Date of birth submission is not allowed by the study protocol");
             error.addOffendingValue(commonMessage + " Date of birth: " + subject.getDateOfBirth());
+            UtilChecks.addErrorClassificationToSingleSubject(clinicalDataList, ssid, ErrorClassification.BLOCK_SUBJECT);
         } else if (!StringUtils.isBlank(dob) || DOBrequired < MetaData.BIRTH_DATE_NOT_USED) {
             String label = " ";
             String msg = null;
@@ -53,6 +57,7 @@ public class DateOfBirthPatientDataCheck implements PatientDataCheck {
             if (msg != null) {
                 error = new ValidationErrorMessage(commonMessage + msg);
                 error.addOffendingValue(commonMessage + label + subject.getDateOfBirth());
+                UtilChecks.addErrorClassificationToSingleSubject(clinicalDataList, ssid, ErrorClassification.BLOCK_SUBJECT);
             }
         }
 

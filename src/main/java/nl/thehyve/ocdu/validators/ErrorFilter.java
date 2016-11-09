@@ -29,6 +29,11 @@ public class ErrorFilter {
         result.forEach( clinicalData -> clinicalData.addErrorClassification(errorClassification));
     }
 
+    public void addErrorToSingleSubject(String subjectID, ErrorClassification errorClassification) {
+        List<ClinicalData> result = clinicalDataList.stream().filter( clinicalData -> subjectID.equals(clinicalData.getSsid())).collect(Collectors.toList());
+        result.forEach( clinicalData -> clinicalData.addErrorClassification(errorClassification));
+    }
+
     public void addErrorToAll(ErrorClassification errorClassification) {
         clinicalDataList.forEach( clinicalData -> clinicalData.addErrorClassification(errorClassification));
     }

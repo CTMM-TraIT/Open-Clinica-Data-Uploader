@@ -11,10 +11,7 @@ import org.openclinica.ws.beans.StudySubjectWithEventsType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -36,12 +33,10 @@ public class EventExistsCrossCheck implements ClinicalDataCrossCheck {
         if (violators.size() > 0) {
             ValidationErrorMessage error =
                     new EventDoesNotExist();
-            List<String> nonExistentEventNames = new ArrayList<>();
+            Set<String> nonExistentEventNames = new HashSet<>();
             violators.stream().forEach(clinicalData ->
             { String evName = clinicalData.getEventName();
-                if (!nonExistentEventNames.contains(evName)) {
-                    nonExistentEventNames.add(evName);
-                }
+                nonExistentEventNames.add(evName);
                 clinicalData.addErrorClassification(ErrorClassification.BLOCK_ENTIRE_UPLOAD);
             });
             error.addAllOffendingValues(nonExistentEventNames);

@@ -1,5 +1,6 @@
 package nl.thehyve.ocdu.validators.patientDataChecks;
 
+import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OCEntities.Subject;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
@@ -14,7 +15,7 @@ import java.util.Set;
 public interface PatientDataCheck {
     ValidationErrorMessage getCorrespondingError(int index, Subject subject, MetaData metaData,
                                                  List<StudySubjectWithEventsType> subjectWithEventsTypes,
-                                                 Set<String> ssidsInData, List<String> subjectIDInSubjectInput);
+                                                 Set<String> ssidsInData, List<String> subjectIDInSubjectInput, List<ClinicalData> clinicalDataList);
 
     default String getCommonErrorMessage(int index, String ssid) {
         return "Line " + index + " (subjectID = " + ssid + ") : ";

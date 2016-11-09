@@ -62,7 +62,6 @@ public class ClinicalDataOcChecksTests {
     private static Path testFileItemLengthExceeded;
     private static Path testFileNonExistentItem;
     private static Path testFileCorrectNoSite;
-    private static Path testFileNonExistentVersion;
     private static Path testFileRangeCheckViolation;
     private static Path testFileTooManyValues;
     private static Path testFileTooManySignificantDigits;
@@ -70,6 +69,7 @@ public class ClinicalDataOcChecksTests {
     private static Path testFileRepeatInNonrepeatingEvent;
     private static Path testFileMismatchingCRFVersion;
     private static Path testFileGroupRepeatError;
+    private static Path testWrongStudyStatus;
     private static Path emptyMandatory;
     private static Path missingToggle;
     private static Path hiddenVal;
@@ -94,7 +94,6 @@ public class ClinicalDataOcChecksTests {
             testFileItemLengthExceeded = Paths.get("docs/exampleFiles/itemLengthExceeded.txt");
             testFileNonExistentItem = Paths.get("docs/exampleFiles/nonExistentItem.txt");
             testFileCorrectNoSite = Paths.get("docs/exampleFiles/data_no_site.txt");
-            testFileNonExistentVersion = Paths.get("docs/exampleFiles/nonExistentVersion.txt");
             testFileRangeCheckViolation = Paths.get("docs/exampleFiles/rangeCheckViolation.txt");
             testFileTooManyValues = Paths.get("docs/exampleFiles/tooManyValues.txt");
             testFileTooManySignificantDigits = Paths.get("docs/exampleFiles/tooManySignificantDigits.txt");
@@ -106,6 +105,7 @@ public class ClinicalDataOcChecksTests {
             missingToggle = Paths.get("docs/exampleFiles/missingToggle.txt");
             hiddenVal = Paths.get("docs/exampleFiles/hiddenVal.txt");
             testFileInvalidEventRepeat = Paths.get("docs/exampleFiles/eventRepeatInvalid.txt");
+            testWrongStudyStatus = Paths.get("docs/exampleFiles/wrongStudyStatus.txt");
 
             MessageFactory messageFactory = MessageFactory.newInstance();
             File testFile = new File("docs/responseExamples/getStudyMetadata2.xml"); //TODO: Replace File with Path
@@ -299,11 +299,12 @@ public class ClinicalDataOcChecksTests {
 
     @Test
     public void studyStatusTest() throws Exception {
+        List<ClinicalData> incorrectClinicalData = factory.createClinicalData(testWrongStudyStatus);
         ClinicalDataCrossCheck statusCheck = new StudyStatusAvailable();
         MetaData metaData = new MetaData();
         metaData.setStatus("pending");
         metaData.setStudyName("Whatever");
-        ValidationErrorMessage correspondingError = statusCheck.getCorrespondingError(null, metaData, null, null, null, null);
+        ValidationErrorMessage correspondingError = statusCheck.getCorrespondingError(incorrectClinicalData, metaData, null, null, null, null);
         assertThat(correspondingError, is(notNullValue()));
         assertThat(correspondingError, is(instanceOf(StudyStatusError.class)));
     }

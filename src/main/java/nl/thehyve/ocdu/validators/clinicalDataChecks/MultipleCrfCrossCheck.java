@@ -4,8 +4,10 @@ import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OcDefinitions.CRFDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.MultipleCRFsError;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
+import nl.thehyve.ocdu.validators.UtilChecks;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
 import java.util.HashSet;
@@ -26,6 +28,7 @@ public class MultipleCrfCrossCheck implements ClinicalDataCrossCheck {
         if (usedCrfs.size() != 1) {
             ValidationErrorMessage error = new MultipleCRFsError();
             error.addAllOffendingValues(usedCrfs);
+            UtilChecks.addErrorClassificationToAll(data, ErrorClassification.BLOCK_ENTIRE_UPLOAD);
             return error;
         }
         return null;

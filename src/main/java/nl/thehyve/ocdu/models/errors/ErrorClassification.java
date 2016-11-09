@@ -22,6 +22,12 @@ public enum ErrorClassification {
     BLOCK_ENTIRE_CRF,
 
     /**
+     * A problem concerning a single subject. All relevant data (subject, data and event) will be blocked from the
+     * upload
+     */
+    BLOCK_SUBJECT,
+
+    /**
      * An error only concerning a single item (e.g. out of range of a number)
      */
     SINGLE_ITEM_ERROR,

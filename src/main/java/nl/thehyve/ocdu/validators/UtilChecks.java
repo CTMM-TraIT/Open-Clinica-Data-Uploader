@@ -173,6 +173,11 @@ public class UtilChecks {
         errorFilter.addErrorToAll(errorClassification);
     }
 
+    public static void addErrorClassificationToSingleSubject(List<ClinicalData> clinicalDataList, String subjectID, ErrorClassification errorClassification) {
+        ErrorFilter errorFilter = new ErrorFilter(clinicalDataList);
+        errorFilter.addErrorToSingleSubject(subjectID, errorClassification);
+    }
+
     private static boolean containsAlphaNumeric(String input) {
         return input.matches(".*[A-z].*");
     }
