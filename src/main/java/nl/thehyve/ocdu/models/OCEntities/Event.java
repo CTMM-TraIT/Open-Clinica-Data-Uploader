@@ -2,13 +2,16 @@ package nl.thehyve.ocdu.models.OCEntities;
 
 import nl.thehyve.ocdu.models.OcUser;
 import nl.thehyve.ocdu.models.UploadSession;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import org.apache.commons.lang3.StringUtils;
 import org.openclinica.ws.beans.EventType;
 import org.openclinica.ws.beans.SiteRefType;
 import org.openclinica.ws.beans.StudyRefType;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Represents user-submitted event-subject pair. Meant to store data as-is.
@@ -27,13 +30,9 @@ public class Event implements OcEntity, UserSubmitted, EventReference {
     private OcUser owner;
     private String studyProtocolName;
 
-    public String getStudyProtocolName() {
-        return studyProtocolName;
-    }
 
-    public void setStudyProtocolName(String studyProtocolName) {
-        this.studyProtocolName = studyProtocolName;
-    }
+    @Transient
+    private Set<ErrorClassification> errorClassificationSet = new HashSet<>();
 
     private String eventName;
     private String ssid;
@@ -88,6 +87,14 @@ public class Event implements OcEntity, UserSubmitted, EventReference {
 
     public void setSsid(String ssid) {
         this.ssid = ssid;
+    }
+
+    public String getStudyProtocolName() {
+        return studyProtocolName;
+    }
+
+    public void setStudyProtocolName(String studyProtocolName) {
+        this.studyProtocolName = studyProtocolName;
     }
 
     @Override
@@ -243,4 +250,11 @@ public class Event implements OcEntity, UserSubmitted, EventReference {
         return result;
     }
 
+    public boolean hasErrorOfType(ErrorClassification errorClassification) {
+        return errorClassificationSet.contains(errorClassification);
+    }
+
+    public void addErrorClassification(ErrorClassification errorClassification) {
+        errorClassificationSet.add(errorClassification);
+    }
 }

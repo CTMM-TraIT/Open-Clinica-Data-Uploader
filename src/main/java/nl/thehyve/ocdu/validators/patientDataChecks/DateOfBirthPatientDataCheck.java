@@ -22,7 +22,7 @@ public class DateOfBirthPatientDataCheck implements PatientDataCheck {
     @Override
     public ValidationErrorMessage getCorrespondingError(int index, Subject subject, MetaData metaData,
                                                         List<StudySubjectWithEventsType> subjectWithEventsTypes,
-                                                        Set<String> ssidsInData, List<String> subjectIDInSubjectInput, List<ClinicalData> clinicalDataList) {
+                                                        Set<String> ssidsInData, List<String> subjectIDInSubjectInput) {
 
         int DOBrequired = metaData.getBirthdateRequired();
         for (int i = 0; i < metaData.getSiteDefinitions().size(); i++) {
@@ -43,7 +43,6 @@ public class DateOfBirthPatientDataCheck implements PatientDataCheck {
         if (!StringUtils.isBlank(dob) && DOBrequired == MetaData.BIRTH_DATE_NOT_USED) { // 3 means not required
             error = new ValidationErrorMessage("Date of birth submission is not allowed by the study protocol");
             error.addOffendingValue(commonMessage + " Date of birth: " + subject.getDateOfBirth());
-            UtilChecks.addErrorClassificationToSingleSubject(clinicalDataList, ssid, ErrorClassification.BLOCK_SUBJECT);
         } else if (!StringUtils.isBlank(dob) || DOBrequired < MetaData.BIRTH_DATE_NOT_USED) {
             String label = " ";
             String msg = null;
@@ -57,7 +56,6 @@ public class DateOfBirthPatientDataCheck implements PatientDataCheck {
             if (msg != null) {
                 error = new ValidationErrorMessage(commonMessage + msg);
                 error.addOffendingValue(commonMessage + label + subject.getDateOfBirth());
-                UtilChecks.addErrorClassificationToSingleSubject(clinicalDataList, ssid, ErrorClassification.BLOCK_SUBJECT);
             }
         }
 

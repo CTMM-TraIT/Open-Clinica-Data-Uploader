@@ -22,7 +22,7 @@ public class SitePatientDataCheck implements PatientDataCheck {
     @Override
     public ValidationErrorMessage getCorrespondingError(int index, Subject subject, MetaData metaData,
                                                         List<StudySubjectWithEventsType> subjectWithEventsTypes,
-                                                        Set<String> ssidsInData, List<String> subjectIDInSubjectInput, List<ClinicalData> clinicalDataList) {
+                                                        Set<String> ssidsInData, List<String> subjectIDInSubjectInput) {
 
         String ssid = subject.getSsid();
         String commonMessage = getCommonErrorMessage(index, ssid);
@@ -48,7 +48,6 @@ public class SitePatientDataCheck implements PatientDataCheck {
 
         if(error != null) {
             error.addOffendingValue(commonMessage + " site: " + subject.getSite());
-            UtilChecks.addErrorClassificationToAll(clinicalDataList, ErrorClassification.BLOCK_ENTIRE_UPLOAD);
         }
 
         return error;

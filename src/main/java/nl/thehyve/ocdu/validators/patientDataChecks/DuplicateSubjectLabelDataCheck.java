@@ -20,7 +20,7 @@ public class DuplicateSubjectLabelDataCheck implements PatientDataCheck {
     @Override
     public ValidationErrorMessage getCorrespondingError(int index, Subject subject, MetaData metaData,
                                                         List<StudySubjectWithEventsType> subjectWithEventsTypes,
-                                                        Set<String> ssidsInData, List<String> subjectIDInSubjectInput, List<ClinicalData> clinicalDataList) {
+                                                        Set<String> ssidsInData, List<String> subjectIDInSubjectInput) {
         ValidationErrorMessage error = null;
 
         String subjectLabel = subject.getSsid();
@@ -33,7 +33,6 @@ public class DuplicateSubjectLabelDataCheck implements PatientDataCheck {
         if (error != null) {
             String commonMessage = getCommonErrorMessage(index, subjectLabel);
             error.addOffendingValue(commonMessage);
-            UtilChecks.addErrorClassificationToSingleSubject(clinicalDataList, subjectLabel, ErrorClassification.BLOCK_SUBJECT);
             return error;
         }
         return null;

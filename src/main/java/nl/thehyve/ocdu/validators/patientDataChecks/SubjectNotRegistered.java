@@ -18,11 +18,10 @@ public class SubjectNotRegistered implements PatientDataCheck {
     @Override
     public ValidationErrorMessage getCorrespondingError(int index, Subject subject, MetaData metaData,
                                                         List<StudySubjectWithEventsType> subjectWithEventsTypes,
-                                                        Set<String> ssidsInData, List<String> subjectIDInSubjectInput, List<ClinicalData> clinicalDataList) {
+                                                        Set<String> ssidsInData, List<String> subjectIDInSubjectInput) {
         String ssid = subject.getSsid();
         for (StudySubjectWithEventsType subjectInfo : subjectWithEventsTypes) {
             if (subjectInfo.getLabel().equals(ssid)) {
-                UtilChecks.addErrorClassificationToSingleSubject(clinicalDataList, ssid, ErrorClassification.BLOCK_SUBJECT);
                 return getError(index, subject, metaData);
             }
         }

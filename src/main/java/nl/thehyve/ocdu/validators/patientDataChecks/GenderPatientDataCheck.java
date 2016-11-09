@@ -21,7 +21,7 @@ public class GenderPatientDataCheck implements PatientDataCheck {
     @Override
     public ValidationErrorMessage getCorrespondingError(int index, Subject subject, MetaData metaData,
                                                         List<StudySubjectWithEventsType> subjectWithEventsTypes,
-                                                        Set<String> ssidsInData, List<String> subjectIDInSubjectInput, List<ClinicalData> clinicalDataList) {
+                                                        Set<String> ssidsInData, List<String> subjectIDInSubjectInput) {
 
         String ssid = subject.getSsid();
         String commonMessage = getCommonErrorMessage(index, ssid);
@@ -50,7 +50,6 @@ public class GenderPatientDataCheck implements PatientDataCheck {
         }
 
         if (error != null) {
-            UtilChecks.addErrorClassificationToSingleSubject(clinicalDataList, ssid, ErrorClassification.BLOCK_SUBJECT);
             error.addOffendingValue(commonMessage + " gender: " + subject.getGender());
         }
 

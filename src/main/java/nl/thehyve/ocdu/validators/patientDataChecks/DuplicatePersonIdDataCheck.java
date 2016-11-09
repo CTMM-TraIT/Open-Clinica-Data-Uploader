@@ -23,7 +23,7 @@ public class DuplicatePersonIdDataCheck implements PatientDataCheck {
     @Override
     public ValidationErrorMessage getCorrespondingError(int index, Subject subject, MetaData metaData,
                                                         List<StudySubjectWithEventsType> subjectWithEventsTypes,
-                                                        Set<String> ssidsInData, List<String> subjectIDInSubjectInput, List<ClinicalData> clinicalDataList) {
+                                                        Set<String> ssidsInData, List<String> subjectIDInSubjectInput) {
 
         String ssid = subject.getSsid();
         String commonMessage = getCommonErrorMessage(index, ssid);
@@ -49,7 +49,6 @@ public class DuplicatePersonIdDataCheck implements PatientDataCheck {
 
         if(error != null) {
             error.addOffendingValue(commonMessage + " person ID: " + subject.getPersonId() + " for subject label " + ssid + ", is already present for subject with label " + duplicateSubjectLabel);
-            UtilChecks.addErrorClassificationToSingleSubject(clinicalDataList, ssid, ErrorClassification.BLOCK_SUBJECT);
         }
 
         return error;

@@ -3,6 +3,7 @@ package nl.thehyve.ocdu.models.OCEntities;
 import nl.thehyve.ocdu.models.OcDefinitions.ODMElement;
 import nl.thehyve.ocdu.models.OcUser;
 import nl.thehyve.ocdu.models.UploadSession;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
@@ -10,7 +11,9 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Represents user-submitted Subject information. Meant to store data as-is.
@@ -34,13 +37,8 @@ public class Subject implements OcEntity, UserSubmitted, ODMElement {
     @Column(columnDefinition = "TEXT")
     private String site;
 
-    public String getStudyProtocolName() {
-        return studyProtocolName;
-    }
-
-    public void setStudyProtocolName(String studyProtocolName) {
-        this.studyProtocolName = studyProtocolName;
-    }
+    @Transient
+    private Set<ErrorClassification> errorClassificationSet = new HashSet<>();
 
     private String studyProtocolName; // AKA ProtocolName. To be used for registration, not taken from the user file
 
@@ -104,7 +102,13 @@ public class Subject implements OcEntity, UserSubmitted, ODMElement {
         this.dateOfBirth = dateOfBirth;
     }
 
+    public String getStudyProtocolName() {
+        return studyProtocolName;
+    }
 
+    public void setStudyProtocolName(String studyProtocolName) {
+        this.studyProtocolName = studyProtocolName;
+    }
 
     public String getPersonId() {
         return personId;
@@ -194,5 +198,13 @@ public class Subject implements OcEntity, UserSubmitted, ODMElement {
 
     public void appendODMClose(StringBuffer odmStringBuffer) {
         odmStringBuffer.append("</SubjectData>");
+    }
+
+    public boolean hasErrorOfType(ErrorClassification errorClassification) {
+        return errorClassificationSet.contains(errorClassification);
+    }
+
+    public void addErrorClassification(ErrorClassification errorClassification) {
+        errorClassificationSet.add(errorClassification);
     }
 }

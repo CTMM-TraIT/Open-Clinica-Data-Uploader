@@ -16,11 +16,10 @@ import java.util.Set;
  */
 public class PresentInData implements PatientDataCheck {
     @Override
-    public ValidationErrorMessage getCorrespondingError(int index, Subject subject, MetaData metaData, List<StudySubjectWithEventsType> subjectWithEventsTypes, Set<String> ssidsInData, List<String> subjectIDInSubjectInput, List<ClinicalData> clinicalDataList) {
+    public ValidationErrorMessage getCorrespondingError(int index, Subject subject, MetaData metaData, List<StudySubjectWithEventsType> subjectWithEventsTypes, Set<String> ssidsInData, List<String> subjectIDInSubjectInput) {
         String ssid = subject.getSsid();
         if (!ssidsInData.contains(ssid)) {
             ValidationErrorMessage error = new ValidationErrorMessage("One or more subjects are absent in the data file. Please use generated template.");
-            UtilChecks.addErrorClassificationToSingleSubject(clinicalDataList, ssid, ErrorClassification.BLOCK_SUBJECT);
             error.addOffendingValue(getCommonErrorMessage(index, subject.getSsid()));
             return error;
         }

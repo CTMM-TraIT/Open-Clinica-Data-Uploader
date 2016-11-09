@@ -20,7 +20,7 @@ public class StudyPatientDataCheck implements PatientDataCheck {
     @Override
     public ValidationErrorMessage getCorrespondingError(int index, Subject subject, MetaData metaData,
                                                         List<StudySubjectWithEventsType> subjectWithEventsTypes,
-                                                        Set<String> ssidsInData, List<String> subjectIDInSubjectInput, List<ClinicalData> clinicalDataList) {
+                                                        Set<String> ssidsInData, List<String> subjectIDInSubjectInput) {
 
         String ssid = subject.getSsid();
         String commonMessage = getCommonErrorMessage(index, ssid);
@@ -36,9 +36,6 @@ public class StudyPatientDataCheck implements PatientDataCheck {
         else if(!study.equals(mStudy)) {
             error = new ValidationErrorMessage("Study provided in the template is inconsistent with the study defined in the data file.");
             error.addOffendingValue(commonMessage + " study in template: " + study + ", study in data file: " + mStudy);
-        }
-        if (error != null) {
-            UtilChecks.addErrorClassificationToSingleSubject(clinicalDataList, ssid, ErrorClassification.BLOCK_SUBJECT);
         }
         return error;
     }

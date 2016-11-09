@@ -28,26 +28,15 @@ public enum ErrorClassification {
     BLOCK_SUBJECT,
 
     /**
+     * A problem concerning an event. All relevant data - subject, data and the event itself - will be blocked from the
+     * upload
+     */
+    BLOCK_EVENT,
+
+    /**
      * An error only concerning a single item (e.g. out of range of a number)
      */
-    SINGLE_ITEM_ERROR,
-
-    /**
-     * An error affecting 2 or more items (e.g. missing mandatory item in a CRF, missing item used in a simple
-     * conditional display of another item)
-     */
-    CROSS_ITEM_ERROR,
-
-    /**
-     * Errors in references across the 3 input sources: data-, subject and event-files. (e.g. event occurrence in data
-     * file is not present in OpenClinica nor in the event file)
-     */
-    INPUT_CROSS_REFERENCE,
-
-    /**
-     * Only a notification for the user, no data will be disregarded
-     */
-    WARNING;
+    SINGLE_ITEM_ERROR;
 }
 
 

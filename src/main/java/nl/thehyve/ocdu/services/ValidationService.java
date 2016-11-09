@@ -158,7 +158,6 @@ public class ValidationService {
      */
     public List<ValidationErrorMessage> getPatientsErrors(UploadSession submission, String wsPwdHash, MetaDataProvider metaDataProvider) throws Exception {
         List<Subject> bySubmission = subjectRepository.findBySubmission(submission);
-        List<ClinicalData> clinicalDataList = clinicalDataRepository.findBySubmission(submission);
         Set<String> subjectsInData = clinicalDataRepository.findBySubmission(submission)
                 .stream().map(ClinicalData::getSsid).collect(Collectors.toSet());
         OcUser submitter = submission.getOwner();
@@ -170,7 +169,7 @@ public class ValidationService {
                 .getStudySubjectsType(submitter.getUsername(), wsPwdHash, submitter.getOcEnvironment(), study.getIdentifier(), "");
 
         List<ValidationErrorMessage> errors = new ArrayList<>();
-        PatientDataOcChecks checksRunner = new PatientDataOcChecks(metadata, bySubmission, subjectWithEventsTypes, subjectsInData, clinicalDataList);
+        PatientDataOcChecks checksRunner = new PatientDataOcChecks(metadata, bySubmission, subjectWithEventsTypes, subjectsInData);
         errors.addAll(checksRunner.getErrors());
         return errors;
     }

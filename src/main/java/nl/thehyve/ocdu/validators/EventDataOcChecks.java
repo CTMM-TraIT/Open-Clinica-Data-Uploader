@@ -6,6 +6,7 @@ import nl.thehyve.ocdu.models.OcDefinitions.EventDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.OcDefinitions.ProtocolFieldRequirementSetting;
 import nl.thehyve.ocdu.models.OcDefinitions.SiteDefinition;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import org.apache.commons.lang3.StringUtils;
 
@@ -141,6 +142,7 @@ public class EventDataOcChecks {
                     strValue = "Empty";
                 }
                 result.addOffendingValue("Line number: " + event.getLineNumber() + ", subject: " + event.getSsid() + ", value: " + strValue);
+                event.addErrorClassification(ErrorClassification.BLOCK_EVENT);
             }
         }
         if (! result.getOffendingValues().isEmpty()) {
@@ -158,6 +160,7 @@ public class EventDataOcChecks {
             key.add(event.getRepeatNumber());
             if (keyToEventMap.containsKey(key)) {
                 duplicatedEvent.addOffendingValue("Line number: " + event.getLineNumber() + ", subject: " + event.getSsid() + " value(s): " + key);
+                event.addErrorClassification(ErrorClassification.BLOCK_EVENT);
             } else {
                 keyToEventMap.put(key, event);
             }
@@ -175,6 +178,7 @@ public class EventDataOcChecks {
                 Optional<Integer> repeatNumberOpt = parseIntOpt(event.getRepeatNumber());
                 if (!repeatNumberOpt.isPresent() || repeatNumberOpt.get() < 1) {
                     invalidRepeatNumber.addOffendingValue("Line number: " + event.getLineNumber() + ", subject: " + event.getSsid() + ", " + event.getRepeatNumber());
+                    event.addErrorClassification(ErrorClassification.BLOCK_EVENT);
                 }
             }
         }
@@ -197,11 +201,13 @@ public class EventDataOcChecks {
                 Date endDate = endDateOpt.get();
                 if (endDate.before(startDate)) {
                     dateRangeInvalid.addOffendingValue("Line number: " + event.getLineNumber() + ", subject: " + event.getSsid() + ", start date: " + event.getStartDate() + ", end date: " + event.getEndDate() + ". End date is before start date");
+                    event.addErrorClassification(ErrorClassification.BLOCK_EVENT);
                 } else if (startDate.equals(endDate) && startTimeOpt.isPresent() && endTimeOpt.isPresent()) {
                     Date startTime = startTimeOpt.get();
                     Date endTime = endTimeOpt.get();
                     if (endTime.before(startTime)) {
                         timeRangeInvalid.addOffendingValue("Line number: " + event.getLineNumber() + ", subject: " + event.getSsid() + ", start time: " + event.getStartTime() + ", end time: " + event.getEndTime());
+                        event.addErrorClassification(ErrorClassification.BLOCK_EVENT);
                     }
                 }
             }
@@ -222,6 +228,7 @@ public class EventDataOcChecks {
                 startDateOpt = parseDateOpt(event.getStartDate());
                 if (!startDateOpt.isPresent()) {
                     validationErrorMessage.addOffendingValue("Line number: " + event.getLineNumber() + ", subject: " + event.getSsid() + ", " + event.getStartDate());
+                    event.addErrorClassification(ErrorClassification.BLOCK_EVENT);
                 }
             }
         }
@@ -238,6 +245,7 @@ public class EventDataOcChecks {
                 startTimeOpt = parseTimeOpt(event.getStartTime());
                 if (!startTimeOpt.isPresent()) {
                     validationErrorMessage.addOffendingValue("Line number: " + event.getLineNumber() + ", subject: " + event.getSsid() + ", " + event.getStartTime());
+                    event.addErrorClassification(ErrorClassification.BLOCK_EVENT);
                 }
             }
         }
@@ -254,6 +262,7 @@ public class EventDataOcChecks {
                 endDateOpt = parseDateOpt(event.getEndDate());
                 if (!endDateOpt.isPresent()) {
                     validationErrorMessage.addOffendingValue("Line number: " + event.getLineNumber() + ", subject: " + event.getSsid() + ", " + event.getEndDate());
+                    event.addErrorClassification(ErrorClassification.BLOCK_EVENT);
                 }
             }
         }
@@ -281,6 +290,7 @@ public class EventDataOcChecks {
                     LocalDate endDate = Instant.ofEpochMilli(endDateOpt.get().getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
                     if (startDate.isEqual(endDate)) {
                         validationErrorMessage.addOffendingValue("Line number: " + event.getLineNumber() + ", subject: " + event.getSsid());
+                        event.addErrorClassification(ErrorClassification.BLOCK_EVENT);
                     }
                 }
             }
@@ -298,6 +308,7 @@ public class EventDataOcChecks {
                 endTimeOpt = parseTimeOpt(event.getEndTime());
                 if (!endTimeOpt.isPresent()) {
                     validationErrorMessage.addOffendingValue("Line number: " + event.getLineNumber() + ", subject: " + event.getSsid() + ", " + event.getEndTime());
+                    event.addErrorClassification(ErrorClassification.BLOCK_EVENT);
                 }
             }
         }

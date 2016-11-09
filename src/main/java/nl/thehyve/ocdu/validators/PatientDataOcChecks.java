@@ -4,6 +4,7 @@ package nl.thehyve.ocdu.validators;
 import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OCEntities.Subject;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import nl.thehyve.ocdu.validators.patientDataChecks.*;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
@@ -22,17 +23,15 @@ public class PatientDataOcChecks {
     private final MetaData metadata;
     private final List<StudySubjectWithEventsType> subjEventData;
     private final Set<String> ssidsInData;
-    private final List<ClinicalData> clinicalDataList;
 
     private List<PatientDataCheck> checks = new ArrayList<>();
 
     public PatientDataOcChecks(MetaData metadata, List<Subject> subjects, List<StudySubjectWithEventsType> subjectWithEventsTypes,
-                               Set<String> ssidsInData, List<ClinicalData> clinicalDataList) {
+                               Set<String> ssidsInData) {
         this.metadata = metadata;
         this.subjects = subjects;
         this.subjEventData = subjectWithEventsTypes;
         this.ssidsInData = ssidsInData;
-        this.clinicalDataList = clinicalDataList;
         checks.add(new GenderPatientDataCheck());
         checks.add(new DateOfBirthPatientDataCheck());
         checks.add(new PersonIdPatientDataCheck());
@@ -56,9 +55,10 @@ public class PatientDataOcChecks {
             int index = 1;
             for (Subject subject : subjects) {
                 ValidationErrorMessage error = check.getCorrespondingError(index, subject, metadata, subjEventData,
-                        ssidsInData, subjectIDInInputList, clinicalDataList);
+                        ssidsInData, subjectIDInInputList);
                 if (error != null) {
                     error.setSubject(subject.getSsid());
+                    subject.addErrorClassification(ErrorClassification.BLOCK_SUBJECT);
                     errors.add(error);
                 }
                 index++;
