@@ -5,10 +5,15 @@ import nl.thehyve.ocdu.models.OcDefinitions.CRFDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.errors.CrfCouldNotBeVerified;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
+import nl.thehyve.ocdu.validators.UtilChecks;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -30,12 +35,16 @@ public class CrfCouldNotBeVerifiedCrossCheck implements ClinicalDataCrossCheck {
         List<ClinicalData> crfCouldNotBeVerifiedOffenders = getcrfCouldNotBeVerifiedOffenders(data, eventMap);
         if (crfCouldNotBeVerifiedOffenders.size() > 0) {
             CrfCouldNotBeVerified error = new CrfCouldNotBeVerified();
-            List<String> offendingNames = new ArrayList<>();
+            Set<String> offendingNames = new HashSet<>();
+            Set<String> offendingSubjectIDs = new HashSet<>();
             crfCouldNotBeVerifiedOffenders.stream().forEach(clinicalData -> {
                 String crf = clinicalData.getCrfName();
-                if (!offendingNames.contains(crf)) offendingNames.add(crf);
+                offendingNames.add(crf);
+                offendingSubjectIDs.add(clinicalData.getSsid());
             });
             error.addAllOffendingValues(offendingNames);
+
+            UtilChecks.addErrorClassificationForSubjects(data, offendingSubjectIDs, ErrorClassification.BLOCK_ENTIRE_CRF);
             return error;
         } else return null;
     }

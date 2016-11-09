@@ -28,4 +28,8 @@ public class ErrorFilter {
         List<ClinicalData> result = clinicalDataList.stream().filter( clinicalData -> subjectIDSet.contains( clinicalData.getSsid())).collect(Collectors.toList());
         result.forEach( clinicalData -> clinicalData.addErrorClassification(errorClassification));
     }
+
+    public void addErrorToAll(ErrorClassification errorClassification) {
+        clinicalDataList.forEach( clinicalData -> clinicalData.addErrorClassification(errorClassification));
+    }
 }

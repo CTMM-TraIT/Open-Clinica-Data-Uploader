@@ -7,7 +7,7 @@ import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.MandatoryItemInCrfMissing;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
-import nl.thehyve.ocdu.validators.ErrorFilter;
+import nl.thehyve.ocdu.validators.UtilChecks;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
 import java.util.*;
@@ -72,8 +72,7 @@ public class MandatoryInCrfCrossCheck implements ClinicalDataCrossCheck {
                 }
             }
         });
-        ErrorFilter errorFilter = new ErrorFilter(data);
-        errorFilter.addErrorToSubjects(subjectIDSetWithError, ErrorClassification.BLOCK_ENTIRE_CRF);
+        UtilChecks.addErrorClassificationForSubjects(data, subjectIDSetWithError, ErrorClassification.BLOCK_ENTIRE_CRF);
     }
 
 

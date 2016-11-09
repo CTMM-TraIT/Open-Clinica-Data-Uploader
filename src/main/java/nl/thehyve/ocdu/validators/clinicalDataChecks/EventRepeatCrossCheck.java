@@ -7,7 +7,7 @@ import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.RepeatInNonrepeatingEvent;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
-import nl.thehyve.ocdu.validators.ErrorFilter;
+import nl.thehyve.ocdu.validators.UtilChecks;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
 import java.util.List;
@@ -53,8 +53,7 @@ public class EventRepeatCrossCheck implements ClinicalDataCrossCheck {
         offenders.forEach(offender -> error.addOffendingValue(offender));
 
         if (error.getOffendingValues().size() > 0) {
-            ErrorFilter errorFilter = new ErrorFilter(data);
-            errorFilter.addErrorToSubjects(offenderSubjectIDs, ErrorClassification.BLOCK_ENTIRE_CRF);
+            UtilChecks.addErrorClassificationForSubjects(data, offenderSubjectIDs, ErrorClassification.BLOCK_ENTIRE_CRF);
             return error;
         } else
             return null;

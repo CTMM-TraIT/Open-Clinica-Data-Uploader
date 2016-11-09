@@ -7,14 +7,10 @@ import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.SiteDoesNotExist;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
-import nl.thehyve.ocdu.validators.ErrorFilter;
+import nl.thehyve.ocdu.validators.UtilChecks;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -47,8 +43,7 @@ public class SitesExistCrossCheck implements ClinicalDataCrossCheck {
                 }
             });
             error.addAllOffendingValues(nonExistentSiteNames);
-            ErrorFilter errorFilter = new ErrorFilter(data);
-            errorFilter.addErrorToSubjects(offenderSubjectIDs, ErrorClassification.BLOCK_ENTIRE_CRF);
+            UtilChecks.addErrorClassificationForSubjects(data, offenderSubjectIDs, ErrorClassification.BLOCK_ENTIRE_CRF);
             return error;
         } else return null;
     }

@@ -8,7 +8,7 @@ import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.EventGapError;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
-import nl.thehyve.ocdu.validators.ErrorFilter;
+import nl.thehyve.ocdu.validators.UtilChecks;
 import org.apache.commons.lang3.StringUtils;
 import org.openclinica.ws.beans.EventResponseType;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
@@ -72,8 +72,7 @@ public class EventGapCrossCheck implements ClinicalDataCrossCheck {
             }
         }
         if (error.getOffendingValues().size() > 0) {
-            ErrorFilter errorFilter = new ErrorFilter(data);
-            errorFilter.addErrorToSubjects(subjectIDSetWithError, ErrorClassification.BLOCK_ENTIRE_CRF);
+            UtilChecks.addErrorClassificationForSubjects(data, subjectIDSetWithError, ErrorClassification.BLOCK_ENTIRE_CRF);
             return error;
         }
         return null;

@@ -82,12 +82,8 @@ public class ValidationService {
             StudyDoesNotExist studyError = new StudyDoesNotExist();
             studyError.addOffendingValue(submission.getStudy());
             errors.add(studyError);
-            ErrorFilter errorFilter = new ErrorFilter(bySubmission);
-            Set<String> allSubjectIDs = new HashSet<>();
-            bySubmission.stream().forEach(clinicalData ->
-                        allSubjectIDs.add(clinicalData.getSsid())
-            );
-            errorFilter.addErrorToSubjects(allSubjectIDs, ErrorClassification.BLOCK_ENTIRE_UPLOAD);
+
+            UtilChecks.addErrorClassificationToAll(bySubmission,ErrorClassification.BLOCK_ENTIRE_UPLOAD);
         } else {
             ClinicalDataChecksRunner checksRunner = new ClinicalDataOcChecks(metadata, bySubmission, subjectWithEventsTypes);
             errors.addAll(checksRunner.getErrors());

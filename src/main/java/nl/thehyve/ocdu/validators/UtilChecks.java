@@ -1,5 +1,7 @@
 package nl.thehyve.ocdu.validators;
 
+import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.services.InputValidationException;
 import org.apache.commons.lang3.StringUtils;
 
@@ -10,6 +12,7 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.ResolverStyle;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import static java.time.temporal.ChronoField.*;
 
@@ -158,6 +161,16 @@ public class UtilChecks {
         } else {
             return true; // no expectations, no disappointment
         }
+    }
+
+    public static void addErrorClassificationForSubjects(List<ClinicalData> clinicalDataList, Set<String> subjectIDSetWithError, ErrorClassification errorClassification) {
+        ErrorFilter errorFilter = new ErrorFilter(clinicalDataList);
+        errorFilter.addErrorToSubjects(subjectIDSetWithError, errorClassification);
+    }
+
+    public static void addErrorClassificationToAll(List<ClinicalData> clinicalDataList, ErrorClassification errorClassification) {
+        ErrorFilter errorFilter = new ErrorFilter(clinicalDataList);
+        errorFilter.addErrorToAll(errorClassification);
     }
 
     private static boolean containsAlphaNumeric(String input) {

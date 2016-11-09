@@ -8,7 +8,7 @@ import nl.thehyve.ocdu.models.OcDefinitions.ProtocolFieldRequirementSetting;
 import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.MissingPersonIDError;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
-import nl.thehyve.ocdu.validators.ErrorFilter;
+import nl.thehyve.ocdu.validators.UtilChecks;
 import org.apache.commons.lang3.StringUtils;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
@@ -36,13 +36,13 @@ public class MissingPersonIDCrossCheck implements ClinicalDataCrossCheck {
             List<ClinicalData> newSubjectInStudy = data.stream()
                                                     .filter(clinicalData -> ! existingStudySubjectIDList.contains(clinicalData.getSsid()))
                                                     .collect(Collectors.toList());
-            Set<String> violatorList = newSubjectInStudy.stream()
+            Set<String> violatorSet = newSubjectInStudy.stream()
                                         .filter(clinicalData -> StringUtils.isEmpty(clinicalData.getPersonID()))
                                         .map(ClinicalData::getSsid)
                                         .collect(Collectors.toSet());
-            ErrorFilter errorFilter = new ErrorFilter(data);
-            errorFilter.addErrorToSubjects(violatorList, ErrorClassification.BLOCK_ENTIRE_CRF);
-            error.addAllOffendingValues(violatorList);
+
+            UtilChecks.addErrorClassificationForSubjects(data, violatorSet, ErrorClassification.BLOCK_ENTIRE_CRF);
+            error.addAllOffendingValues(violatorSet);
         }
         if (error.getOffendingValues().size() > 0)
             return error;
