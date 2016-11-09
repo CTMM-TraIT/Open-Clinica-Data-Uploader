@@ -4,15 +4,13 @@ import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OcDefinitions.CRFDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.SubjectSiteMismatch;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
+import nl.thehyve.ocdu.validators.ErrorFilter;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -37,13 +35,17 @@ public class SiteSubjectMatchCrossCheck implements ClinicalDataCrossCheck {
         if (violators.size() > 0) {
             ValidationErrorMessage error =
                     new SubjectSiteMismatch();
-            List<String> mismatchingSubjectSiteCombinationList = new ArrayList<>();
-            violators.stream().forEach(clinicalData ->
-            { String subjectID = "Subject " + ClinicalData.CD_SEP_PREFIX + clinicalData.getSsid() + ClinicalData.CD_SEP_POSTEFIX +
-                                   "Line number " + ClinicalData.CD_SEP_PREFIX + clinicalData.getLineNumber() + ClinicalData.CD_SEP_POSTEFIX;
-                if(!mismatchingSubjectSiteCombinationList.contains(subjectID)) mismatchingSubjectSiteCombinationList.add(subjectID);
+            Set<String> mismatchingSubjectSiteCombinationList = new HashSet<>();
+            Set<String> offenderSubjectIDs = new HashSet<>();
+            violators.stream().forEach(clinicalData -> {
+                    String subjectID = "Subject " + ClinicalData.CD_SEP_PREFIX + clinicalData.getSsid() + ClinicalData.CD_SEP_POSTEFIX +
+                                       "Line number " + ClinicalData.CD_SEP_PREFIX + clinicalData.getLineNumber() + ClinicalData.CD_SEP_POSTEFIX;
+                    mismatchingSubjectSiteCombinationList.add(subjectID);
+                    offenderSubjectIDs.add(clinicalData.getSsid());
             });
             error.addAllOffendingValues(mismatchingSubjectSiteCombinationList);
+            ErrorFilter errorFilter = new ErrorFilter(data);
+            errorFilter.addErrorToSubjects(offenderSubjectIDs, ErrorClassification.BLOCK_ENTIRE_CRF);
             return error;
         } else return null;
 

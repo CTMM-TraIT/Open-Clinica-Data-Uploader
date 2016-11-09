@@ -5,8 +5,10 @@ import nl.thehyve.ocdu.models.OcDefinitions.CRFDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.DisplayRule;
 import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.ToggleVarForDisplayRuleAbsent;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
+import nl.thehyve.ocdu.validators.ErrorFilter;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
 import java.util.*;
@@ -19,6 +21,7 @@ public class HiddenTogglePresent implements ClinicalDataCrossCheck {
     public ValidationErrorMessage getCorrespondingError(List<ClinicalData> data, MetaData metaData, Map<ClinicalData, ItemDefinition> itemDefMap, List<StudySubjectWithEventsType> studySubjectWithEventsTypeList, Map<ClinicalData, Boolean> shownMap, Map<String, Set<CRFDefinition>> eventMap) {
         ToggleVarForDisplayRuleAbsent error = new ToggleVarForDisplayRuleAbsent();
         Set<String> errors = new HashSet<>();
+        Set<String> offenderSubjectIDs = new HashSet<>();
         for (ClinicalData clinicalData : itemDefMap.keySet()) {
             List<DisplayRule> displayRules = itemDefMap.get(clinicalData).getDisplayRules();
             for (DisplayRule displayRule : displayRules) {
@@ -30,6 +33,8 @@ public class HiddenTogglePresent implements ClinicalDataCrossCheck {
         }
         error.addAllOffendingValues(errors);
         if (error.getOffendingValues().size() > 0) {
+            ErrorFilter errorFilter = new ErrorFilter(data);
+            errorFilter.addErrorToSubjects(offenderSubjectIDs, ErrorClassification.BLOCK_ENTIRE_CRF);
             return error;
         } else return null;
     }

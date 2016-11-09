@@ -8,16 +8,14 @@ import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.OcDefinitions.RegisteredEventInformation;
 import nl.thehyve.ocdu.models.OcUser;
 import nl.thehyve.ocdu.models.UploadSession;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.MissingEventError;
 import nl.thehyve.ocdu.models.errors.StudyDoesNotExist;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import nl.thehyve.ocdu.repositories.ClinicalDataRepository;
 import nl.thehyve.ocdu.repositories.EventRepository;
 import nl.thehyve.ocdu.repositories.SubjectRepository;
-import nl.thehyve.ocdu.validators.ClinicalDataChecksRunner;
-import nl.thehyve.ocdu.validators.ClinicalDataOcChecks;
-import nl.thehyve.ocdu.validators.EventDataOcChecks;
-import nl.thehyve.ocdu.validators.PatientDataOcChecks;
+import nl.thehyve.ocdu.validators.*;
 import nl.thehyve.ocdu.validators.fileValidators.DataPreMappingValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
@@ -84,6 +82,12 @@ public class ValidationService {
             StudyDoesNotExist studyError = new StudyDoesNotExist();
             studyError.addOffendingValue(submission.getStudy());
             errors.add(studyError);
+            ErrorFilter errorFilter = new ErrorFilter(bySubmission);
+            Set<String> allSubjectIDs = new HashSet<>();
+            bySubmission.stream().forEach(clinicalData ->
+                        allSubjectIDs.add(clinicalData.getSsid())
+            );
+            errorFilter.addErrorToSubjects(allSubjectIDs, ErrorClassification.BLOCK_ENTIRE_UPLOAD);
         } else {
             ClinicalDataChecksRunner checksRunner = new ClinicalDataOcChecks(metadata, bySubmission, subjectWithEventsTypes);
             errors.addAll(checksRunner.getErrors());
