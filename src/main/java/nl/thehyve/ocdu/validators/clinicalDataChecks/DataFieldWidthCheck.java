@@ -30,7 +30,7 @@ public class DataFieldWidthCheck implements ClinicalDataCrossCheck {
         for (ClinicalData dataPoint : data) {
             if (isTooLong(dataPoint)) {
                 violators.add(dataPoint.toOffenderString());
-                dataPoint.addErrorClassification(ErrorClassification.SINGLE_ITEM_ERROR);
+                dataPoint.addErrorClassification(ErrorClassification.BLOCK_SINGLE_ITEM);
             }
         }
         error.addAllOffendingValues(violators);

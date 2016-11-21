@@ -1,6 +1,6 @@
 package nl.thehyve.ocdu.validators;
 
-import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
+import nl.thehyve.ocdu.models.OCEntities.OcEntity;
 import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.services.InputValidationException;
 import org.apache.commons.lang3.StringUtils;
@@ -13,6 +13,8 @@ import java.time.format.ResolverStyle;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoField.*;
 
@@ -163,19 +165,37 @@ public class UtilChecks {
         }
     }
 
-    public static void addErrorClassificationForSubjects(List<ClinicalData> clinicalDataList, Set<String> subjectIDSetWithError, ErrorClassification errorClassification) {
-        ErrorFilter errorFilter = new ErrorFilter(clinicalDataList);
-        errorFilter.addErrorToSubjects(subjectIDSetWithError, errorClassification);
+
+    public static boolean listContainsErrorOfType(List<? extends OcEntity> entityList, ErrorClassification errorClassification) {
+        for (OcEntity ocEntity : entityList) {
+            if (ocEntity.hasErrorOfType(errorClassification)) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    public static void addErrorClassificationToAll(List<ClinicalData> clinicalDataList, ErrorClassification errorClassification) {
-        ErrorFilter errorFilter = new ErrorFilter(clinicalDataList);
-        errorFilter.addErrorToAll(errorClassification);
+    public static void removeFromListIf(List<? extends OcEntity> entityList, Predicate<? super OcEntity>... predicates) {
+        entityList.removeIf(allTrue(predicates));
     }
 
-    public static void addErrorClassificationToSingleSubject(List<ClinicalData> clinicalDataList, String subjectID, ErrorClassification errorClassification) {
-        ErrorFilter errorFilter = new ErrorFilter(clinicalDataList);
-        errorFilter.addErrorToSingleSubject(subjectID, errorClassification);
+    @SafeVarargs
+    private static <T> Predicate<T> allTrue(Predicate<? super T>... predicates) {
+        return t -> {
+            for (Predicate<? super T> predicate : predicates)
+                if (!predicate.test(t))
+                    return false;
+            return true;
+        };
+    }
+
+    public static void addErrorClassificationForSubjects(List<? extends OcEntity> entityList, Set<String> subjectIDSetWithError, ErrorClassification errorClassification) {
+        List<? extends OcEntity> result = entityList.stream().filter(entityData -> subjectIDSetWithError.contains( entityData.getSsid())).collect(Collectors.toList());
+        result.forEach(entityData -> entityData.addErrorClassification(errorClassification));
+    }
+
+    public static void addErrorClassificationToAll(List<? extends OcEntity> entityList, ErrorClassification errorClassification) {
+        entityList.forEach(entityData -> entityData.addErrorClassification(errorClassification));
     }
 
     private static boolean containsAlphaNumeric(String input) {

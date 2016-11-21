@@ -44,7 +44,7 @@ public class DataTypeCrossCheck implements ClinicalDataCrossCheck {
                 if (! UtilChecks.allValuesMatch(values, expectedType)) {
                     if (StringUtils.isNotEmpty(clinicalData.getValue()) && (itemDefinition.getCodeListRef() == null)) {
                         offenders.add(clinicalData.toOffenderString() + " Expected: " + humanReadbleTypes.get(itemDataTypes.get(clinicalData)));
-                        clinicalData.addErrorClassification(ErrorClassification.SINGLE_ITEM_ERROR);
+                        clinicalData.addErrorClassification(ErrorClassification.BLOCK_SINGLE_ITEM);
                     }
                 }
             }

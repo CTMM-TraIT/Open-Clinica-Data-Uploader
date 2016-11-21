@@ -1,6 +1,7 @@
 package nl.thehyve.ocdu.models.OCEntities;
 
 import nl.thehyve.ocdu.models.OcDefinitions.ODMElement;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,26 @@ public class Study extends AbstractStudySiteBase implements ODMElement {
 
     public void addSite(Site site) {
         siteList.add(site);
+    }
+
+    public boolean hasErrorOfType(ErrorClassification errorClassification) {
+        throw new UnsupportedOperationException("Cannot return error type");
+    }
+
+    public void addErrorClassification(ErrorClassification errorClassification) {
+        throw new UnsupportedOperationException("Cannot add error type");
+    }
+
+    public String getSsid() {
+        throw new UnsupportedOperationException("Cannot provide study subject ID on study level");
+    }
+
+    public String getStudy() {
+        return name;
+    }
+
+    public String getStudyProtocolName() {
+        return identifier;
     }
 
     @Override

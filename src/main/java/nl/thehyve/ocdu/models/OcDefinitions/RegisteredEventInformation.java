@@ -57,9 +57,9 @@ public class RegisteredEventInformation {
         return ret;
     }
 
-    public static List<String> createEventKeyListFromStudySubjectWithEventsTypeList(MetaData metaData, List<StudySubjectWithEventsType> studySubjectWithEventsTypeList) {
+    public static Set<String> createEventKeyListFromStudySubjectWithEventsTypeList(MetaData metaData, List<StudySubjectWithEventsType> studySubjectWithEventsTypeList) {
         Map<String, String> eventOIDToNameMap = createEventOIDToNameMap(metaData);
-        List<String> ret = new  ArrayList<>();
+        Set<String> ret = new HashSet<>();
         for (StudySubjectWithEventsType studySubjectWithEventsType : studySubjectWithEventsTypeList) {
             String ssid = studySubjectWithEventsType.getLabel();
             String study = studySubjectWithEventsType.getStudyRef().getIdentifier();

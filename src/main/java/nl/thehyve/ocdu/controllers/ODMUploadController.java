@@ -6,6 +6,7 @@ import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.OcDefinitions.ResponseType;
 import nl.thehyve.ocdu.models.OcDefinitions.SubjectIDGeneration;
 import nl.thehyve.ocdu.models.OcUser;
+import nl.thehyve.ocdu.models.StringListNotificationsCollector;
 import nl.thehyve.ocdu.models.UploadSession;
 import nl.thehyve.ocdu.models.errors.AbstractMessage;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
@@ -14,6 +15,7 @@ import nl.thehyve.ocdu.repositories.EventRepository;
 import nl.thehyve.ocdu.repositories.SubjectRepository;
 import nl.thehyve.ocdu.services.*;
 import nl.thehyve.ocdu.validators.ClinicalDataChecksRunner;
+import nl.thehyve.ocdu.validators.ErrorFilter;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,9 +95,14 @@ public class ODMUploadController {
             List<StudySubjectWithEventsType> studySubjectWithEventsTypeList =
                     openClinicaService.getStudySubjectsType(userName, pwdHash, url, study.getIdentifier(), "");
 
-            Collection<Subject> subjects = subjectRepository.findBySubmission(uploadSession);
+            List<Subject> subjects = subjectRepository.findBySubmission(uploadSession);
             List<Event> eventList = eventRepository.findBySubmission(uploadSession);
             List<ClinicalData> clinicalDataList = clinicalDataRepository.findBySubmission(uploadSession);
+
+            StringListNotificationsCollector stringListNotificationsCollector = new StringListNotificationsCollector(url);
+
+            ErrorFilter errorFilter = new ErrorFilter(study, metaData, clinicalDataList, eventList, subjects, studySubjectWithEventsTypeList, stringListNotificationsCollector);
+            errorFilter.filterDataWithErrors();
 
             convertDatesToISO_8601_Format(metaData, clinicalDataList, studySubjectWithEventsTypeList);
 

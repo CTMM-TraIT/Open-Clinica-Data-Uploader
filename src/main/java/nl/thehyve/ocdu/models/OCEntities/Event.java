@@ -203,6 +203,31 @@ public class Event implements OcEntity, UserSubmitted, EventReference {
         return ret.toString().toUpperCase();
     }
 
+    /**
+     * Returns a reference to the instance <code>this</code>. For use in lambda-expressions. See also the Java Language
+     * Specification section 15.27.2.
+     * @return
+     */
+    public Event referenceToSelf() {
+        return this;
+    }
+
+
+
+    public String createEventKey() {
+        StringBuffer ret = new StringBuffer();
+        ret.append(study);
+        ret.append(ClinicalData.KEY_SEPARATOR);
+        ret.append(site);
+        ret.append(ClinicalData.KEY_SEPARATOR);
+        ret.append(ssid);
+        ret.append(ClinicalData.KEY_SEPARATOR);
+        ret.append(eventName);
+        ret.append(ClinicalData.KEY_SEPARATOR);
+        ret.append(repeatNumber);
+        return ret.toString().toUpperCase();
+    }
+
     public EventType createEventType(Map<String, String> eventNameOIDMap) {
         EventType ret = new EventType();
         StudyRefType studyRefType = new StudyRefType();

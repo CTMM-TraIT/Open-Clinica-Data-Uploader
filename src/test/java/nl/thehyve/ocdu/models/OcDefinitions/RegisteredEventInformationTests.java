@@ -40,7 +40,7 @@ public class RegisteredEventInformationTests {
 
     @Test
     public void testCreateEventKeyListFromStudySubjectWithEventsTypeList() {
-        List<String> eventKeyList = RegisteredEventInformation.createEventKeyListFromStudySubjectWithEventsTypeList(metaData, studySubjectWithEventsTypeList);
+        Set<String> eventKeyList = RegisteredEventInformation.createEventKeyListFromStudySubjectWithEventsTypeList(metaData, studySubjectWithEventsTypeList);
         assertEquals(true, eventKeyList.contains("EVENTFUL\t\tEV-00006\tREPEATING_EVENT\t3"));
         assertEquals(false,eventKeyList.contains("EVENTFUL\t\tEV-00006\tREPEATING_EVENT\t8"));
         assertEquals(true, eventKeyList.contains("EVENTFUL\tEVENTFULSITE\tEVS-00001\tREPEATING_EVENT\t1"));

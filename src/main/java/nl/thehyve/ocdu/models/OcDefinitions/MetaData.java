@@ -216,6 +216,23 @@ public class MetaData {
         this.eventDefinitions = new ArrayList<>();
     }
 
+
+    /**
+     * Returns the appropriate {@link EventDefinition} based on an Eventname. Can return <code>null</code>
+     * @param eventName
+     * @return
+     */
+    public EventDefinition findEventDefinitionByName(String eventName) {
+        Optional<EventDefinition> matchingEventDefintion =
+                eventDefinitions.stream().filter(eventDefinition -> eventDefinition.getName().equals(eventName)).findAny();
+        if (matchingEventDefintion.isPresent()) {
+            return matchingEventDefintion.get();
+        }
+        // we return null and do not throw and exception for the case the event name specified in
+        // the input file does not exist.
+        return null;
+    }
+
     public String findEventOID(String eventName) {
         Optional<EventDefinition> matchingEventDefintion =
                 eventDefinitions.stream().filter(eventDefinition -> eventDefinition.getName().equals(eventName)).findAny();

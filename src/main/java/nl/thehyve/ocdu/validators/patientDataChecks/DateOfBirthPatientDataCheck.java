@@ -43,6 +43,7 @@ public class DateOfBirthPatientDataCheck implements PatientDataCheck {
         if (!StringUtils.isBlank(dob) && DOBrequired == MetaData.BIRTH_DATE_NOT_USED) { // 3 means not required
             error = new ValidationErrorMessage("Date of birth submission is not allowed by the study protocol");
             error.addOffendingValue(commonMessage + " Date of birth: " + subject.getDateOfBirth());
+            subject.addErrorClassification(ErrorClassification.BLOCK_ENTIRE_UPLOAD);
         } else if (!StringUtils.isBlank(dob) || DOBrequired < MetaData.BIRTH_DATE_NOT_USED) {
             String label = " ";
             String msg = null;
@@ -56,6 +57,7 @@ public class DateOfBirthPatientDataCheck implements PatientDataCheck {
             if (msg != null) {
                 error = new ValidationErrorMessage(commonMessage + msg);
                 error.addOffendingValue(commonMessage + label + subject.getDateOfBirth());
+                subject.addErrorClassification(ErrorClassification.BLOCK_ENTIRE_UPLOAD);
             }
         }
 

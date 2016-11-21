@@ -48,6 +48,7 @@ public class SitePatientDataCheck implements PatientDataCheck {
 
         if(error != null) {
             error.addOffendingValue(commonMessage + " site: " + subject.getSite());
+            subject.addErrorClassification(ErrorClassification.BLOCK_ENTIRE_UPLOAD);
         }
 
         return error;

@@ -29,7 +29,7 @@ public class ValuesNumberCrossCheck implements ClinicalDataCrossCheck {
                 String msg = clinicalData.toOffenderString() + " Number of values (separated by comma): " +
                         clinicalData.getValues(itemDefMap.get(clinicalData).isMultiselect()).size();
                 error.addOffendingValue(msg);
-                clinicalData.addErrorClassification(ErrorClassification.SINGLE_ITEM_ERROR);
+                clinicalData.addErrorClassification(ErrorClassification.BLOCK_SINGLE_ITEM);
             });
             return error;
         } else

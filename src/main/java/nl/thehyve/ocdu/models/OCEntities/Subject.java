@@ -153,7 +153,7 @@ public class Subject implements OcEntity, UserSubmitted, ODMElement {
 
     /**
      * Adds any missing leading zeros to the month and day of month in both the
-     * {@llink #dateOfBirth} and {@link #dateOfEnrollment}.
+     * {@link #dateOfBirth} and {@link #dateOfEnrollment}.
      */
     public void addLeadingZerosInDates() {
         dateOfEnrollment = fixLeadingZero(dateOfEnrollment);

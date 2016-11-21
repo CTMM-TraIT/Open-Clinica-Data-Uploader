@@ -25,7 +25,7 @@ public class SignificanceCrossCheck implements ClinicalDataCrossCheck {
             ItemDefinition definition = itemDefMap.get(clinicalData);
             if (definition != null) {
                 addOffendingValues(error, clinicalData, definition);
-                clinicalData.addErrorClassification(ErrorClassification.SINGLE_ITEM_ERROR);
+                clinicalData.addErrorClassification(ErrorClassification.BLOCK_SINGLE_ITEM);
             }
         });
         if (error.getOffendingValues().size() > 0) {

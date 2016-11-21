@@ -93,7 +93,7 @@ public class ValidationService {
 
     public ValidationErrorMessage checkForMissingEventsInEventDataAndOpenClinica(MetaData metaData, List<StudySubjectWithEventsType> subjectWithEventsTypeList, List<Event> eventList, List<ClinicalData> clinicalDataList) {
         // public visibility for unit-testing
-        List<String> eventsPresentInOpenClinica = RegisteredEventInformation.createEventKeyListFromStudySubjectWithEventsTypeList(metaData, subjectWithEventsTypeList);
+        Set<String> eventsPresentInOpenClinica = RegisteredEventInformation.createEventKeyListFromStudySubjectWithEventsTypeList(metaData, subjectWithEventsTypeList);
         List<String> eventsPresentInEventData = RegisteredEventInformation.createEventKeyListFromEventList(eventList);
         Set<String> eventsPresentInClinicalData = RegisteredEventInformation.createEventKeyListFromClinicalData(clinicalDataList);
 

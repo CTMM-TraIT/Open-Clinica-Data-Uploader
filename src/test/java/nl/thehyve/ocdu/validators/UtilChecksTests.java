@@ -1,10 +1,19 @@
 package nl.thehyve.ocdu.validators;
 
 import nl.thehyve.ocdu.controllers.UploadSessionController;
+import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
+import nl.thehyve.ocdu.models.OCEntities.Event;
+import nl.thehyve.ocdu.models.OCEntities.Subject;
+import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.services.InputValidationException;
 import org.junit.Assert;
 
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Unit test for {@link UtilChecks}
@@ -74,7 +83,7 @@ public class UtilChecksTests {
 
 
     @Test
-    public void testisFloat() throws Exception {
+    public void testIsFloat() throws Exception {
         Assert.assertEquals(false, UtilChecks.isFloat("C'est ci pas un ile flottant"));
         Assert.assertEquals(false, UtilChecks.isFloat("314,0"));
         Assert.assertEquals(false, UtilChecks.isFloat("314,.0"));
@@ -83,5 +92,83 @@ public class UtilChecksTests {
         Assert.assertEquals(false, UtilChecks.isFloat("-1.0-"));
 
         Assert.assertEquals(true, UtilChecks.isFloat("3.14"));
+    }
+
+    @Test
+    public void testRemoveFromListIf() {
+        List<Subject> subjectList = new ArrayList<>();
+        Subject subject = new Subject();
+        subject.setSsid("Gerrit Gerritsen");
+        subject.addErrorClassification(ErrorClassification.BLOCK_ENTIRE_CRF);
+        subjectList.add(subject);
+
+        UtilChecks.removeFromListIf(subjectList, testSubject -> testSubject.getSsid().equals("Jan"));
+        Assert.assertFalse(subjectList.isEmpty());
+
+        UtilChecks.removeFromListIf(subjectList, testSubject -> testSubject.getSsid().equals("Gerrit Gerritsen"));
+        Assert.assertTrue(subjectList.isEmpty());
+        subjectList.add(subject);
+
+        UtilChecks.removeFromListIf(subjectList, testSubject -> testSubject.getSsid().equals("Jan"),
+                                    testSubject2 -> testSubject2.hasErrorOfType(ErrorClassification.BLOCK_ENTIRE_CRF));
+        Assert.assertFalse(subjectList.isEmpty());
+
+        UtilChecks.removeFromListIf(subjectList, testSubject -> testSubject.getSsid().equals("Gerrit Gerritsen"),
+                testSubject2 -> testSubject2.hasErrorOfType(ErrorClassification.BLOCK_ENTIRE_CRF));
+        Assert.assertTrue(subjectList.isEmpty());
+    }
+
+
+    @Test
+    public void testContainsErrorOfType() {
+        List<Subject> subjectList = new ArrayList<>();
+        Subject subject = new Subject();
+        subject.setSsid("Piet Pietersen");
+        subject.addErrorClassification(ErrorClassification.BLOCK_ENTIRE_CRF);
+        subjectList.add(subject);
+
+        Assert.assertTrue(UtilChecks.listContainsErrorOfType(subjectList, ErrorClassification.BLOCK_ENTIRE_CRF));
+    }
+
+
+    @Test
+    public void testAddErrorClassificationToAll() {
+        List<Event> eventList = new ArrayList<>();
+        eventList.add(new Event());
+        UtilChecks.addErrorClassificationToAll(eventList, ErrorClassification.BLOCK_ENTIRE_UPLOAD);
+
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(new Subject());
+        UtilChecks.addErrorClassificationToAll(subjectList, ErrorClassification.BLOCK_ENTIRE_UPLOAD);
+
+        List<ClinicalData> clinicalDataList = new ArrayList<>();
+        clinicalDataList.add(new ClinicalData());
+        UtilChecks.addErrorClassificationToAll(clinicalDataList, ErrorClassification.BLOCK_ENTIRE_UPLOAD);
+
+        Assert.assertTrue(UtilChecks.listContainsErrorOfType(clinicalDataList, ErrorClassification.BLOCK_ENTIRE_UPLOAD));
+        Assert.assertTrue(UtilChecks.listContainsErrorOfType(subjectList, ErrorClassification.BLOCK_ENTIRE_UPLOAD));
+        Assert.assertTrue(UtilChecks.listContainsErrorOfType(eventList, ErrorClassification.BLOCK_ENTIRE_UPLOAD));
+    }
+
+    @Test
+    public void testAddErrorClassificationForSubjects() {
+        List<Event> eventList = new ArrayList<>();
+        Event event = new Event();
+        event.setSsid("Jan Janssen");
+        eventList.add(event);
+
+        event = new Event();
+        event.setSsid("Kees Keesen");
+        eventList.add(event);
+
+        Set<String> subjectsIDSet = new HashSet<>();
+        subjectsIDSet.add("Kees Keesen");
+        UtilChecks.addErrorClassificationForSubjects(eventList, subjectsIDSet, ErrorClassification.BLOCK_ENTIRE_UPLOAD);
+
+        Event testEvent = eventList.stream().filter( searchEvent -> "Kees Keesen".equals(searchEvent.getSsid())).findAny().get();
+        Assert.assertTrue(testEvent.hasErrorOfType(ErrorClassification.BLOCK_ENTIRE_UPLOAD));
+
+        testEvent = eventList.stream().filter( searchEvent -> "Jan Janssen".equals(searchEvent.getSsid())).findAny().get();
+        Assert.assertFalse(testEvent.hasErrorOfType(ErrorClassification.BLOCK_ENTIRE_UPLOAD));
     }
 }
