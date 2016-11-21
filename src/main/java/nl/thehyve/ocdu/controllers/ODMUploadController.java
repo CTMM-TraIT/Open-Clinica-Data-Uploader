@@ -3,7 +3,6 @@ package nl.thehyve.ocdu.controllers;
 import nl.thehyve.ocdu.models.OCEntities.*;
 import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
-import nl.thehyve.ocdu.models.OcDefinitions.ResponseType;
 import nl.thehyve.ocdu.models.OcDefinitions.SubjectIDGeneration;
 import nl.thehyve.ocdu.models.OcUser;
 import nl.thehyve.ocdu.models.StringListNotificationsCollector;
@@ -101,7 +100,7 @@ public class ODMUploadController {
 
             StringListNotificationsCollector stringListNotificationsCollector = new StringListNotificationsCollector(url);
 
-            ErrorFilter errorFilter = new ErrorFilter(study, metaData, clinicalDataList, eventList, subjects, studySubjectWithEventsTypeList, stringListNotificationsCollector);
+            ErrorFilter errorFilter = new ErrorFilter(study, metaData, clinicalDataList, eventList, subjects, stringListNotificationsCollector);
             errorFilter.filterDataWithErrors();
 
             convertDatesToISO_8601_Format(metaData, clinicalDataList, studySubjectWithEventsTypeList);

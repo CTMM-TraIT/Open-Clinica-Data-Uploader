@@ -11,13 +11,11 @@ import nl.thehyve.ocdu.soap.ResponseHandlers.GetStudyMetadataResponseHandler;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPMessage;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,10 +34,8 @@ public class ErrorFilterTests {
     private List<Event> eventList;
     private List<ClinicalData> clinicalDataList;
     private StringListNotificationsCollector notificationsCollector;
-    private List<StudySubjectWithEventsType> studySubjectWithEventsTypeList;
     private ErrorFilter errorFilter;
-    private Study study;
-    private MetaData metaData;
+
 
     @Before
     public void setUp() throws Exception {
@@ -47,15 +43,14 @@ public class ErrorFilterTests {
         File testFile = new File("docs/responseExamples/getStudyMetadata3.xml");
         FileInputStream in = new FileInputStream(testFile);
         SOAPMessage mockedResponseGetMetadata = messageFactory.createMessage(null, in);//soapMessage;
-        metaData = GetStudyMetadataResponseHandler.parseGetStudyMetadataResponse(mockedResponseGetMetadata);
-        study = new Study(STUDY_NAME, "S_ADLKJFLKDJF", STUDY_NAME);
-        subjectList = new ArrayList();
-        eventList = new ArrayList();
-        clinicalDataList = new ArrayList();
-        studySubjectWithEventsTypeList = new ArrayList<>();
+        MetaData metaData = GetStudyMetadataResponseHandler.parseGetStudyMetadataResponse(mockedResponseGetMetadata);
+        Study study = new Study(STUDY_NAME, "S_ADLKJFLKDJF", STUDY_NAME);
+        subjectList = new ArrayList<>();
+        eventList = new ArrayList<>();
+        clinicalDataList = new ArrayList<>();
         notificationsCollector = new StringListNotificationsCollector("http://www.example.com");
         errorFilter =
-                new ErrorFilter(study, metaData, clinicalDataList, eventList, subjectList, studySubjectWithEventsTypeList, notificationsCollector);
+                new ErrorFilter(study, metaData, clinicalDataList, eventList, subjectList, notificationsCollector);
     }
 
 

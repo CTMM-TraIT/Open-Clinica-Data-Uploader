@@ -36,7 +36,5 @@ public enum ErrorClassification {
     /**
      * An error only concerning a single item (e.g. out of range of a number)
      */
-    BLOCK_SINGLE_ITEM;
+    BLOCK_SINGLE_ITEM
 }
-
-

@@ -5,7 +5,6 @@ import nl.thehyve.ocdu.models.OCEntities.*;
 import nl.thehyve.ocdu.models.OcDefinitions.EventDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.errors.ErrorClassification;
-import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
 import java.util.Collection;
 import java.util.List;
@@ -21,7 +20,6 @@ public class ErrorFilter {
     private List<ClinicalData> clinicalDataList;
     private List<Event> eventList;
     private List<Subject> subjectList;
-    private List<StudySubjectWithEventsType> studySubjectWithEventsTypeList;
     private NotificationsCollector notificationsCollator;
     private Study study;
     private MetaData metaData;
@@ -32,19 +30,17 @@ public class ErrorFilter {
                        List<ClinicalData> clinicalDataList,
                        List<Event> eventList,
                        List<Subject> subjectList,
-                       List<StudySubjectWithEventsType> studySubjectWithEventsTypeList,
                        NotificationsCollector notificationsCollator) {
         this.study = study;
         this.metaData = metaData;
         this.eventList = eventList;
         this.subjectList = subjectList;
         this.clinicalDataList = clinicalDataList;
-        this.studySubjectWithEventsTypeList = studySubjectWithEventsTypeList;
         this.notificationsCollator = notificationsCollator;
     }
 
     private Tree<OcEntity> createTree() {
-        Tree treeMap = new Tree<>(study);
+        Tree<OcEntity> treeMap = new Tree<>(study);
         for (Subject subject : subjectList) {
             treeMap.addLeaf(subject);
             eventList.stream().forEach( event -> {
@@ -122,11 +118,11 @@ public class ErrorFilter {
         //log.debug("Tree post filtering ->\n" + postFilterTree);
     }
 
-    private void removeEventAndAssociatedClinicalData(Tree tree, Subject subject) {
-        Tree subjectTree = tree.getTree(subject);
-        Collection<Tree> eventTreeList = subjectTree.getSubTrees();
-        for (Tree eventTree : eventTreeList) {
-            Collection<Tree> clinicalDataTree = eventTree.getSubTrees();
+    private void removeEventAndAssociatedClinicalData(Tree<OcEntity> tree, Subject subject) {
+        Tree<OcEntity> subjectTree = tree.getTree(subject);
+        Collection<Tree<OcEntity>> eventTreeList = subjectTree.getSubTrees();
+        for (Tree<OcEntity> eventTree : eventTreeList) {
+            Collection<Tree<OcEntity>> clinicalDataTree = eventTree.getSubTrees();
             clinicalDataTree.stream().forEach(clincalDataItem -> {
                         ClinicalData clinicalDataToRemove = (ClinicalData) clincalDataItem.getHead();
                         clinicalDataList.removeIf(clinicalData -> clinicalData.getSsid().equals(clinicalDataToRemove.getSsid()));
