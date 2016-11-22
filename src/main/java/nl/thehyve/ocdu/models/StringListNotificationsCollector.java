@@ -1,5 +1,8 @@
 package nl.thehyve.ocdu.models;
 
+import nl.thehyve.ocdu.models.errors.AbstractMessage;
+import nl.thehyve.ocdu.models.errors.SubmissionResult;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,7 +11,7 @@ import java.util.List;
  */
 public class StringListNotificationsCollector implements NotificationsCollector {
 
-    private List<String> notificationList;
+    private List<AbstractMessage> notificationList;
 
     private String targetSystem;
 
@@ -17,13 +20,15 @@ public class StringListNotificationsCollector implements NotificationsCollector 
         this.targetSystem = targetSystem;
     }
 
-    public List<String> getNotificationList() {
+    public List<AbstractMessage> getNotificationList() {
         return notificationList;
     }
 
     @Override
     public void addNotification(String notification) {
-        notificationList.add(notification);
+        SubmissionResult submissionResult = new SubmissionResult(notification);
+        submissionResult.setError(false);
+        notificationList.add(submissionResult);
     }
 
     @Override

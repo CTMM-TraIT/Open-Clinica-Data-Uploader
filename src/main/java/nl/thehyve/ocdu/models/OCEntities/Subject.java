@@ -37,8 +37,10 @@ public class Subject implements OcEntity, UserSubmitted, ODMElement {
     @Column(columnDefinition = "TEXT")
     private String site;
 
-    @Transient
-    private Set<ErrorClassification> errorClassificationSet = new HashSet<>();
+    @ElementCollection(targetClass=ErrorClassification.class)
+    @Enumerated(EnumType.ORDINAL)
+    @CollectionTable(name="subject_errors", joinColumns = {@JoinColumn(name="id")})
+    private Set<ErrorClassification> errorClassificationSet;
 
     private String studyProtocolName; // AKA ProtocolName. To be used for registration, not taken from the user file
 
@@ -52,6 +54,7 @@ public class Subject implements OcEntity, UserSubmitted, ODMElement {
     private long id;
 
     public Subject() {
+        this.errorClassificationSet = new HashSet<>();
     }
 
 

@@ -67,8 +67,10 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
 
     private long lineNumber;
 
-    @Transient
-    private Set<ErrorClassification> errorClassificationSet = new HashSet<>();
+    @ElementCollection(targetClass=ErrorClassification.class)
+    @Enumerated(EnumType.ORDINAL)
+    @CollectionTable(name="clinical_data_errors", joinColumns = {@JoinColumn(name="id")})
+    private Set<ErrorClassification> errorClassificationSet;
 
 
     public ClinicalData(long lineNumber, String study, String item, String ssid, String personID, String eventName, String eventRepeat, String crfName, UploadSession submission, String crfVersion, Integer groupRepeat, OcUser owner, String value) {
@@ -87,9 +89,11 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
         this.value = value;
         this.originalItem = item; // TODO: Refactor away this constructor
         this.lineNumber = lineNumber;
+        this.errorClassificationSet = new HashSet<>();
     }
 
     public ClinicalData() {
+        this.errorClassificationSet = new HashSet<>();
     }
 
     public boolean hasErrorOfType(ErrorClassification errorClassification) {

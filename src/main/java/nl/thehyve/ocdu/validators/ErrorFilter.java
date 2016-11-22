@@ -112,6 +112,12 @@ public class ErrorFilter {
             }
         }
 
+        List<ClinicalData> clinicalDataWithErrors =
+                clinicalDataList.stream().filter(clinicalData1 -> clinicalData1.hasErrorOfType(ErrorClassification.BLOCK_SINGLE_ITEM)).collect(Collectors.toList());
+        for (ClinicalData clinicalData : clinicalDataWithErrors) {
+            String message = "Item has been removed due to error: " + clinicalData.toOffenderString();
+            notificationsCollator.addNotification(message);
+        }
         clinicalDataList.removeIf(clinicalData -> clinicalData.hasErrorOfType(ErrorClassification.BLOCK_SINGLE_ITEM));
 
         // Tree postFilterTree = createTree();
@@ -122,6 +128,11 @@ public class ErrorFilter {
         Tree<OcEntity> subjectTree = tree.getTree(subject);
         Collection<Tree<OcEntity>> eventTreeList = subjectTree.getSubTrees();
         for (Tree<OcEntity> eventTree : eventTreeList) {
+            Event eventToRemove = (Event) eventTree.getHead();
+            String message = "Event " + eventToRemove.toString()
+                    + " and associated data has been removed from the upload because of an error";
+            notificationsCollator.addNotification(message);
+
             Collection<Tree<OcEntity>> clinicalDataTree = eventTree.getSubTrees();
             clinicalDataTree.stream().forEach(clincalDataItem -> {
                         ClinicalData clinicalDataToRemove = (ClinicalData) clincalDataItem.getHead();

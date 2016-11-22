@@ -25,7 +25,6 @@ public class SignificanceCrossCheck implements ClinicalDataCrossCheck {
             ItemDefinition definition = itemDefMap.get(clinicalData);
             if (definition != null) {
                 addOffendingValues(error, clinicalData, definition);
-                clinicalData.addErrorClassification(ErrorClassification.BLOCK_SINGLE_ITEM);
             }
         });
         if (error.getOffendingValues().size() > 0) {
@@ -38,6 +37,7 @@ public class SignificanceCrossCheck implements ClinicalDataCrossCheck {
         for (String value : clinicalData.getValues(definition.isMultiselect())) {
             int digitsAfterDM = getDigitsAfterDM(value);
             if (digitsAfterDM > definition.getSignificantDigits()) {
+                clinicalData.addErrorClassification(ErrorClassification.BLOCK_SINGLE_ITEM);
                 error.addOffendingValue(clinicalData.toOffenderString() + " expected number of significant digits: "
                         + definition.getSignificantDigits());
             }

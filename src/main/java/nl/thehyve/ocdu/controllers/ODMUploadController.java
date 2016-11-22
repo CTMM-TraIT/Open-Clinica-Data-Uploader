@@ -98,10 +98,14 @@ public class ODMUploadController {
             List<Event> eventList = eventRepository.findBySubmission(uploadSession);
             List<ClinicalData> clinicalDataList = clinicalDataRepository.findBySubmission(uploadSession);
 
-            StringListNotificationsCollector stringListNotificationsCollector = new StringListNotificationsCollector(url);
+            // perform the validation to ensure that the entities (Subject, Event and ClinicalData) have errors attached
 
+
+            // remove subjects, events and clinicaldata which contain errors.
+            StringListNotificationsCollector stringListNotificationsCollector = new StringListNotificationsCollector(url);
             ErrorFilter errorFilter = new ErrorFilter(study, metaData, clinicalDataList, eventList, subjects, stringListNotificationsCollector);
             errorFilter.filterDataWithErrors();
+            result.addAll(stringListNotificationsCollector.getNotificationList());
 
             convertDatesToISO_8601_Format(metaData, clinicalDataList, studySubjectWithEventsTypeList);
 

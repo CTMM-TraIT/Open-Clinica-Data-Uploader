@@ -31,8 +31,10 @@ public class Event implements OcEntity, UserSubmitted, EventReference {
     private String studyProtocolName;
 
 
-    @Transient
-    private Set<ErrorClassification> errorClassificationSet = new HashSet<>();
+    @ElementCollection(targetClass=ErrorClassification.class)
+    @Enumerated(EnumType.ORDINAL)
+    @CollectionTable(name="event_errors", joinColumns = {@JoinColumn(name="id")})
+    private Set<ErrorClassification> errorClassificationSet;
 
     private String eventName;
     private String ssid;
@@ -49,6 +51,11 @@ public class Event implements OcEntity, UserSubmitted, EventReference {
      * The line number in the file containing the event definitions. Is needed for error-reporting
      */
     private long lineNumber;
+
+
+    public Event() {
+        this.errorClassificationSet = new HashSet<>();
+    }
 
     @Override
     public UploadSession getSubmission() {

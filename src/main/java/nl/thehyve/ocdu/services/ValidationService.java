@@ -88,6 +88,7 @@ public class ValidationService {
             ClinicalDataChecksRunner checksRunner = new ClinicalDataOcChecks(metadata, bySubmission, subjectWithEventsTypes);
             errors.addAll(checksRunner.getErrors());
         }
+        clinicalDataRepository.save(bySubmission);
         return errors;
     }
 
@@ -143,6 +144,7 @@ public class ValidationService {
         if (missingEventsError != null) {
             validationErrorMessages.add(missingEventsError);
         }
+        eventRepository.save(events);
         return validationErrorMessages;
     }
 
@@ -171,6 +173,7 @@ public class ValidationService {
         List<ValidationErrorMessage> errors = new ArrayList<>();
         PatientDataOcChecks checksRunner = new PatientDataOcChecks(metadata, bySubmission, subjectWithEventsTypes, subjectsInData);
         errors.addAll(checksRunner.getErrors());
+        subjectRepository.save(bySubmission);
         return errors;
     }
 

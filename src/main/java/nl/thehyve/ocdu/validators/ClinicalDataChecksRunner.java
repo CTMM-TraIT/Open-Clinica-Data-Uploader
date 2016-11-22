@@ -49,13 +49,20 @@ public class ClinicalDataChecksRunner {
         Map<ClinicalData, ItemDefinition> defMap = buildItemDefMap(clinicalData, metadata);
         Map<ClinicalData, Boolean> showMap = buildShownMap(clinicalData, defMap);
         Map<String, Set<CRFDefinition>> eventMap = buildEventMap(metadata);
-        checks.stream().forEach(
+        for (ClinicalDataCrossCheck clinicalDataCrossCheck : checks) {
+            ValidationErrorMessage error = clinicalDataCrossCheck.getCorrespondingError(clinicalData, metadata,
+                    defMap, subjectWithEventsTypeList, showMap, eventMap);
+            if (error != null) {
+                errors.add(error);
+            }
+        }
+        /*checks.stream().forEach(
                 check -> {
                     ValidationErrorMessage error = check.getCorrespondingError(clinicalData, metadata,
                             defMap, subjectWithEventsTypeList, showMap, eventMap);
                     if (error != null) errors.add(error);
                 }
-        );
+        );*/
         return errors;
     }
 

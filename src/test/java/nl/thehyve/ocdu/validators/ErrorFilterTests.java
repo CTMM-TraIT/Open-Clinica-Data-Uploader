@@ -6,6 +6,7 @@ import nl.thehyve.ocdu.models.OCEntities.Study;
 import nl.thehyve.ocdu.models.OCEntities.Subject;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.StringListNotificationsCollector;
+import nl.thehyve.ocdu.models.errors.AbstractMessage;
 import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.soap.ResponseHandlers.GetStudyMetadataResponseHandler;
 import org.junit.Assert;
@@ -63,8 +64,8 @@ public class ErrorFilterTests {
         errorFilter.filterDataWithErrors();
 
         Assert.assertTrue(subjectList.isEmpty());
-        String notification = notificationsCollector.getNotificationList().get(0);
-        assertThat(notification, containsString("Error is present which blocks the entire upload"));
+        AbstractMessage  notification = notificationsCollector.getNotificationList().get(0);
+        assertThat(notification.getMessage(), containsString("Error is present which blocks the entire upload"));
     }
 
     @Test
@@ -77,8 +78,8 @@ public class ErrorFilterTests {
         errorFilter.filterDataWithErrors();
 
         Assert.assertTrue(eventList.isEmpty());
-        String notification = notificationsCollector.getNotificationList().get(0);
-        assertThat(notification, containsString("Error is present which blocks the entire upload"));
+        AbstractMessage notification = notificationsCollector.getNotificationList().get(0);
+        assertThat(notification.getMessage(), containsString("Error is present which blocks the entire upload"));
     }
 
     @Test
@@ -90,8 +91,8 @@ public class ErrorFilterTests {
         errorFilter.filterDataWithErrors();
 
         Assert.assertTrue(eventList.isEmpty());
-        String notification = notificationsCollector.getNotificationList().get(0);
-        assertThat(notification, containsString("Error is present which blocks the entire upload"));
+        AbstractMessage notification = notificationsCollector.getNotificationList().get(0);
+        assertThat(notification.getMessage(), containsString("Error is present which blocks the entire upload"));
     }
 
     @Test
