@@ -33,7 +33,6 @@ public class MissingSiteWarningCheck implements PatientDataCheck {
             List<SiteDefinition> sites = metaData.getSiteDefinitions();
             if ((sites != null) && (! sites.isEmpty())) {
                 error = new ValidationErrorMessage("No site given for some subjects. If you continue these subjects will be created on study level.");
-                error.setError(false);
             }
         }
         if(error != null) {

@@ -5,6 +5,7 @@ import nl.thehyve.ocdu.models.OCEntities.*;
 import nl.thehyve.ocdu.models.OcDefinitions.EventDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.errors.ErrorClassification;
+import nl.thehyve.ocdu.models.errors.MessageType;
 
 import java.util.Collection;
 import java.util.List;
@@ -72,7 +73,7 @@ public class ErrorFilter {
             subjectList.clear();
             clinicalDataList.clear();
             notificationsCollator.addNotification("Error is present which blocks the entire upload. " +
-                    "No data was uploaded to " + notificationsCollator.getTargetSystem());
+                    "No data was uploaded to " + notificationsCollator.getTargetSystem(), MessageType.ERROR);
             return;
         }
 
@@ -103,7 +104,7 @@ public class ErrorFilter {
                 EventDefinition eventDefinition =
                         metaData.findEventDefinitionByName(eventName);
                 if (eventDefinition == null) {
-                    notificationsCollator.addNotification("Unable to locate definition of event called '" + eventName + "'. Event was removed");
+                    notificationsCollator.addNotification("Unable to locate definition of event called '" + eventName + "'. Event was removed", MessageType.WARNING);
                 }
                 Subject subject = (Subject) tree.getTree(eventWithError).getParent().getHead();
 
@@ -115,8 +116,8 @@ public class ErrorFilter {
         List<ClinicalData> clinicalDataWithErrors =
                 clinicalDataList.stream().filter(clinicalData1 -> clinicalData1.hasErrorOfType(ErrorClassification.BLOCK_SINGLE_ITEM)).collect(Collectors.toList());
         for (ClinicalData clinicalData : clinicalDataWithErrors) {
-            String message = "Item has been removed due to error: " + clinicalData.toOffenderString();
-            notificationsCollator.addNotification(message);
+            String message = "Item has been removed from upload because of validation error: " + clinicalData.toOffenderString();
+            notificationsCollator.addNotification(message, MessageType.WARNING);
         }
         clinicalDataList.removeIf(clinicalData -> clinicalData.hasErrorOfType(ErrorClassification.BLOCK_SINGLE_ITEM));
 
@@ -131,7 +132,7 @@ public class ErrorFilter {
             Event eventToRemove = (Event) eventTree.getHead();
             String message = "Event " + eventToRemove.toString()
                     + " and associated data has been removed from the upload because of an error";
-            notificationsCollator.addNotification(message);
+            notificationsCollator.addNotification(message, MessageType.WARNING);
 
             Collection<Tree<OcEntity>> clinicalDataTree = eventTree.getSubTrees();
             clinicalDataTree.stream().forEach(clincalDataItem -> {

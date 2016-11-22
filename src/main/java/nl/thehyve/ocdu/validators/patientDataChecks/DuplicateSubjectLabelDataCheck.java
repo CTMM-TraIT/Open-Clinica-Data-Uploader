@@ -27,7 +27,6 @@ public class DuplicateSubjectLabelDataCheck implements PatientDataCheck {
         int frequency = Collections.frequency(subjectIDInSubjectInput, subjectLabel);
         if (frequency > 1) {
             error = new ValidationErrorMessage("Duplicate subject ID found in data");
-            error.setError(true);
         }
 
         if (error != null) {

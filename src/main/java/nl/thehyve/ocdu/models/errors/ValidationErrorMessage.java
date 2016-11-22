@@ -15,6 +15,7 @@ public class ValidationErrorMessage extends AbstractMessage {
 
     public ValidationErrorMessage(String message) {
         super(message);
+        messageType = MessageType.ERROR;
     }
 
     public ValidationErrorMessage(long lineNumber, String message) {

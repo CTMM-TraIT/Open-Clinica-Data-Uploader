@@ -54,15 +54,19 @@ function performODMUpload() {
             $('#buttonDiv').show();
             if (msg.length > 0) {
                 var errorList = [];
-                var nonErrorList = [];
+                var warningList = [];
+                var notificationList = [];
                 var len = msg.length;
                 for (i = 0; i < len; ++i) {
                     var message = msg[i];
                     if (message.error) {
-                        errorList[i] = message;
+                        errorList.push(message);
                     }
-                    else {
-                        nonErrorList[i] = message;
+                    if (message.warning) {
+                        warningList.push(message);
+                    }
+                    if (message.notification) {
+                        notificationList.push(message);
                     }
                 }
 
@@ -70,14 +74,14 @@ function performODMUpload() {
                     var errorInfo = createMessageDiv(errorList, 'errorInfoDiv', 'alert alert-danger', 'Failures');
                     $(errorInfo).insertBefore('#odm-upload-back-btn');
                 }
-                if ((nonErrorList) && (nonErrorList.length > 0)) {
-                    var nonErrorInfo = createMessageDiv(nonErrorList, 'nonErrorInfoDiv', 'alert alert-success', 'Success');
-                    if ((errorList) && (errorList.length > 0)) {
-                        $(nonErrorInfo).insertAfter('#errorInfoDiv');
-                    }
-                    else {
-                        $(nonErrorInfo).insertBefore('#odm-upload-back-btn');
-                    }
+                if ((warningList) && (warningList.length > 0)) {
+                    var warningInfo = createMessageDiv(warningList, 'nonErrorInfoDiv', 'alert alert-warning', 'Warning');
+                    $(warningInfo).insertBefore('#odm-upload-back-btn');
+                }
+
+                if ((notificationList) && (notificationList.length > 0)) {
+                    var notificationInfo = createMessageDiv(notificationList, 'nonErrorInfoDiv', 'alert alert-success', 'Success');
+                    $(notificationInfo).insertBefore('#odm-upload-back-btn');
                 }
             }
             $('#odm-upload-proceed-btn').remove();

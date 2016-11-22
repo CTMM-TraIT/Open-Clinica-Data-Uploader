@@ -4,6 +4,7 @@ import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OCEntities.Subject;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.errors.ErrorClassification;
+import nl.thehyve.ocdu.models.errors.MessageType;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import nl.thehyve.ocdu.validators.UtilChecks;
 import org.apache.commons.lang3.StringUtils;
@@ -39,7 +40,7 @@ public class DateOfEnrollmentPatientDataCheck implements PatientDataCheck {
             error = new ValidationErrorMessage("Date of Enrollment is not provided. Today's date will be used. ");
             dateOfEnrollment = dateFormat.format(new Date());
             subject.setDateOfEnrollment(dateOfEnrollment);
-            error.setError(false);
+            error.setMessageType(MessageType.NOTIFICATION);
         } else {
             String errorMessage = "Enrolment date format is invalid or date does not exist. The date format should be dd-mm-yyyy. For example, 23-10-2012.";
             if (!UtilChecks.isDate(dateOfEnrollment)) {

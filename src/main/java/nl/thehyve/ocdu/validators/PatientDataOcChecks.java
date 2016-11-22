@@ -5,6 +5,7 @@ import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OCEntities.Subject;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.errors.ErrorClassification;
+import nl.thehyve.ocdu.models.errors.MessageType;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import nl.thehyve.ocdu.validators.patientDataChecks.*;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
@@ -65,9 +66,8 @@ public class PatientDataOcChecks {
             }
             if (! errors.isEmpty()) {
                 String cause = errors.get(0).getMessage();
-                boolean isError = errors.get(0).isError();
                 ValidationErrorMessage combinedErrorMessage = new ValidationErrorMessage(cause);
-                combinedErrorMessage.setError(isError);
+                combinedErrorMessage.setMessageType(MessageType.ERROR);
                 for (ValidationErrorMessage validationErrorMessage : errors) {
                     combinedErrorMessage.addAllOffendingValues(validationErrorMessage.getOffendingValues());
                 }

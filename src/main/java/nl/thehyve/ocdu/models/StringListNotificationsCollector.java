@@ -1,6 +1,7 @@
 package nl.thehyve.ocdu.models;
 
 import nl.thehyve.ocdu.models.errors.AbstractMessage;
+import nl.thehyve.ocdu.models.errors.MessageType;
 import nl.thehyve.ocdu.models.errors.SubmissionResult;
 
 import java.util.ArrayList;
@@ -25,9 +26,9 @@ public class StringListNotificationsCollector implements NotificationsCollector 
     }
 
     @Override
-    public void addNotification(String notification) {
+    public void addNotification(String notification, MessageType messageType) {
         SubmissionResult submissionResult = new SubmissionResult(notification);
-        submissionResult.setError(false);
+        submissionResult.setMessageType(messageType);
         notificationList.add(submissionResult);
     }
 

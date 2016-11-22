@@ -6,6 +6,7 @@ import nl.thehyve.ocdu.models.OcDefinitions.EventDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.errors.EventStatusWarningForOverwrite;
+import nl.thehyve.ocdu.models.errors.MessageType;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import org.openclinica.ws.beans.*;
 
@@ -23,7 +24,7 @@ public class EventStatusWarning implements ClinicalDataCrossCheck {
     @Override
     public ValidationErrorMessage getCorrespondingError(List<ClinicalData> data, MetaData metaData, Map<ClinicalData, ItemDefinition> itemDefMap, List<StudySubjectWithEventsType> studySubjectWithEventsTypeList, Map<ClinicalData, Boolean> shownMap, Map<String, Set<CRFDefinition>> eventMap) {
         ValidationErrorMessage error = new EventStatusWarningForOverwrite();
-        error.setError(false);
+        error.setMessageType(MessageType.WARNING);
         Set<String> subjectsInData = data.stream().map(clinicalData -> clinicalData.getSsid()).collect(Collectors.toSet());
         Set<String> offenders = new HashSet<>();
         Set<String> eventsInData = eventMap.keySet();

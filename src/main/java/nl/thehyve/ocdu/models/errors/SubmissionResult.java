@@ -7,6 +7,6 @@ public class SubmissionResult extends AbstractMessage {
 
     public SubmissionResult(String message) {
         super(message);
-        setError(false);
+        messageType = MessageType.NOTIFICATION;
     }
 }
