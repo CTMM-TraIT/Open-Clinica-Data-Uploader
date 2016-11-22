@@ -63,12 +63,10 @@ public class CodeListDefinition {
             catch (NumberFormatException nfe) {
                 return false;
             }
-            valueToCheck = valueToCheck.setScale(MAXIMAL_SCALE);
+
             for (CodeListItemDefinition codeListItemDefinition : items) {
                 String strValue = codeListItemDefinition.getContent();
-                BigDecimal bigDecimal = new BigDecimal(strValue.trim());
-                bigDecimal = bigDecimal.setScale(MAXIMAL_SCALE);
-                if (bigDecimal.equals(valueToCheck)) {
+                if (value.trim().equals(strValue.trim())) {
                     return true;
                 }
             }
