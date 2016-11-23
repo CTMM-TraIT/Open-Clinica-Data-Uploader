@@ -4,6 +4,7 @@ import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OCEntities.Subject;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.OcDefinitions.SiteDefinition;
+import nl.thehyve.ocdu.models.errors.MessageType;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
@@ -21,7 +22,8 @@ public class MissingSiteWarningCheck implements PatientDataCheck {
     @Override
     public ValidationErrorMessage getCorrespondingError(int index, Subject subject, MetaData metaData,
                                                         List<StudySubjectWithEventsType> subjectWithEventsTypes,
-                                                        Set<String> ssidsInData, List<String> subjectIDInSubjectInput) {
+                                                        Set<String> ssidsInData, List<String> subjectIDInSubjectInput,
+                                                        List<String> personIDInSubjectInput) {
         String ssid = subject.getSsid();
         String commonMessage = getCommonErrorMessage(index, ssid);
 
@@ -33,6 +35,7 @@ public class MissingSiteWarningCheck implements PatientDataCheck {
             List<SiteDefinition> sites = metaData.getSiteDefinitions();
             if ((sites != null) && (! sites.isEmpty())) {
                 error = new ValidationErrorMessage("No site given for some subjects. If you continue these subjects will be created on study level.");
+                error.setMessageType(MessageType.WARNING);
             }
         }
         if(error != null) {

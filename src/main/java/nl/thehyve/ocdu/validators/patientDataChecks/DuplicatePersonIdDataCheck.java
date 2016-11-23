@@ -23,7 +23,8 @@ public class DuplicatePersonIdDataCheck implements PatientDataCheck {
     @Override
     public ValidationErrorMessage getCorrespondingError(int index, Subject subject, MetaData metaData,
                                                         List<StudySubjectWithEventsType> subjectWithEventsTypes,
-                                                        Set<String> ssidsInData, List<String> subjectIDInSubjectInput) {
+                                                        Set<String> ssidsInData, List<String> subjectIDInSubjectInput,
+                                                        List<String> personIDInSubjectInput) {
 
         String ssid = subject.getSsid();
         String commonMessage = getCommonErrorMessage(index, ssid);
@@ -43,7 +44,7 @@ public class DuplicatePersonIdDataCheck implements PatientDataCheck {
             if (! subjectPresentWithPersonIDList.isEmpty()) {
                 StudySubjectWithEventsType subjectWithEventsType = subjectPresentWithPersonIDList.get(0);
                 duplicateSubjectLabel = subjectWithEventsType.getLabel();
-                error = new ValidationErrorMessage("Duplicate Person ID in data");
+                error = new ValidationErrorMessage("Person ID present in subject data is already used in OpenClinica");
             }
         }
 

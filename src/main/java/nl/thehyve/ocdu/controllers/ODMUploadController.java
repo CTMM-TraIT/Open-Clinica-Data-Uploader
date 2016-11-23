@@ -111,7 +111,10 @@ public class ODMUploadController {
 
             Collection<UploadDataUnit> uploadDataUnitList = createUploadDataUnitList(subjects, eventList, clinicalDataList, studySubjectWithEventsTypeList);
 
-
+            if (uploadDataUnitList.isEmpty()) {
+                ValidationErrorMessage errorMessage = new ValidationErrorMessage("No data present to upload. Note that items and their associated elements are removed in case of errors");
+                result.add(errorMessage);
+            }
             for (UploadDataUnit uploadDataUnit : uploadDataUnitList) {
 
                if (! uploadDataUnit.isSubjectRegisteredInOpenClinica()) {

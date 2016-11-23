@@ -18,7 +18,8 @@ public class SubjectNotRegistered implements PatientDataCheck {
     @Override
     public ValidationErrorMessage getCorrespondingError(int index, Subject subject, MetaData metaData,
                                                         List<StudySubjectWithEventsType> subjectWithEventsTypes,
-                                                        Set<String> ssidsInData, List<String> subjectIDInSubjectInput) {
+                                                        Set<String> ssidsInData, List<String> subjectIDInSubjectInput,
+                                                        List<String> personIDInSubjectInput) {
         String ssid = subject.getSsid();
         for (StudySubjectWithEventsType subjectInfo : subjectWithEventsTypes) {
             if (subjectInfo.getLabel().equals(ssid)) {

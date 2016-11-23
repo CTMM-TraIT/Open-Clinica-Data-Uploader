@@ -23,6 +23,7 @@ import static org.junit.Assert.*;
 
 
 /**
+ * Unit tests for the {@link PatientDataOcChecks}.
  * Created by bo on 6/16/16.
  */
 public class PatientDataOcChecksTests {
@@ -31,6 +32,7 @@ public class PatientDataOcChecksTests {
     private List<StudySubjectWithEventsType> testSubjectWithEventsTypeList;
     private Set<String> presentInData;
     private List<String> subjectIDInSubjectDataList;
+    private List<String> personIDInSubjectDataList;
 
 
     @Before
@@ -45,6 +47,7 @@ public class PatientDataOcChecksTests {
             metadata = GetStudyMetadataResponseHandler.parseGetStudyMetadataResponse(mockedResponseGetMetadata);
             presentInData = new HashSet<>();
             subjectIDInSubjectDataList = new ArrayList<>();
+            personIDInSubjectDataList = new ArrayList<>();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -66,17 +69,17 @@ public class PatientDataOcChecksTests {
         subject.setGender("wrongGenderFormat");
 
         GenderPatientDataCheck check = new GenderPatientDataCheck();
-        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
 
         assertThat(error.getMessage(), containsString("Gender"));
 
 
         subject.setGender("");
-        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertThat(error.getMessage(), containsString("Gender needs to be specified as m or f"));
 
         subject.setGender(null);
-        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertThat(error.getMessage(), containsString("Gender needs to be specified as m or f"));
     }
 
@@ -88,7 +91,7 @@ public class PatientDataOcChecksTests {
         //invalid format
         subject.setDateOfBirth("198x");
         DateOfBirthPatientDataCheck check = new DateOfBirthPatientDataCheck();
-        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertThat(error.getMessage(), containsString("invalid"));
     }
 
@@ -125,6 +128,15 @@ public class PatientDataOcChecksTests {
         subject.setDateOfBirth("2000");
         subject.setDateOfEnrollment("01-01-2010");
         subjectList.add(subject);
+
+        subject = new Subject();
+        subject.setSsid("EV-YYYYY");
+        subject.setGender("m");
+        subject.setStudy("Sjogren");
+        subject.setDateOfBirth("2000");
+        subject.setDateOfEnrollment("01-01-2010");
+        // Npte: different PersonID
+        subject.setPersonId("pupil Wizzard");
         subjectList.add(subject);
 
         Set<String> presentInDataList = new HashSet<>();
@@ -137,6 +149,42 @@ public class PatientDataOcChecksTests {
         Collection<String> offendingValues = errorList.get(0).getOffendingValues();
 
         assertEquals(true, offendingValues.contains("Line 1 (subjectID = EV-YYYYY) : "));
+    }
+
+
+    @Test
+    public void testDuplicatepPersonIDInData() {
+        List<Subject> subjectList = new ArrayList<>();
+        Subject subject = new Subject();
+        subject.setSsid("EV-YYYYY");
+        subject.setGender("m");
+        subject.setPersonId("Wizzard");
+        subject.setStudy("Sjogren");
+        subject.setDateOfBirth("2000");
+        subject.setDateOfEnrollment("01-01-2010");
+        subjectList.add(subject);
+
+        subject = new Subject();
+        subject.setSsid("EV-ZZZZZ");
+        subject.setGender("m");
+        subject.setStudy("Sjogren");
+        subject.setDateOfBirth("2000");
+        subject.setDateOfEnrollment("01-01-2010");
+        // Npte: different PersonID
+        subject.setPersonId("Wizzard");
+        subjectList.add(subject);
+
+        Set<String> presentInDataList = new HashSet<>();
+        presentInDataList.add("EV-YYYYY");
+        presentInDataList.add("EV-ZZZZZ");
+        PatientDataOcChecks patientDataOcChecks = new PatientDataOcChecks(metadata, subjectList, testSubjectWithEventsTypeList, presentInDataList);
+
+        List<ValidationErrorMessage> errorList = patientDataOcChecks.getErrors();
+        assertEquals(1, errorList.size());
+        assertThat(errorList.get(0).getMessage(), containsString("Duplicate person ID present in subject data"));
+        Collection<String> offendingValues = errorList.get(0).getOffendingValues();
+
+        assertEquals(true, offendingValues.contains("Line 1 (subjectID = EV-YYYYY) :  person ID: Wizzard"));
     }
 
     @Test
@@ -195,26 +243,26 @@ public class PatientDataOcChecksTests {
         subject.setDateOfBirth("01-06-3012");
         subject.setSsid("John Doe");
         DateOfBirthPatientDataCheck check = new DateOfBirthPatientDataCheck();
-        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertThat(error.getMessage(), containsString("past"));
 
         subject.setDateOfBirth("01-06-2012");
         check = new DateOfBirthPatientDataCheck();
-        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertNull(error);
 
         subject.setDateOfBirth(null);
-        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertThat(error.getMessage(), containsString("Date of birth is missing"));
 
         metadata.setBirthdateRequired(2);
 
         subject.setDateOfBirth("XXXX");
-        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertThat(error.getMessage(), containsString("The year should be four digits"));
 
         subject.setDateOfBirth("4000");
-        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertThat(error.getMessage(), containsString("Birth year can not be greater than current year"));
 
         metadata.setBirthdateRequired(savedBirthDateRequired);
@@ -228,7 +276,7 @@ public class PatientDataOcChecksTests {
         //empty date of enrollment, today's date is used
         subject.setDateOfEnrollment("");
         DateOfEnrollmentPatientDataCheck check = new DateOfEnrollmentPatientDataCheck();
-        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertThat(error.getMessage(), containsString("Today"));
     }
 
@@ -240,7 +288,7 @@ public class PatientDataOcChecksTests {
         //date of enrollment should be in the past
         subject.setDateOfEnrollment("01-06-3012");
         DateOfEnrollmentPatientDataCheck check = new DateOfEnrollmentPatientDataCheck();
-        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertThat(error.getMessage(), containsString("past"));
     }
 
@@ -252,7 +300,7 @@ public class PatientDataOcChecksTests {
         //invalid date format
         subject.setDateOfEnrollment("01-JU");
         DateOfEnrollmentPatientDataCheck check = new DateOfEnrollmentPatientDataCheck();
-        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertThat(error.getMessage(), containsString("invalid"));
     }
 
@@ -265,28 +313,28 @@ public class PatientDataOcChecksTests {
         metadata.setPersonIDUsage(ProtocolFieldRequirementSetting.MANDATORY);
         subject.setPersonId("");
         PersonIdPatientDataCheck check = new PersonIdPatientDataCheck();
-        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertThat(error.getMessage(), containsString("Person"));
 
         metadata.setPersonIDUsage(ProtocolFieldRequirementSetting.OPTIONAL);
-        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertEquals(error, null);
 
         metadata.setPersonIDUsage(ProtocolFieldRequirementSetting.BANNED);
-        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertEquals(error, null);
 
         metadata.setPersonIDUsage(ProtocolFieldRequirementSetting.MANDATORY);
         subject.setPersonId("1345");
-        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertEquals(error, null);
 
         metadata.setPersonIDUsage(ProtocolFieldRequirementSetting.OPTIONAL);
-        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertEquals(error, null);
 
         metadata.setPersonIDUsage(ProtocolFieldRequirementSetting.BANNED);
-        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertEquals(error, null);
 
     }
@@ -300,7 +348,7 @@ public class PatientDataOcChecksTests {
         //secondary id is provided, but too long
         subject.setSecondaryId("1111112222222222333333333444444444445555555555666666666667777777777888888");
         SecondaryIdPatientDataCheck check = new SecondaryIdPatientDataCheck();
-        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertThat(error.getMessage(), containsString("length"));
     }
 
@@ -312,11 +360,11 @@ public class PatientDataOcChecksTests {
         //study is not provided
         subject.setStudy("");
         StudyPatientDataCheck check = new StudyPatientDataCheck();
-        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertThat(error.getMessage(), containsString("Study should"));
 
         subject.setStudy("STUDY_NOT_IN_METADATA");
-        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertThat(error.getMessage(), containsString("Study provided in the template is inconsistent with the study defined in the data file"));
     }
 
@@ -329,12 +377,12 @@ public class PatientDataOcChecksTests {
         subject.setStudy("S_STUDY1");
         subject.setSite("myownsitethatdoesnotexist");
         SitePatientDataCheck check = new SitePatientDataCheck();
-        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertThat(error.getMessage(), containsString("Study does not have sites and site(s) are specified for subjects"));
 
         MetaData localMetaData = new MetaData();
         localMetaData.setSiteDefinitions(null);
-        error = check.getCorrespondingError(0, subject, localMetaData, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        error = check.getCorrespondingError(0, subject, localMetaData, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertThat(error.getMessage(), containsString("Study does not have sites and site(s) are specified for subjects"));
     }
 
@@ -356,7 +404,7 @@ public class PatientDataOcChecksTests {
         subject.setStudy("S_STUDY1");
         subject.setSite("");
         MissingSiteWarningCheck check = new MissingSiteWarningCheck();
-        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertThat(error.getMessage(), containsString("No site given for some subjects. If you continue these subjects will be created on study level."));
     }
 
@@ -374,7 +422,7 @@ public class PatientDataOcChecksTests {
         sjogrenSite.setUniqueID("SjogrenSjogren");
         siteDefs.add(sjogrenSite);
         metadata.setSiteDefinitions(siteDefs);
-        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertNull(error);
 
     }
@@ -390,7 +438,7 @@ public class PatientDataOcChecksTests {
         GenderPatientDataCheck check = new GenderPatientDataCheck();
         int bogusLineNumber = 1;
         ValidationErrorMessage error = check.getCorrespondingError(bogusLineNumber, subjectWithGender, metaData,
-                testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+                testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertThat(error, is(notNullValue()));
         assertThat(error.getMessage(), containsString("It is not allowed to upload gender by the study protocol"));
     }
@@ -416,7 +464,7 @@ public class PatientDataOcChecksTests {
         GenderPatientDataCheck check = new GenderPatientDataCheck();
         int bogusLineNumber = 1;
         ValidationErrorMessage error = check.getCorrespondingError(bogusLineNumber, subjectWithGender, metaData,
-                testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+                testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertThat(error, is(notNullValue()));
         assertThat(error.getMessage(), containsString("Gender needs to be specified as m or f."));
 
@@ -425,7 +473,7 @@ public class PatientDataOcChecksTests {
         siteDefinitionList.add(siteDefinition);
 
         error = check.getCorrespondingError(bogusLineNumber, subjectWithGender, metaData,
-                testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+                testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertThat(error.getMessage(), containsString("It is not allowed to upload gender by the study protocol"));
     }
 
@@ -442,8 +490,8 @@ public class PatientDataOcChecksTests {
         subjectWithDOBFull.setSsid("John Doe");
         DateOfBirthPatientDataCheck check = new DateOfBirthPatientDataCheck();
         int bogusLineNumber = 1;
-        ValidationErrorMessage error = check.getCorrespondingError(bogusLineNumber, subjectWithDOB, localMetaData, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
-        ValidationErrorMessage errorFullYear = check.getCorrespondingError(bogusLineNumber, subjectWithDOBFull, localMetaData, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        ValidationErrorMessage error = check.getCorrespondingError(bogusLineNumber, subjectWithDOB, localMetaData, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
+        ValidationErrorMessage errorFullYear = check.getCorrespondingError(bogusLineNumber, subjectWithDOBFull, localMetaData, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertThat(error, is(notNullValue()));
         assertThat(error.getMessage(), containsString("Date of birth submission is not allowed by the study protocol"));
         assertThat(errorFullYear.getMessage(), is(notNullValue()));
@@ -456,7 +504,7 @@ public class PatientDataOcChecksTests {
         subject.setSsid("EV-00002");
 
         SubjectNotRegistered check = new SubjectNotRegistered();
-        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
 
         assertThat(error.getMessage(), containsString("already registered"));
     }
@@ -468,11 +516,11 @@ public class PatientDataOcChecksTests {
         subject.setSsid(s1);
 
         PresentInData check = new PresentInData();
-        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
 
         assertThat(error.getMessage(), containsString("One or more subjects are absent in the data file"));
         presentInData.add(s1);
-        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData,subjectIDInSubjectDataList);
+        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData,subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertThat("Returns null for subject present in the data-file", error, nullValue());
     }
 
@@ -484,15 +532,15 @@ public class PatientDataOcChecksTests {
         subject.setPersonId("EV-00002");
         metadata.setPersonIDUsage(ProtocolFieldRequirementSetting.MANDATORY);
         DuplicatePersonIdDataCheck check = new DuplicatePersonIdDataCheck();
-        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
-        assertThat(error.getMessage(), containsString("Duplicate Person ID in data"));
+        ValidationErrorMessage error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
+        assertThat(error.getMessage(), containsString("Person ID present in subject data is already used in OpenClinica"));
 
         metadata.setPersonIDUsage(ProtocolFieldRequirementSetting.OPTIONAL);
-        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertEquals(error, null);
 
         metadata.setPersonIDUsage(ProtocolFieldRequirementSetting.BANNED);
-        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList);
+        error = check.getCorrespondingError(0, subject, metadata, testSubjectWithEventsTypeList, presentInData, subjectIDInSubjectDataList, personIDInSubjectDataList);
         assertEquals(error, null);
     }
 }

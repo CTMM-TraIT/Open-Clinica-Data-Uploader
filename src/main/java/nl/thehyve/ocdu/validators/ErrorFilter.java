@@ -72,7 +72,7 @@ public class ErrorFilter {
             eventList.clear();
             subjectList.clear();
             clinicalDataList.clear();
-            notificationsCollator.addNotification("Error is present which blocks the entire upload. " +
+            notificationsCollator.addNotification("An error is present which blocks the entire upload. " +
                     "No data was uploaded to " + notificationsCollator.getTargetSystem(), MessageType.ERROR);
             return;
         }

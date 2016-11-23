@@ -15,7 +15,8 @@ import java.util.Set;
 public interface PatientDataCheck {
     ValidationErrorMessage getCorrespondingError(int index, Subject subject, MetaData metaData,
                                                  List<StudySubjectWithEventsType> subjectWithEventsTypes,
-                                                 Set<String> ssidsInData, List<String> subjectIDInSubjectInput);
+                                                 Set<String> ssidsInData, List<String> subjectIDInSubjectInput,
+                                                 List<String> personIDInSubjectInput);
 
     default String getCommonErrorMessage(int index, String ssid) {
         return "Line " + index + " (subjectID = " + ssid + ") : ";

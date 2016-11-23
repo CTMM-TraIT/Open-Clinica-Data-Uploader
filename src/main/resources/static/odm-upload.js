@@ -75,7 +75,7 @@ function performODMUpload() {
                     $('#upload-result').append(errorInfo);
                 }
                 if ((warningList) && (warningList.length > 0)) {
-                    var warningInfo = createMessageDiv(warningList, 'warningInfo', 'alert alert-warning', 'Warning');
+                    var warningInfo = createMessageDiv(warningList, 'warningInfo', 'alert alert-warning', 'Warnings');
                     $('#upload-result').append(warningInfo);
                 }
 

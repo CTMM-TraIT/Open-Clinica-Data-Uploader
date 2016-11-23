@@ -65,7 +65,7 @@ public class ErrorFilterTests {
 
         Assert.assertTrue(subjectList.isEmpty());
         AbstractMessage  notification = notificationsCollector.getNotificationList().get(0);
-        assertThat(notification.getMessage(), containsString("Error is present which blocks the entire upload"));
+        assertThat(notification.getMessage(), containsString("An error is present which blocks the entire upload"));
     }
 
     @Test
@@ -79,7 +79,7 @@ public class ErrorFilterTests {
 
         Assert.assertTrue(eventList.isEmpty());
         AbstractMessage notification = notificationsCollector.getNotificationList().get(0);
-        assertThat(notification.getMessage(), containsString("Error is present which blocks the entire upload"));
+        assertThat(notification.getMessage(), containsString("An error is present which blocks the entire upload"));
     }
 
     @Test
@@ -92,7 +92,7 @@ public class ErrorFilterTests {
 
         Assert.assertTrue(eventList.isEmpty());
         AbstractMessage notification = notificationsCollector.getNotificationList().get(0);
-        assertThat(notification.getMessage(), containsString("Error is present which blocks the entire upload"));
+        assertThat(notification.getMessage(), containsString("An error is present which blocks the entire upload"));
     }
 
     @Test
