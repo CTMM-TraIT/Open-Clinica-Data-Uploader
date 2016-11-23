@@ -1,15 +1,16 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="header :: header_scripts ('Upload data to OpenClinica')"  />
 <body>
 <nav th:replace="header :: header_nav_bar"/>
-<form id="upload-odm-template-form">
-    <div id="odm-upload-container" class="container ocdu-container">
-        <div>
-            <h2 class="step-title">Upload data</h2>
+<div id="odm-upload-container" class="container ocdu-container scrolling-container" style="margin-top: 52px; padding-top: 1px;">
+    <form id="upload-odm-template-form">
+
+        <div id="title-div">
+            <h2 id="step-title">Upload data</h2>
         </div>
         <div id="progression-section"><span class="loader"></span><div class="progress-text">Uploading data to OpenClinica ...</div></div>
+        <div id="upload-result"></div>
         <div id="odm-upload-div" class="jumbotron container-fluid reducedPadding">
 
             <h4>Options</h4>
@@ -42,7 +43,7 @@
                               value="dataEntryComplete">Data Entry Complete (existing CRF data will be overwritten)</label>
             </div>
         </div>
-        <div id="buttonDiv">
+        <div id="buttonDiv" class="scrolling-container">
             <button type="button" class="btn btn-primary aligned-btn-primary" id="odm-upload-back-btn" onclick="odmUploadBackBtnHandler()">
                 Back
             </button>
@@ -52,8 +53,8 @@
             </button>
             <br/><br/><br/>
         </div>
-    </div>
-</form>
+    </form>
+</div>
 <script th:src="@{/odm-upload.js}"></script>
 <div th:replace="footer :: footer"></div>
 </body>

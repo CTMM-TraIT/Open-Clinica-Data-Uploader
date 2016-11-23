@@ -72,16 +72,16 @@ function performODMUpload() {
 
                 if ((errorList) && (errorList.length > 0)) {
                     var errorInfo = createMessageDiv(errorList, 'errorInfoDiv', 'alert alert-danger', 'Failures');
-                    $(errorInfo).insertBefore('#odm-upload-back-btn');
+                    $('#upload-result').append(errorInfo);
                 }
                 if ((warningList) && (warningList.length > 0)) {
-                    var warningInfo = createMessageDiv(warningList, 'nonErrorInfoDiv', 'alert alert-warning', 'Warning');
-                    $(warningInfo).insertBefore('#odm-upload-back-btn');
+                    var warningInfo = createMessageDiv(warningList, 'warningInfo', 'alert alert-warning', 'Warning');
+                    $('#upload-result').append(warningInfo);
                 }
 
                 if ((notificationList) && (notificationList.length > 0)) {
-                    var notificationInfo = createMessageDiv(notificationList, 'nonErrorInfoDiv', 'alert alert-success', 'Success');
-                    $(notificationInfo).insertBefore('#odm-upload-back-btn');
+                    var notificationInfo = createMessageDiv(notificationList, 'notificationInfoDiv', 'alert alert-success', 'Success');
+                    $('#upload-result').append(notificationInfo);
                 }
             }
             $('#odm-upload-proceed-btn').remove();
