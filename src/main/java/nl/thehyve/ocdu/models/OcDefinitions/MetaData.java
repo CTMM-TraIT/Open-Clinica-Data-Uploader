@@ -224,7 +224,7 @@ public class MetaData {
      */
     public EventDefinition findEventDefinitionByName(String eventName) {
         Optional<EventDefinition> matchingEventDefintion =
-                eventDefinitions.stream().filter(eventDefinition -> eventDefinition.getName().equals(eventName)).findAny();
+                eventDefinitions.stream().filter(eventDefinition -> eventDefinition.getName().equalsIgnoreCase(eventName)).findAny();
         if (matchingEventDefintion.isPresent()) {
             return matchingEventDefintion.get();
         }

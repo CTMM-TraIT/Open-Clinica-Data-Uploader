@@ -125,14 +125,18 @@ public class ValidationService {
      * @return
      * @throws Exception
      */
-    public List<ValidationErrorMessage> getEventsErrors(UploadSession submission, String wsPwdHash, MetaDataProvider metaDataProvider) throws Exception {
+    public List<ValidationErrorMessage> getEventsErrors(UploadSession submission, String wsPwdHash, MetaDataProvider metaDataProvider, String userName, String url) throws Exception {
         List<Event> events = eventRepository.findBySubmission(submission);
         OcUser submitter = submission.getOwner();
         Study study = dataService.findStudy(submission.getStudy(), submitter, wsPwdHash);
         MetaData metadata = metaDataService.retrieveMetaData(metaDataProvider, submitter, wsPwdHash, submission);
         events.forEach(event -> event.setStudyProtocolName(metadata.getProtocolName())); //TODO: Refactor setting studyProtocolName out of validation , this is not the right place to do it
         eventRepository.save(events);
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, events);
+
+        List<StudySubjectWithEventsType> studySubjectWithEventsTypeList =
+                openClinicaService.getStudySubjectsType(userName, wsPwdHash, url, study.getIdentifier(), "");
+
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, events, studySubjectWithEventsTypeList);
         List<ClinicalData> clinicalDataList = clinicalDataRepository.findBySubmission(submission);
         List<StudySubjectWithEventsType> subjectWithEventsTypeList =
                 openClinicaService.getStudySubjectsType(submitter.getUsername(), wsPwdHash, submitter.getOcEnvironment(), study.getIdentifier(), "");

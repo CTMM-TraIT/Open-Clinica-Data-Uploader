@@ -1,5 +1,6 @@
 package nl.thehyve.ocdu.validators;
 
+import nl.thehyve.ocdu.TestUtils;
 import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OCEntities.Event;
 import nl.thehyve.ocdu.models.OCEntities.Study;
@@ -12,6 +13,7 @@ import nl.thehyve.ocdu.soap.ResponseHandlers.GetStudyMetadataResponseHandler;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPMessage;
@@ -29,12 +31,14 @@ import static org.junit.Assert.assertThat;
  */
 public class ErrorFilterTests {
 
-    private static final String STUDY_NAME = "Adverse effects of watching too much telly";
+    private static final String STUDY_NAME = "EVENTFUL";
+    private static final String STUDY_OID = "S_EVENTFUL";
 
     private List<Subject> subjectList;
     private List<Event> eventList;
     private List<ClinicalData> clinicalDataList;
     private StringListNotificationsCollector notificationsCollector;
+    private List<StudySubjectWithEventsType> subjectWithEventsTypeList;
     private ErrorFilter errorFilter;
 
 
@@ -45,13 +49,15 @@ public class ErrorFilterTests {
         FileInputStream in = new FileInputStream(testFile);
         SOAPMessage mockedResponseGetMetadata = messageFactory.createMessage(null, in);//soapMessage;
         MetaData metaData = GetStudyMetadataResponseHandler.parseGetStudyMetadataResponse(mockedResponseGetMetadata);
-        Study study = new Study(STUDY_NAME, "S_ADLKJFLKDJF", STUDY_NAME);
+
+        subjectWithEventsTypeList = TestUtils.createStudySubjectWithEventList();
+        Study study = new Study(STUDY_NAME, STUDY_OID, STUDY_NAME);
         subjectList = new ArrayList<>();
         eventList = new ArrayList<>();
         clinicalDataList = new ArrayList<>();
         notificationsCollector = new StringListNotificationsCollector("http://www.example.com");
         errorFilter =
-                new ErrorFilter(study, metaData, clinicalDataList, eventList, subjectList, notificationsCollector);
+                new ErrorFilter(study, metaData, subjectWithEventsTypeList, clinicalDataList, eventList, subjectList, notificationsCollector);
     }
 
 
@@ -98,62 +104,104 @@ public class ErrorFilterTests {
     @Test
     public void testEventsWithError() {
         // Test scenario: 2 subjects, with 1 subject having a repeating event, one with an error event and one which is
-        // OK. Second subject (Miss Piggy) has no errors. Because we are dealing with an repeating eventExpected
+        // OK. Second subject (Miss Piggy) has no errors on event level but only one error on item-level.
+        // // Because we are dealing with an repeating eventExpected
         // the result should be that all the events of 'Kermit the frog' are removed.
-        String testSubjectID = "Kermit the frog";
-        String testSubjectID_Two = "Miss Piggy";
-        String theEventName = "RepeatingEvent";
+        String kermit = "EV-00002";
+        String missPiggy = "EV-00006";
+        String theEventName = "REPEATINGEVENT";
         Subject subjectKermit = new Subject();
         subjectKermit.setStudy(STUDY_NAME);
-        subjectKermit.setSsid(testSubjectID);
+        subjectKermit.setSsid(kermit);
         subjectList.add(subjectKermit);
 
         Subject subjectMissPiggy = new Subject();
         subjectMissPiggy.setStudy(STUDY_NAME);
-        subjectMissPiggy.setSsid(testSubjectID_Two);
+        subjectMissPiggy.setSsid(missPiggy);
         subjectList.add(subjectMissPiggy);
 
         Event eventToRemove = new Event();
         eventToRemove.setStudy(STUDY_NAME);
-        eventToRemove.setSsid(testSubjectID);
-        eventToRemove.setEventName(theEventName + "asfd");
+        eventToRemove.setSsid(kermit);
+        eventToRemove.setEventName(theEventName);
         eventToRemove.setRepeatNumber("1");
         eventToRemove.addErrorClassification(ErrorClassification.BLOCK_EVENT);
         eventList.add(eventToRemove);
 
+        Event eventWithOutSubject = new Event();
+        eventWithOutSubject.setStudy(STUDY_NAME);
+        eventWithOutSubject.setSsid("");
+        eventWithOutSubject.setEventName(theEventName);
+        eventWithOutSubject.setRepeatNumber("1");
+        eventWithOutSubject.addErrorClassification(ErrorClassification.BLOCK_EVENT);
+        eventList.add(eventWithOutSubject);
+
+        Event eventWithOutEventName = new Event();
+        eventWithOutEventName.setStudy(STUDY_NAME);
+        eventWithOutEventName.setSsid(kermit);
+        eventWithOutEventName.setEventName("");
+        eventWithOutEventName.setRepeatNumber("3");
+        eventWithOutEventName.addErrorClassification(ErrorClassification.BLOCK_EVENT);
+        eventList.add(eventWithOutEventName);
+
+        Event eventWithOutStudyName = new Event();
+        eventWithOutStudyName.setStudy("");
+        eventWithOutStudyName.setSsid(kermit);
+        eventWithOutStudyName.setEventName(theEventName);
+        eventWithOutStudyName.setRepeatNumber("4");
+        eventWithOutStudyName.addErrorClassification(ErrorClassification.BLOCK_EVENT);
+        eventList.add(eventWithOutStudyName);
+
+        Event eventWithOutRepeatNumber = new Event();
+        eventWithOutRepeatNumber.setStudy(STUDY_NAME);
+        eventWithOutRepeatNumber.setSsid(kermit);
+        eventWithOutRepeatNumber.setEventName(theEventName);
+        eventWithOutRepeatNumber.setRepeatNumber("");
+        eventWithOutRepeatNumber.addErrorClassification(ErrorClassification.BLOCK_EVENT);
+        eventList.add(eventWithOutRepeatNumber);
+
         Event event = new Event();
-        event.setStudy(STUDY_NAME);
-        event.setSsid(testSubjectID);
+        event.setStudy(STUDY_NAME + "asdf");
+        event.setSsid(kermit);
         event.setEventName(theEventName);
         event.setRepeatNumber("2");
         eventList.add(event);
 
         Event eventToRemain = new Event();
         eventToRemain.setStudy(STUDY_NAME);
-        eventToRemain.setSsid(testSubjectID_Two);
+        eventToRemain.setSsid(missPiggy);
         eventToRemain.setEventName(theEventName);
         eventToRemain.setRepeatNumber("1");
         eventList.add(eventToRemain);
 
         ClinicalData clinicalData = new ClinicalData();
         clinicalData.setStudy(STUDY_NAME);
-        clinicalData.setSsid(testSubjectID);
+        clinicalData.setSsid(kermit);
         clinicalData.setEventName(theEventName);
         clinicalData.setEventRepeat("2");
         clinicalDataList.add(clinicalData);
 
         clinicalData = new ClinicalData();
         clinicalData.setStudy(STUDY_NAME);
-        clinicalData.setSsid(testSubjectID);
+        clinicalData.setSsid(kermit);
         clinicalData.setEventName(theEventName);
         clinicalData.setEventRepeat("1");
         clinicalDataList.add(clinicalData);
 
         clinicalData = new ClinicalData();
         clinicalData.setStudy(STUDY_NAME);
-        clinicalData.setSsid(testSubjectID_Two);
+        clinicalData.setSsid(missPiggy);
+        clinicalData.setEventName(theEventName);
+        clinicalData.setItem("This item should remain");
+        clinicalData.setEventRepeat("1");
+        clinicalDataList.add(clinicalData);
+
+        clinicalData = new ClinicalData();
+        clinicalData.setStudy(STUDY_NAME);
+        clinicalData.setSsid(missPiggy);
         clinicalData.setEventName(theEventName);
         clinicalData.setEventRepeat("1");
+        clinicalData.addErrorClassification(ErrorClassification.BLOCK_SINGLE_ITEM);
         clinicalDataList.add(clinicalData);
 
         errorFilter.filterDataWithErrors();
@@ -232,6 +280,7 @@ public class ErrorFilterTests {
 
     @Test
     public void testBlockSubjectsWithError() {
+        String theEventName = "REPEATINGEVENT";
         String testSubjectID = "Thomas the Tank-engine";
         Subject subject = new Subject();
         subject.setSsid(testSubjectID);
@@ -252,11 +301,13 @@ public class ErrorFilterTests {
 
         Event event = new Event();
         event.setSsid(testSubjectID);
+        event.setEventName(theEventName);
         event.setStudy(STUDY_NAME);
         eventList.add(event);
 
         event = new Event();
         event.setSsid("Henry");
+        event.setEventName(theEventName);
         event.setStudy(STUDY_NAME);
         eventList.add(event);
 

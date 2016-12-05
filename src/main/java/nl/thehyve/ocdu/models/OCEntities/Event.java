@@ -3,12 +3,15 @@ package nl.thehyve.ocdu.models.OCEntities;
 import nl.thehyve.ocdu.models.OcUser;
 import nl.thehyve.ocdu.models.UploadSession;
 import nl.thehyve.ocdu.models.errors.ErrorClassification;
+import nl.thehyve.ocdu.validators.UtilChecks;
 import org.apache.commons.lang3.StringUtils;
 import org.openclinica.ws.beans.EventType;
 import org.openclinica.ws.beans.SiteRefType;
 import org.openclinica.ws.beans.StudyRefType;
+import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
 import javax.persistence.*;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -56,6 +59,7 @@ public class Event implements OcEntity, UserSubmitted, EventReference {
     public Event() {
         this.errorClassificationSet = new HashSet<>();
     }
+
 
     @Override
     public UploadSession getSubmission() {
@@ -180,7 +184,8 @@ public class Event implements OcEntity, UserSubmitted, EventReference {
     @Override
     public String toString() {
         return "Event{" +
-                "repeatNumber=" + repeatNumber +
+                "error= '" + Arrays.toString(errorClassificationSet.toArray()) + '\'' +
+                ", repeatNumber=" + repeatNumber +
                 ", eventName='" + eventName + '\'' +
                 ", ssid='" + ssid + '\'' +
                 ", study='" + study + '\'' +
@@ -223,15 +228,15 @@ public class Event implements OcEntity, UserSubmitted, EventReference {
 
     public String createEventKey() {
         StringBuffer ret = new StringBuffer();
-        ret.append(study);
+        ret.append(UtilChecks.nullSafeToUpperCase(study));
         ret.append(ClinicalData.KEY_SEPARATOR);
-        ret.append(site);
+        ret.append(UtilChecks.nullSafeToUpperCase(site));
         ret.append(ClinicalData.KEY_SEPARATOR);
-        ret.append(ssid);
+        ret.append(UtilChecks.nullSafeToUpperCase(ssid));
         ret.append(ClinicalData.KEY_SEPARATOR);
-        ret.append(eventName);
+        ret.append(UtilChecks.nullSafeToUpperCase(eventName));
         ret.append(ClinicalData.KEY_SEPARATOR);
-        ret.append(repeatNumber);
+        ret.append(UtilChecks.nullSafeToUpperCase(repeatNumber));
         return ret.toString().toUpperCase();
     }
 

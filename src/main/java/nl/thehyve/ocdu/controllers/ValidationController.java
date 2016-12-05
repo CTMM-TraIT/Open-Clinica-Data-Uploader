@@ -1,5 +1,6 @@
 package nl.thehyve.ocdu.controllers;
 
+import nl.thehyve.ocdu.models.OcUser;
 import nl.thehyve.ocdu.models.UploadSession;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import nl.thehyve.ocdu.repositories.SubjectRepository;
@@ -78,8 +79,10 @@ public class ValidationController {
         try {
             UploadSession currentUploadSession = uploadSessionService.getCurrentUploadSession(session);
             String pwdHash = ocUserService.getOcwsHash(session);
+            OcUser ocUser = ocUserService.getCurrentOcUser(session);
+            String url = ocUser.getOcEnvironment();
             MetaDataProvider metaDataProvider = new HttpSessionMetaDataProvider(session);
-            List<ValidationErrorMessage> eventsErrors = validationService.getEventsErrors(currentUploadSession, pwdHash, metaDataProvider);
+            List<ValidationErrorMessage> eventsErrors = validationService.getEventsErrors(currentUploadSession, pwdHash, metaDataProvider, ocUser.getUsername(), url);
             return new ResponseEntity<>(eventsErrors,HttpStatus.OK);
         } catch (UploadSessionNotFoundException e) {
             e.printStackTrace();

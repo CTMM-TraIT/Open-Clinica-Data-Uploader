@@ -32,14 +32,14 @@ public class EventGapCrossCheck implements ClinicalDataCrossCheck {
         // create a map of each subject with the repeats in the data
         Map<String, Set<String>> newSubjectRepeats = data.stream()
                                         .filter(clinicalData -> isRepeating(clinicalData.getEventName(), metaData))
-                                        .collect(Collectors.groupingBy(ClinicalData::createEventRepeatKey,
+                                        .collect(Collectors.groupingBy(ClinicalData::createEventKeyWithoutRepeat,
                                                 Collectors.mapping(ClinicalData::getEventRepeat, Collectors.toSet())));
 
         Map<String, Set<String>> existingSubjectRepeats = new HashMap<>();
         for (StudySubjectWithEventsType studySubjectWithEventsType : studySubjectWithEventsTypeList) {
             List<ClinicalData> existingClinicalDataListForSubject = createFromStudySubjectWithEventsType(studySubjectWithEventsType, metaData);
             Map<String, Set<String>> subjectRepeats = existingClinicalDataListForSubject.stream()
-                    .collect(Collectors.groupingBy(ClinicalData::createEventRepeatKey,
+                    .collect(Collectors.groupingBy(ClinicalData::createEventKeyWithoutRepeat,
                             Collectors.mapping(ClinicalData::getEventRepeat, Collectors.toSet())));
             existingSubjectRepeats.putAll(subjectRepeats);
         }

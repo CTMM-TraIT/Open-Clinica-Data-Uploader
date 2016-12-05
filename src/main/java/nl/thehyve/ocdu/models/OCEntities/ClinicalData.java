@@ -3,6 +3,7 @@ package nl.thehyve.ocdu.models.OCEntities;
 import nl.thehyve.ocdu.models.OcUser;
 import nl.thehyve.ocdu.models.UploadSession;
 import nl.thehyve.ocdu.models.errors.ErrorClassification;
+import nl.thehyve.ocdu.validators.UtilChecks;
 import org.apache.commons.lang3.StringUtils;
 import org.openclinica.ws.beans.*;
 
@@ -253,7 +254,8 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
     @Override
     public String toString() {
         return "ClinicalData{" +
-                "study='" + study + '\'' +
+                "error= '" + Arrays.toString(errorClassificationSet.toArray()) + '\'' +
+                ", study='" + study + '\'' +
                 ", site='" + site + '\'' +
                 ", item='" + item + '\'' +
                 ", ssid='" + ssid + '\'' +
@@ -325,31 +327,31 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
      */
     public String createODMKey() {
         StringBuffer ret = new StringBuffer();
-        ret.append(ssid);
-        ret.append(eventName);
-        ret.append(eventRepeat);
-        ret.append(crfName);
-        ret.append(crfVersion);
-        ret.append(itemGroupOID);
+        ret.append(UtilChecks.nullSafeToUpperCase(ssid));
+        ret.append(UtilChecks.nullSafeToUpperCase(eventName));
+        ret.append(UtilChecks.nullSafeToUpperCase(eventRepeat));
+        ret.append(UtilChecks.nullSafeToUpperCase(crfName));
+        ret.append(UtilChecks.nullSafeToUpperCase(crfVersion));
+        ret.append(UtilChecks.nullSafeToUpperCase(itemGroupOID));
 //        ret.append(groupRepeat.toString());
         return ret.toString().toUpperCase();
     }
 
     public String createEventKey() {
         StringBuffer ret = new StringBuffer();
-        ret.append(study);
+        ret.append(UtilChecks.nullSafeToUpperCase(study));
         ret.append(KEY_SEPARATOR);
-        ret.append(site);
+        ret.append(UtilChecks.nullSafeToUpperCase(site));
         ret.append(KEY_SEPARATOR);
-        ret.append(ssid);
+        ret.append(UtilChecks.nullSafeToUpperCase(ssid));
         ret.append(KEY_SEPARATOR);
-        ret.append(eventName);
+        ret.append(UtilChecks.nullSafeToUpperCase(eventName));
         ret.append(KEY_SEPARATOR);
-        ret.append(eventRepeat);
+        ret.append(UtilChecks.nullSafeToUpperCase(eventRepeat));
         return ret.toString().toUpperCase();
     }
 
-    public String createEventRepeatKey() {
+    public String createEventKeyWithoutRepeat() {
         StringBuffer ret = new StringBuffer();
         ret.append(study);
         ret.append(KEY_SEPARATOR);

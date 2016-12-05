@@ -1,5 +1,6 @@
 package nl.thehyve.ocdu.controllers;
 
+import nl.thehyve.ocdu.models.OcUser;
 import nl.thehyve.ocdu.models.UploadSession;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import nl.thehyve.ocdu.services.*;
@@ -41,8 +42,11 @@ public class PreUploadOverviewController {
             UploadSession currentUploadSession = uploadSessionService.getCurrentUploadSession(session);
             String pwdHash = ocUserService.getOcwsHash(session);
             MetaDataProvider metaDataProvider = new HttpSessionMetaDataProvider(session);
+
+            OcUser ocUser = ocUserService.getCurrentOcUser(session);
+            String url = ocUser.getOcEnvironment();
             List<ValidationErrorMessage> patientsErrors = validationService.getPatientsErrors(currentUploadSession, pwdHash, metaDataProvider);
-            List<ValidationErrorMessage> eventErrors = validationService.getEventsErrors(currentUploadSession, pwdHash, metaDataProvider);
+            List<ValidationErrorMessage> eventErrors = validationService.getEventsErrors(currentUploadSession, pwdHash, metaDataProvider, ocUser.getUsername(), url);
             List<ValidationErrorMessage> dataErrors = validationService.getDataErrors(currentUploadSession, pwdHash, metaDataProvider);
             List<ValidationErrorMessage> accumulatedErrors = new ArrayList<>();
             accumulatedErrors.addAll(patientsErrors);

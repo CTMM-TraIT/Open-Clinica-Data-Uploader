@@ -1,14 +1,18 @@
 package nl.thehyve.ocdu.validators;
 
 
+import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OCEntities.Event;
-import nl.thehyve.ocdu.models.OcDefinitions.EventDefinition;
-import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
-import nl.thehyve.ocdu.models.OcDefinitions.ProtocolFieldRequirementSetting;
-import nl.thehyve.ocdu.models.OcDefinitions.SiteDefinition;
+import nl.thehyve.ocdu.models.OcDefinitions.*;
 import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import org.apache.commons.lang3.StringUtils;
+import org.openclinica.ws.beans.EventResponseType;
+import org.openclinica.ws.beans.EventType;
+import org.openclinica.ws.beans.EventsType;
+import org.openclinica.ws.beans.StudySubjectWithEventsType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 import java.text.ParsePosition;
@@ -22,6 +26,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class EventDataOcChecks {
+
+    private static final Logger log = LoggerFactory.getLogger(EventDataOcChecks.class);
 
     public static final int LOCATION_STRING_MAX_LENGTH = 4000;
     public static final DateFormat SIMPLE_DATE_FORMAT;
@@ -37,13 +43,15 @@ public class EventDataOcChecks {
 
     private final List<Event> events;
     private final MetaData metadata;
+    private final List<StudySubjectWithEventsType> subjectWithEventsTypeList;
 
     private final Set<String> eventNames;
     private final Set<String> siteNames;
 
-    public EventDataOcChecks(MetaData metadata, List<Event> eventList) {
+    public EventDataOcChecks(MetaData metadata, List<Event> eventList, List<StudySubjectWithEventsType> subjectWithEventsTypeList) {
         this.metadata = metadata;
         this.events = eventList;
+        this.subjectWithEventsTypeList = subjectWithEventsTypeList;
 
 
         if (metadata.getEventDefinitions() == null) {
@@ -124,6 +132,7 @@ public class EventDataOcChecks {
         validateStartEndRanges(errors);
         validateRepeatNumber(errors);
         validateDuplicateEvents(errors);
+        validateEventGap(errors);
 
 
         return errors;
@@ -309,6 +318,75 @@ public class EventDataOcChecks {
                 if (!endTimeOpt.isPresent()) {
                     validationErrorMessage.addOffendingValue("Line number: " + event.getLineNumber() + ", subject: " + event.getSsid() + ", " + event.getEndTime());
                     event.addErrorClassification(ErrorClassification.BLOCK_EVENT);
+                }
+            }
+        }
+        if (! validationErrorMessage.getOffendingValues().isEmpty()) {
+            validationErrorMessageList.add(validationErrorMessage);
+        }
+    }
+
+
+    /**
+     * Check if any gaps in the event ordinals are present in the input data, compared to the events already present
+     * in the study and to the events present in the event data-file.
+     * @param validationErrorMessageList
+     */
+    private void validateEventGap(List<ValidationErrorMessage> validationErrorMessageList) {
+        ValidationErrorMessage validationErrorMessage = new ValidationErrorMessage("A gap in event ordinals maybe present when comparing existing events and events present in data file.");
+        Map<String, SortedSet<String>> existingEventsForSubject = new HashMap<>();
+
+        for (StudySubjectWithEventsType studySubjectWithEventsType : subjectWithEventsTypeList) {
+            String subjectID = studySubjectWithEventsType.getLabel();
+            SortedSet<String> subjectExistingEventSet = existingEventsForSubject.get(subjectID);
+            if (subjectExistingEventSet == null) {
+                subjectExistingEventSet = new TreeSet<>();
+                existingEventsForSubject.put(subjectID, subjectExistingEventSet);
+            }
+            EventsType eventsType = studySubjectWithEventsType.getEvents();
+            // add the existing events to the set
+            for (EventResponseType eventResponseType : eventsType.getEvent()) {
+                subjectExistingEventSet.add(eventResponseType.getOccurrence());
+            }
+        }
+        boolean eventHasError = false;
+        for (Event event : events) {
+            String subjectID = event.getSsid();
+            if (StringUtils.isBlank(subjectID)) {
+                validationErrorMessage.addOffendingValue("Unable to determine if an event has a gap because subjectID is missing in line " + event.getLineNumber());
+                eventHasError = true;
+            }
+            String ordinal = event.getRepeatNumber();
+            SortedSet<String> subjectEventSet = existingEventsForSubject.get(subjectID);
+            if (subjectEventSet == null) {
+                subjectEventSet = new TreeSet<>();
+                existingEventsForSubject.put(subjectID, subjectEventSet);
+            }
+            subjectEventSet.add(ordinal);
+        }
+        // how check if we have any gaps
+        if (! eventHasError) {
+            for (String subjectID : existingEventsForSubject.keySet()) {
+                SortedSet<String> subjectEventRepeats = existingEventsForSubject.get(subjectID);
+                int existingNumberOfRepeats = existingEventsForSubject.size();
+                int maxRepeat = 0;
+                for (String repeatOrdinal : subjectEventRepeats) {
+                    Integer repeatOrdinalInt = null;
+                    try {
+                        repeatOrdinalInt = Integer.parseInt(repeatOrdinal);
+                    } catch (NumberFormatException nfe) {
+                        continue;
+                    }
+                    if (repeatOrdinalInt > maxRepeat) {
+                        maxRepeat = repeatOrdinalInt;
+                    }
+                }
+                if ((maxRepeat != subjectEventRepeats.size())) {
+                    String addtionalMessage = "";
+                    if (existingEventsForSubject != null) {
+                        addtionalMessage = ". Subject has " + existingNumberOfRepeats + " event repeats.";
+                    }
+                    validationErrorMessage.addOffendingValue("Gap found in event ordinals found for subject " + subjectID + addtionalMessage);
                 }
             }
         }

@@ -6,7 +6,6 @@ import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.OcUser;
 import nl.thehyve.ocdu.models.UploadSession;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
-import nl.thehyve.ocdu.repositories.ClinicalDataRepository;
 import nl.thehyve.ocdu.repositories.EventRepository;
 import nl.thehyve.ocdu.services.*;
 import nl.thehyve.ocdu.validators.EventDataOcChecks;
@@ -61,8 +60,11 @@ public class EventsController {
             MetaData metaData = dataService.getMetaData(uploadSession, pwdHash, metaDataProvider);
             Study study = dataService.findStudy(uploadSession.getStudy(), user, username);
 
+            List<StudySubjectWithEventsType> studySubjectWithEventsTypeList =
+                    openClinicaService.getStudySubjectsType(username, pwdHash, url, study.getIdentifier(), "");
+
             List<Event> eventList = eventRepository.findBySubmission(uploadSession);
-            EventDataOcChecks eventDataOcChecks = new EventDataOcChecks(metaData, eventList);
+            EventDataOcChecks eventDataOcChecks = new EventDataOcChecks(metaData, eventList, studySubjectWithEventsTypeList);
             List<ValidationErrorMessage> validationErrorMessageList = eventDataOcChecks.getErrors();
             if (! validationErrorMessageList.isEmpty()) {
                 return new ResponseEntity(validationErrorMessageList, HttpStatus.BAD_REQUEST);

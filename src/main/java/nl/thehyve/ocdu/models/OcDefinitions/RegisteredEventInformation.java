@@ -64,6 +64,7 @@ public class RegisteredEventInformation {
             String ssid = studySubjectWithEventsType.getLabel();
             String study = studySubjectWithEventsType.getStudyRef().getIdentifier();
             String site = studySubjectWithEventsType.getStudyRef().getSiteRef() != null ? studySubjectWithEventsType.getStudyRef().getSiteRef().getIdentifier() : "";
+            site = site.toUpperCase();
             for (EventResponseType event : studySubjectWithEventsType.getEvents().getEvent()) {
                 ClinicalData clinicalData = new ClinicalData();
                 clinicalData.setSsid(ssid);

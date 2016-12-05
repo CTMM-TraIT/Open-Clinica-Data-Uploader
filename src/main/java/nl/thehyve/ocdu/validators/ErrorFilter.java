@@ -4,8 +4,12 @@ import nl.thehyve.ocdu.models.NotificationsCollector;
 import nl.thehyve.ocdu.models.OCEntities.*;
 import nl.thehyve.ocdu.models.OcDefinitions.EventDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
+import nl.thehyve.ocdu.models.OcDefinitions.RegisteredEventInformation;
 import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.MessageType;
+import org.openclinica.ws.beans.StudySubjectWithEventsType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.List;
@@ -17,10 +21,11 @@ import java.util.stream.Collectors;
  * Created by jacob on 11/8/16.
  */
 public class ErrorFilter {
-//    private static final Logger log = LoggerFactory.getLogger(ErrorFilter.class);
+    private static final Logger log = LoggerFactory.getLogger(ErrorFilter.class);
     private List<ClinicalData> clinicalDataList;
     private List<Event> eventList;
     private List<Subject> subjectList;
+    private List<StudySubjectWithEventsType> subjectWithEventsTypeList;
     private NotificationsCollector notificationsCollator;
     private Study study;
     private MetaData metaData;
@@ -28,6 +33,7 @@ public class ErrorFilter {
 
     public ErrorFilter(Study study,
                        MetaData metaData,
+                       List<StudySubjectWithEventsType> subjectWithEventsTypeList,
                        List<ClinicalData> clinicalDataList,
                        List<Event> eventList,
                        List<Subject> subjectList,
@@ -37,6 +43,7 @@ public class ErrorFilter {
         this.eventList = eventList;
         this.subjectList = subjectList;
         this.clinicalDataList = clinicalDataList;
+        this.subjectWithEventsTypeList = subjectWithEventsTypeList;
         this.notificationsCollator = notificationsCollator;
     }
 
@@ -78,20 +85,19 @@ public class ErrorFilter {
         }
 
         Tree<OcEntity> tree = createTree();
-        //log.debug("Tree pre filtering  ->\n" + tree);
+//        log.debug("Tree pre filtering  ->\n" + tree);
 
 
-        List<OcEntity> subjectListWithErrors =
-            returnListOfEntitiesWithError(subjectList, ErrorClassification.BLOCK_SUBJECT);
-        if ( ! subjectListWithErrors.isEmpty()) {
-            Set<String> subjectIDsWithErrorSet =
-                    subjectListWithErrors.stream().map(subject -> subject.getSsid()).collect(Collectors.toSet());
-            removeAllDataForSubjectID(subjectIDsWithErrorSet);
+        List<ClinicalData> clinicalDataWithErrors =
+                clinicalDataList.stream().filter(clinicalData1 -> clinicalData1.hasErrorOfType(ErrorClassification.BLOCK_SINGLE_ITEM)).collect(Collectors.toList());
+        for (ClinicalData clinicalData : clinicalDataWithErrors) {
+            String message = "Item has been removed from upload because of a validation error: " + clinicalData.toOffenderString();
+            notificationsCollator.addNotification(message, MessageType.WARNING);
         }
+        clinicalDataList.removeIf(clinicalData -> clinicalData.hasErrorOfType(ErrorClassification.BLOCK_SINGLE_ITEM));
 
 
-        List<OcEntity> eventWithErrorList =
-                returnListOfEntitiesWithError(eventList, ErrorClassification.BLOCK_EVENT);
+        List<OcEntity> eventWithErrorList = returnListOfEntitiesWithError(eventList, ErrorClassification.BLOCK_EVENT);
 
         if ( ! eventWithErrorList.isEmpty()) {
             for (OcEntity eventWithError : eventWithErrorList) {
@@ -103,37 +109,47 @@ public class ErrorFilter {
                 String eventName = ((Event) eventWithError).getEventName();
                 EventDefinition eventDefinition =
                         metaData.findEventDefinitionByName(eventName);
-                if (eventDefinition == null) {
-                    notificationsCollator.addNotification("Unable to locate definition of event called '" + eventName + "'. Event was removed", MessageType.WARNING);
+                boolean definitionFound = (eventDefinition != null);
+                if (! definitionFound) {
+                    String subjectID = eventWithError.getSsid();
+                    notificationsCollator.addNotification("Unable to locate definition of event called '" + eventName
+                            + "' for subject '" + subjectID
+                            + "'. Event and associated data have been removed from the upload", MessageType.WARNING);
                 }
-                Subject subject = (Subject) tree.getTree(eventWithError).getParent().getHead();
-
-                removeEventAndAssociatedClinicalData(tree, subject);
+                Tree<OcEntity> subjectTree = tree.getTree(eventWithError);
+                if (subjectTree != null) {
+                    Subject subject = (Subject) subjectTree.getParent().getHead();
+                    removeEventAndAssociatedClinicalData(tree, subject, definitionFound);
+                }
 
             }
         }
 
-        List<ClinicalData> clinicalDataWithErrors =
-                clinicalDataList.stream().filter(clinicalData1 -> clinicalData1.hasErrorOfType(ErrorClassification.BLOCK_SINGLE_ITEM)).collect(Collectors.toList());
-        for (ClinicalData clinicalData : clinicalDataWithErrors) {
-            String message = "Item has been removed from upload because of validation error: " + clinicalData.toOffenderString();
-            notificationsCollator.addNotification(message, MessageType.WARNING);
+        List<OcEntity> subjectListWithErrors =
+                returnListOfEntitiesWithError(subjectList, ErrorClassification.BLOCK_SUBJECT);
+        if ( ! subjectListWithErrors.isEmpty()) {
+            Set<String> subjectIDsWithErrorSet =
+                    subjectListWithErrors.stream().map(OcEntity::getSsid).collect(Collectors.toSet());
+            removeAllDataForSubjectID(subjectIDsWithErrorSet);
+            for (String subjectIDRemoved : subjectIDsWithErrorSet) {
+                notificationsCollator.addNotification("Error in subject data for subject: '" + subjectIDRemoved + "'."
+                        + " Subject and associated data have been removed from the upload", MessageType.WARNING);
+            }
         }
-        clinicalDataList.removeIf(clinicalData -> clinicalData.hasErrorOfType(ErrorClassification.BLOCK_SINGLE_ITEM));
-
-        // Tree postFilterTree = createTree();
-        //log.debug("Tree post filtering ->\n" + postFilterTree);
+//        Tree postFilterTree = createTree();
+//        log.debug("Tree post filtering ->\n" + postFilterTree);
     }
 
-    private void removeEventAndAssociatedClinicalData(Tree<OcEntity> tree, Subject subject) {
+    private void removeEventAndAssociatedClinicalData(Tree<OcEntity> tree, Subject subject, boolean definitionFound) {
         Tree<OcEntity> subjectTree = tree.getTree(subject);
         Collection<Tree<OcEntity>> eventTreeList = subjectTree.getSubTrees();
         for (Tree<OcEntity> eventTree : eventTreeList) {
             Event eventToRemove = (Event) eventTree.getHead();
-            String message = "Event " + eventToRemove.toString()
-                    + " and associated data has been removed from the upload because of an error";
-            notificationsCollator.addNotification(message, MessageType.WARNING);
-
+            if (definitionFound) {
+                String message = "Event " + eventToRemove.toString()
+                        + " and associated data have been removed from the upload because of an error";
+                notificationsCollator.addNotification(message, MessageType.WARNING);
+            }
             Collection<Tree<OcEntity>> clinicalDataTree = eventTree.getSubTrees();
             clinicalDataTree.stream().forEach(clincalDataItem -> {
                         ClinicalData clinicalDataToRemove = (ClinicalData) clincalDataItem.getHead();
@@ -142,7 +158,18 @@ public class ErrorFilter {
             );
             eventList.removeIf(event -> event.equals(eventTree.getHead()));
         }
+
+        // Remove all items from the clinical data which are no longer present in the event data and if not already
+        // present in the study
+        List<String> eventKeysInEventData =
+                eventList.stream().map(Event::createEventKey).collect(Collectors.toList());
+        Set<String> eventKeysInOC =
+                RegisteredEventInformation.createEventKeyListFromStudySubjectWithEventsTypeList(metaData, subjectWithEventsTypeList);
+
+        clinicalDataList.removeIf(clinicalData->  ! (eventKeysInEventData.contains(clinicalData.createEventKey()) & eventKeysInOC.contains(clinicalData.createEventKey())));
     }
+
+
 
     private void removeAllDataForSubjectID(Set<String> subjectIDWithErrorSet) {
         UtilChecks.removeFromListIf(subjectList, subject -> subjectIDWithErrorSet.contains(subject.getSsid()));

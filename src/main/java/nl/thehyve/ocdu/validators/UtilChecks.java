@@ -189,6 +189,10 @@ public class UtilChecks {
         };
     }
 
+    public static String nullSafeToUpperCase(String value) {
+        return (value == null) ? "" : value.toUpperCase();
+    }
+
     public static void addErrorClassificationForSubjects(List<? extends OcEntity> entityList, Set<String> subjectIDSetWithError, ErrorClassification errorClassification) {
         List<? extends OcEntity> result = entityList.stream().filter(entityData -> subjectIDSetWithError.contains( entityData.getSsid())).collect(Collectors.toList());
         result.forEach(entityData -> entityData.addErrorClassification(errorClassification));

@@ -8,6 +8,7 @@ import nl.thehyve.ocdu.models.OcUser;
 import nl.thehyve.ocdu.models.StringListNotificationsCollector;
 import nl.thehyve.ocdu.models.UploadSession;
 import nl.thehyve.ocdu.models.errors.AbstractMessage;
+import nl.thehyve.ocdu.models.errors.MessageType;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import nl.thehyve.ocdu.repositories.ClinicalDataRepository;
 import nl.thehyve.ocdu.repositories.EventRepository;
@@ -103,8 +104,9 @@ public class ODMUploadController {
 
             // remove subjects, events and clinicaldata which contain errors.
             StringListNotificationsCollector stringListNotificationsCollector = new StringListNotificationsCollector(url);
-            ErrorFilter errorFilter = new ErrorFilter(study, metaData, clinicalDataList, eventList, subjects, stringListNotificationsCollector);
+            ErrorFilter errorFilter = new ErrorFilter(study, metaData, studySubjectWithEventsTypeList, clinicalDataList, eventList, subjects, stringListNotificationsCollector);
             errorFilter.filterDataWithErrors();
+
             result.addAll(stringListNotificationsCollector.getNotificationList());
 
             convertDatesToISO_8601_Format(metaData, clinicalDataList, studySubjectWithEventsTypeList);
@@ -154,6 +156,13 @@ public class ODMUploadController {
                     Collection<AbstractMessage> resultDataUpload =
                     openClinicaService.uploadODM(userName, pwdHash, url, clinicalDataListPerSubject, metaData, uploadSession);
                     result.addAll(resultDataUpload);
+                }
+                else {
+                    String messageText = "No clinica data uploaded for subject " + uploadDataUnit.getSubject().getSsid();
+                    log.warn(messageText);
+                    AbstractMessage message = new ValidationErrorMessage(messageText);
+                    message.setMessageType(MessageType.WARNING);
+                    result.add(message);
                 }
             }
             return new ResponseEntity<>(result, HttpStatus.OK);
