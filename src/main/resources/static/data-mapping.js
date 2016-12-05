@@ -415,20 +415,21 @@ function callback_build_oc_list(data) {
     oc_list = data;
 
     var path_items = data[0].split('\\');
-    oc_path.push(path_items[0]);//event
-    oc_path.push(path_items[1]);//crf
-    oc_path.push(path_items[2]);//crf version
+    oc_path.push(path_items[1]);//event
+    oc_path.push(path_items[2]);//crf
+    oc_path.push(path_items[3]);//crf version
     //<span class="label label-warning">Warning</span>
-    var event_span = '<span class="label label-warning">' + path_items[0] + '</span>';
-    var crf_span = '<span class="label label-warning">' + path_items[1] + '</span>';
-    var crfv_span = '<span class="label label-warning">' + path_items[2] + '</span>';
+    var study_span = '<span class="label label-warning">' + path_items[0] + '</span>';
+    var event_span = '<span class="label label-warning">' + path_items[1] + '</span>';
+    var crf_span = '<span class="label label-warning">' + path_items[2] + '</span>';
+    var crfv_span = '<span class="label label-warning">' + path_items[3] + '</span>';
 
-    var path_html = 'Event: ' + event_span + ' &#8594; CRF: ' + crf_span + ' &#8594; CRF version: ' + crfv_span;
+    var path_html = 'Study: ' + study_span + ' &#8594; Event: ' + event_span + ' &#8594; CRF: ' + crf_span + ' &#8594; CRF version: ' + crfv_span;
     $('#path-area').html('<h4><div>' + path_html + '</div></h4><br>');
 
     for (var i = 0; i < oc_list.length; i++) {
         var arr = oc_list[i].split('\\');
-        var oc_label = arr[3];
+        var oc_label = arr[4];
         var short_oc_label = shorten_label(oc_label);
         oc_label_mapping[oc_label] = short_oc_label;
         oc_labels.push(oc_label);

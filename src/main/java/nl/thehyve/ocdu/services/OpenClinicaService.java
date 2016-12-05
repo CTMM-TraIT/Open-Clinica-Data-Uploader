@@ -21,8 +21,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.w3c.dom.Document;
 
+import javax.servlet.http.HttpSession;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.soap.SOAPConnection;
 import javax.xml.soap.SOAPConnectionFactory;
@@ -340,6 +343,15 @@ public class OpenClinicaService {
         SOAPConnection soapConnection = soapConnectionFactory.createConnection();
         SOAPMessage message = requestFactory.createListStudiesRequest(username, passwordHash);
         SOAPMessage soapResponse = soapConnection.call(message, url + "/ws/study/v1");  // Add SOAP endopint to OCWS URL.
+
+        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        HttpSession session = attr.getRequest().getSession(false);
+        MetaDataProvider provider = new HttpSessionMetaDataProvider(session);
+        if (StringUtils.isEmpty(provider.provideSessionCookie())) {
+            String[] ocSessionID = soapResponse.getMimeHeaders().getHeader("Set-Cookie");
+            String jSessionID = StringUtils.substringBetween(ocSessionID[0], "JSESSIONID=", ";");
+            provider.storeOpenClinicaSessionID(jSessionID);
+        }
         Document responseXml = SoapUtils.toDocument(soapResponse);
         soapConnection.close();
         return StringUtils.isEmpty(OCResponseHandler.isAuthFailure(responseXml));
