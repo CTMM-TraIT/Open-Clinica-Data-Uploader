@@ -1,5 +1,8 @@
 buildscript {
     ext {
+        def date = new Date()
+        def formattedDate = date.format('yyyyMMdd-HHmmss')
+        project.ext.set("dateStamp", formattedDate)
         springBootVersion = '1.3.3.RELEASE'
     }
     repositories {
@@ -12,6 +15,8 @@ buildscript {
     }
 }
 
+import org.apache.tools.ant.filters.*
+
 apply plugin: 'no.nils.wsdl2java'
 apply plugin: 'java'
 apply plugin: 'eclipse'
@@ -19,6 +24,13 @@ apply plugin: 'idea'
 apply plugin: 'spring-boot'
 apply plugin: 'war'
 apply plugin: "jacoco"
+
+
+processResources {
+    filter ReplaceTokens, tokens: [
+            "application.version.stamp": project.property('application.version.stamp') + "-" + "${project.property('dateStamp')}"
+    ]
+}
 
 jacocoTestReport {
     reports {
@@ -56,7 +68,7 @@ idea.module {
 
 war {
     baseName = 'ocdu'
-    version = '0.0.1'
+    version = project.property('application.version.stamp') + "-" + "${project.property('dateStamp')}"
 }
 
 jar {
@@ -112,4 +124,10 @@ test {
 }
 
 
+println '==========================================================='
+println  ''
+println " Building ${project.property('name')}, ${project.property('application.version.stamp')}"
+println " Timestamp: ${project.property('dateStamp')}"
+println ''
+println '==========================================================='
 compileJava.dependsOn(wsdl2java)

@@ -67,11 +67,16 @@
 }
 
 .copyright-container {
-    position: relative;
-    margin-top: 1%;
     height: 10%;
-    clear:both;
+    width:100%;
+    position: absolute;
+    left: 0;
+    bottom: 0;
     text-align: center;
+}
+
+.version-stamp-container {
+    font-size: 8pt;
 }
 
 body {

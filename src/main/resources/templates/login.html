@@ -35,7 +35,8 @@
                 Invalid username and password.
             </div>
         </div>
-        <div class="copyright-container" th:utext="#{layout.copyright.content}"></div>
+        <div class="copyright-container" ><span th:utext="#{layout.copyright.content}"></span><span class="version-stamp-container" th:utext="#{application.version.stamp}"></span></div>
+
     </div>
 </body>
 </html>
