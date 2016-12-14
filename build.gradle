@@ -27,9 +27,11 @@ apply plugin: "jacoco"
 
 
 processResources {
-    filter ReplaceTokens, tokens: [
-            "application.version.stamp": project.property('application.version.stamp') + "-" + "${project.property('dateStamp')}"
-    ]
+    filesMatching("**/messages.properties") {
+        filter ReplaceTokens, tokens: [
+                "application.version.stamp": project.property('application.version.stamp') + "-" + "${project.property('dateStamp')}"
+        ]
+    }
 }
 
 jacocoTestReport {
