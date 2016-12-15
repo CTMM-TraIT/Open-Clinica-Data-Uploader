@@ -10,6 +10,6 @@ package nl.thehyve.ocdu.models.errors;
 public class CrfCouldNotBeVerified extends ValidationErrorMessage {
 
     public CrfCouldNotBeVerified() {
-        super("One or more Clinical Report Forms you used could not be verified due to incorrect or missing event name");
+        super("One or more Case Report Forms you used could not be verified due to incorrect or missing event name");
     }
 }

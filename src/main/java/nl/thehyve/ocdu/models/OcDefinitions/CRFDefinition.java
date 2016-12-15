@@ -5,7 +5,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Entity containing the CRF (Clinical Report Form) definition.
+ * Entity containing the CRF (Case Report Form) definition.
  * Created by piotrzakrzewski on 01/05/16.
  */
 @Entity
