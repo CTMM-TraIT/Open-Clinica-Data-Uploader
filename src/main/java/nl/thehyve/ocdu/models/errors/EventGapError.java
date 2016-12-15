@@ -7,6 +7,6 @@ package nl.thehyve.ocdu.models.errors;
 public class EventGapError extends ValidationErrorMessage {
 
     public EventGapError() {
-        super("A repeating event will be created with a gap in the event sequence numbers or does not start with the first repeat.");
+        super("The Event registration file has gaps between Event occurrences, possibly compared to Events already present in OpenClinica. Gaps are not allowed. Please correct.");
     }
 }
