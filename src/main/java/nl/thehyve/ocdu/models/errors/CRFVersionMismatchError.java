@@ -6,7 +6,7 @@ package nl.thehyve.ocdu.models.errors;
 public class CRFVersionMismatchError extends ValidationErrorMessage {
 
     public CRFVersionMismatchError() {
-        super("Mismatching Case Report Forms version(s) found. It is not possible to change the CRF version of existing data");
+        super("Mismatching Case Report Forms version(s) found. It is not possible to change the CRF version of existing data with the data uploader");
     }
 
 }

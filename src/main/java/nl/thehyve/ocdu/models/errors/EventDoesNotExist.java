@@ -7,6 +7,6 @@ import nl.thehyve.ocdu.services.ValidationService;
  */
 public class EventDoesNotExist extends ValidationErrorMessage {
     public EventDoesNotExist() {
-        super("One or more of events you used in your data file is not defined in OpenClinica");
+        super("The events used in your data file is not defined in OpenClinica. Please correct");
     }
 }

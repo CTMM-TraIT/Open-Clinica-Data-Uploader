@@ -5,6 +5,6 @@ package nl.thehyve.ocdu.models.errors;
  */
 public class CRFDoesNotExist extends ValidationErrorMessage {
     public CRFDoesNotExist() {
-        super("One or more CRFs you used in your data file is not present in the referenced event");
+        super("The CRF used in your data file is not present in the referenced event. Please correct.");
     }
 }

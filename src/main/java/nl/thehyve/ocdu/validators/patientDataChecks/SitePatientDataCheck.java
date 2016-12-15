@@ -42,7 +42,7 @@ public class SitePatientDataCheck implements PatientDataCheck {
                     sitenames.add(sd.getUniqueID());
                 }
                 if (!sitenames.contains(subject.getSite())) {
-                    error = new ValidationErrorMessage("One or more study site do not exist. Use the site's Unique identifier, not the site name.");
+                    error = new ValidationErrorMessage("One or more study sites do not exist. Use the site's Unique identifier, not the site name.");
                 }
             }
         }

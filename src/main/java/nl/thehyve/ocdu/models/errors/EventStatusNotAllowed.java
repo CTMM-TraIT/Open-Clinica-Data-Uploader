@@ -7,6 +7,6 @@ import javax.validation.Valid;
  */
 public class EventStatusNotAllowed extends ValidationErrorMessage {
     public EventStatusNotAllowed() {
-        super("Subject- or event-status does not allow for uploading data. Subject or event have been removed");
+        super("Subject- or event-status does not allow for uploading data. Subject or event will be removed");
     }
 }
