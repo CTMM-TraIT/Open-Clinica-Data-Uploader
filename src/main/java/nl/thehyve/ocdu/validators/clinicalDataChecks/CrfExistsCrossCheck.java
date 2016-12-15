@@ -39,7 +39,7 @@ public class CrfExistsCrossCheck implements ClinicalDataCrossCheck {
                 if (!offendingNames.contains(msg)) {
                     offendingNames.add(msg);
                 }
-                clinicalData.addErrorClassification(ErrorClassification.BLOCK_ENTIRE_CRF);
+                clinicalData.addErrorClassification(ErrorClassification.BLOCK_ENTIRE_UPLOAD);
             });
             error.addAllOffendingValues(offendingNames);
             return error;
