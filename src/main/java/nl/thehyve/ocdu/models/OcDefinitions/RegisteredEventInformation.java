@@ -7,6 +7,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.openclinica.ws.beans.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Class responsible for providing a {@link Map} with which a check can be performed if an event / event-repeat
@@ -49,6 +50,35 @@ public class RegisteredEventInformation {
         return ret;
     }
 
+
+    public static Map<String, EventResponseType> createEventKeyMapForComparisonWithEventResponseType(List<StudySubjectWithEventsType> studySubjectWithEventsTypeList, MetaData metaData) {
+        Map<String, String> eventOIDEventNameMap = metaData.getEventDefinitions().stream().collect(Collectors.toMap(EventDefinition::getStudyEventOID, EventDefinition::getName));
+        Map<String, EventResponseType> ret = new HashMap<>(studySubjectWithEventsTypeList.size());
+        for (StudySubjectWithEventsType studySubjectWithEventsType : studySubjectWithEventsTypeList) {
+            EventsType eventsTypeList = studySubjectWithEventsType.getEvents();
+            List<EventResponseType> eventList = eventsTypeList.getEvent();
+            String subjectLabel = studySubjectWithEventsType.getLabel();
+            for (EventResponseType eventResponseType : eventList) {
+                StringBuffer buffer = new StringBuffer();
+                StudyRefType studyRefType = studySubjectWithEventsType.getStudyRef();
+                buffer.append(studyRefType.getIdentifier());
+                buffer.append("\t");
+                SiteRefType siteRefType = studyRefType.getSiteRef();
+                if (siteRefType != null) {
+                    buffer.append(siteRefType.getIdentifier());
+                }
+                buffer.append("\t");
+                buffer.append(subjectLabel);
+                buffer.append("\t");
+                buffer.append(eventOIDEventNameMap.get(eventResponseType.getEventDefinitionOID()));
+                buffer.append("\t");
+                buffer.append(eventResponseType.getOccurrence());
+                ret.put(buffer.toString().toUpperCase(), eventResponseType);
+            }
+        }
+        return ret;
+    }
+
     public static Set<String> createEventKeyListFromClinicalData(List<ClinicalData> clinicalDataList) {
         Set<String> ret = new HashSet<>();
         for (ClinicalData clinicalData : clinicalDataList) {
@@ -61,21 +91,30 @@ public class RegisteredEventInformation {
         Map<String, String> eventOIDToNameMap = createEventOIDToNameMap(metaData);
         Set<String> ret = new HashSet<>();
         for (StudySubjectWithEventsType studySubjectWithEventsType : studySubjectWithEventsTypeList) {
-            String ssid = studySubjectWithEventsType.getLabel();
-            String study = studySubjectWithEventsType.getStudyRef().getIdentifier();
-            String site = studySubjectWithEventsType.getStudyRef().getSiteRef() != null ? studySubjectWithEventsType.getStudyRef().getSiteRef().getIdentifier() : "";
-            site = site.toUpperCase();
-            for (EventResponseType event : studySubjectWithEventsType.getEvents().getEvent()) {
-                ClinicalData clinicalData = new ClinicalData();
-                clinicalData.setSsid(ssid);
-                clinicalData.setStudy(study);
-                clinicalData.setSite(site);
-                String eventName = eventOIDToNameMap.get(event.getEventDefinitionOID());
-                clinicalData.setEventName(eventName);
-                clinicalData.setEventRepeat(event.getOccurrence());
-                ret.add(clinicalData.createEventKey());
-            }
+            Set<String> eventKeysPerStudySubjectWithEventsType = createEventKeyListFromStudySubjectWithEventsType(studySubjectWithEventsType, eventOIDToNameMap);
+            ret.addAll(eventKeysPerStudySubjectWithEventsType);
         }
+        return ret;
+    }
+
+
+    public static Set<String> createEventKeyListFromStudySubjectWithEventsType(StudySubjectWithEventsType studySubjectWithEventsType, Map<String, String> eventOIDToNameMap) {
+        Set<String> ret = new HashSet<>();
+        String ssid = studySubjectWithEventsType.getLabel();
+        String study = studySubjectWithEventsType.getStudyRef().getIdentifier();
+        String site = studySubjectWithEventsType.getStudyRef().getSiteRef() != null ? studySubjectWithEventsType.getStudyRef().getSiteRef().getIdentifier() : "";
+        site = site.toUpperCase();
+        for (EventResponseType event : studySubjectWithEventsType.getEvents().getEvent()) {
+            ClinicalData clinicalData = new ClinicalData();
+            clinicalData.setSsid(ssid);
+            clinicalData.setStudy(study);
+            clinicalData.setSite(site);
+            String eventName = eventOIDToNameMap.get(event.getEventDefinitionOID());
+            clinicalData.setEventName(eventName);
+            clinicalData.setEventRepeat(event.getOccurrence());
+            ret.add(clinicalData.createEventKey());
+        }
+
         return ret;
     }
 
