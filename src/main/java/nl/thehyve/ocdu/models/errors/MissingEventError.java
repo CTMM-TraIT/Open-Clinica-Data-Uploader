@@ -8,8 +8,8 @@ package nl.thehyve.ocdu.models.errors;
 public class MissingEventError extends ValidationErrorMessage {
 
     public MissingEventError() {
-        super("The (repeated) events indicated in the event registration file do not match the events present " +
-                "in the data file. To upload the data you must upload a new event-file (via back-button). If you "+
-                "click 'next' data for the unscheduled Events will not be uploaded");
+        super("Event in the event scheduling file does not match the event in the data file. Please click on back, " +
+                "correct the event file and upload again. If you do proceed, " +
+                "the data for unscheduled events will not be uploaded");
     }
 }

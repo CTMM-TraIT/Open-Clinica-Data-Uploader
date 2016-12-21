@@ -99,13 +99,13 @@ public class ValidationServiceTests {
         clinicalData.setEventRepeat("4");
         validationErrorMessage =
                 validationService.checkForMissingEventsInEventDataAndOpenClinica(metaData, studySubjectWithEventsTypeList, eventList, clinicalDataList);
-        assertThat(validationErrorMessage.getMessage(), containsString("The (repeated) events indicated in the event registration file do not match the events present in the data file"));
+        assertThat(validationErrorMessage.getMessage(), containsString("Event in the event scheduling file does not match the event in the data file"));
 
         // TestCase 4
         eventList.clear();
         validationErrorMessage =
                 validationService.checkForMissingEventsInEventDataAndOpenClinica(metaData, studySubjectWithEventsTypeList, eventList, clinicalDataList);
-        assertThat(validationErrorMessage.getMessage(), containsString("The (repeated) events indicated in the event registration file do not match the events present in the data file"));
+        assertThat(validationErrorMessage.getMessage(), containsString("Event in the event scheduling file does not match the event in the data file"));
     }
 
     @Test
@@ -134,11 +134,11 @@ public class ValidationServiceTests {
         event.setRepeatNumber("3");
         validationErrorMessage =
                 validationService.checkForMissingEventsInEventDataAndOpenClinica(metaData, studySubjectWithEventsTypeList, eventList, clinicalDataList);
-        assertThat(validationErrorMessage.getMessage(), containsString("The (repeated) events indicated in the event registration file do not match the events present in the data file"));
+        assertThat(validationErrorMessage.getMessage(), containsString("Event in the event scheduling file does not match the event in the data file"));
         // TestCase 4
         eventList.clear();
         validationErrorMessage =
                 validationService.checkForMissingEventsInEventDataAndOpenClinica(metaData, studySubjectWithEventsTypeList, eventList, clinicalDataList);
-        assertThat(validationErrorMessage.getMessage(), containsString("The (repeated) events indicated in the event registration file do not match the events present in the data file"));
+        assertThat(validationErrorMessage.getMessage(), containsString("Event in the event scheduling file does not match the event in the data file"));
     }
 }
