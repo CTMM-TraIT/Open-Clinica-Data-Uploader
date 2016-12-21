@@ -39,6 +39,7 @@ public class EventStatusCheck implements ClinicalDataCrossCheck {
             EventResponseType eventResponseType = eventResponseTypeMap.get(eventKey);
             if (eventResponseType != null) {
                 String subjectEventStatus = eventResponseType.getSubjectEventStatus();
+                String eventStatus = eventResponseType.getStatus();
                 String[] parts = StringUtils.splitByWholeSeparatorPreserveAllTokens(eventKey, "\t");
                 final String subjectID;
                 if (parts.length > 2) {
@@ -47,7 +48,7 @@ public class EventStatusCheck implements ClinicalDataCrossCheck {
                 else {
                     subjectID = "Unknown";
                 }
-                if (hasValidEventStatus(subjectEventStatus)) {
+                if (hasValidEventStatus(eventStatus)) {
                     List<EventCrfInformationList> eventCrfInformationListList = eventResponseType.getEventCrfInformation();
                     eventCrfInformationListList.stream().forEach(eventCrfInformationList -> {
                         List<EventCrfType> eventCRFList = eventCrfInformationList.getEventCrf();

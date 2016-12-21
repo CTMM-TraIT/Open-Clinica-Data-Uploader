@@ -2,11 +2,13 @@ package nl.thehyve.ocdu.controllers;
 
 import nl.thehyve.ocdu.models.OCEntities.Event;
 import nl.thehyve.ocdu.models.OCEntities.Study;
+import nl.thehyve.ocdu.models.OCEntities.Subject;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.OcUser;
 import nl.thehyve.ocdu.models.UploadSession;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import nl.thehyve.ocdu.repositories.EventRepository;
+import nl.thehyve.ocdu.repositories.SubjectRepository;
 import nl.thehyve.ocdu.services.*;
 import nl.thehyve.ocdu.validators.EventDataOcChecks;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
@@ -46,6 +48,9 @@ public class EventsController {
     @Autowired
     EventRepository eventRepository;
 
+    @Autowired
+    SubjectRepository subjectRepository;
+
 
     @RequestMapping(value = "/register-event", method = RequestMethod.POST)
     public ResponseEntity<String> registerEvents(HttpSession session) {
@@ -64,7 +69,9 @@ public class EventsController {
                     openClinicaService.getStudySubjectsType(username, pwdHash, url, study.getIdentifier(), "");
 
             List<Event> eventList = eventRepository.findBySubmission(uploadSession);
-            EventDataOcChecks eventDataOcChecks = new EventDataOcChecks(metaData, eventList, studySubjectWithEventsTypeList);
+            List<Subject> subjectList = subjectRepository.findBySubmission(uploadSession);
+            EventDataOcChecks eventDataOcChecks =
+                    new EventDataOcChecks(metaData, eventList, subjectList, studySubjectWithEventsTypeList);
             List<ValidationErrorMessage> validationErrorMessageList = eventDataOcChecks.getErrors();
             if (! validationErrorMessageList.isEmpty()) {
                 return new ResponseEntity(validationErrorMessageList, HttpStatus.BAD_REQUEST);

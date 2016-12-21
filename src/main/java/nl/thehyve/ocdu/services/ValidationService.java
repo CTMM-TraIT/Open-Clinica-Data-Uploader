@@ -127,6 +127,7 @@ public class ValidationService {
      */
     public List<ValidationErrorMessage> getEventsErrors(UploadSession submission, String wsPwdHash, MetaDataProvider metaDataProvider, String userName, String url) throws Exception {
         List<Event> events = eventRepository.findBySubmission(submission);
+        List<Subject> subjectList = subjectRepository.findBySubmission(submission);
         OcUser submitter = submission.getOwner();
         Study study = dataService.findStudy(submission.getStudy(), submitter, wsPwdHash);
         MetaData metadata = metaDataService.retrieveMetaData(metaDataProvider, submitter, wsPwdHash, submission);
@@ -136,7 +137,7 @@ public class ValidationService {
         List<StudySubjectWithEventsType> studySubjectWithEventsTypeList =
                 openClinicaService.getStudySubjectsType(userName, wsPwdHash, url, study.getIdentifier(), "");
 
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, events, studySubjectWithEventsTypeList);
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, events, subjectList, studySubjectWithEventsTypeList);
         List<ClinicalData> clinicalDataList = clinicalDataRepository.findBySubmission(submission);
         List<StudySubjectWithEventsType> subjectWithEventsTypeList =
                 openClinicaService.getStudySubjectsType(submitter.getUsername(), wsPwdHash, submitter.getOcEnvironment(), study.getIdentifier(), "");

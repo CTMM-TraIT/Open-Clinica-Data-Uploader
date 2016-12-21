@@ -146,7 +146,7 @@ public class ClinicalDataOcChecksTests {
         List<ClinicalData> clinicalData = factory.createClinicalData(testFileCRFStatusWarning);
         clinicalDataOcChecks = new ClinicalDataOcChecks(metaDataEventfulStudy, clinicalData, testSubjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = clinicalDataOcChecks.getErrors();
-        assertEquals(3, errors.size());
+        assertEquals(2, errors.size());
         assertThat(errors, hasItem(isA(EventStatusWarningForOverwrite.class)));
     }
 

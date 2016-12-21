@@ -1,6 +1,7 @@
 package nl.thehyve.ocdu.validators;
 
 import nl.thehyve.ocdu.models.OCEntities.Event;
+import nl.thehyve.ocdu.models.OCEntities.Subject;
 import nl.thehyve.ocdu.models.OcDefinitions.EventDefinition;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.OcDefinitions.ProtocolFieldRequirementSetting;
@@ -25,6 +26,7 @@ public class EventDataOcChecksTests {
 
     MetaData metadata;
     Event event;
+    Subject subject;
     List<Event> noEvents = Collections.emptyList();
     List<StudySubjectWithEventsType> subjectWithEventsTypeList;
 
@@ -77,6 +79,14 @@ public class EventDataOcChecksTests {
         subjectType.setDateOfBirth(SoapUtils.getFullXmlDate("10-10-1993"));
         subjectWithEventsType.setSubject(subjectType);
 
+        subject = new Subject();
+        subject.setSsid(sid);
+        subject.setDateOfBirth("10-10-1993");
+        subject.setGender("f");
+        subject.setStudyProtocolName(studyProtocolName);
+        subject.setStudy(studyName);
+
+
         EventsType eventsType = new EventsType();
         List<EventResponseType> eventTypeList = eventsType.getEvent();
         EventResponseType eventResponseType = new EventResponseType();
@@ -91,7 +101,9 @@ public class EventDataOcChecksTests {
 
     @Test
     public void testSuccess() {
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, noEvents, subjectWithEventsTypeList);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, noEvents, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.validate();
 
         assertThat(errors, empty());
@@ -108,7 +120,10 @@ public class EventDataOcChecksTests {
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
 
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectWithEventsTypeList);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
+
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.validate();
 
         assertThat(errors, empty());
@@ -121,7 +136,10 @@ public class EventDataOcChecksTests {
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
 
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectWithEventsTypeList);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
+
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.validate();
 
         assertThat(errors, contains(
@@ -135,7 +153,10 @@ public class EventDataOcChecksTests {
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
 
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectWithEventsTypeList);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
+
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.validate();
 
         assertThat(errors, contains(
@@ -148,8 +169,10 @@ public class EventDataOcChecksTests {
         event.setStudy(" ");
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
 
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectWithEventsTypeList);
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.validate();
 
         assertThat(errors, contains(
@@ -164,8 +187,10 @@ public class EventDataOcChecksTests {
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
 
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
 
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectWithEventsTypeList);
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.validate();
 
         assertThat(errors, contains(
@@ -178,8 +203,10 @@ public class EventDataOcChecksTests {
         event.setStartDate(" ");
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
 
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectWithEventsTypeList);
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.validate();
 
         assertThat(errors, contains(
@@ -195,7 +222,9 @@ public class EventDataOcChecksTests {
         event.setEndTime("");
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectWithEventsTypeList);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.validate();
 
         assertThat(errors, contains(
@@ -208,8 +237,10 @@ public class EventDataOcChecksTests {
         event.setRepeatNumber(" ");
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
 
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectWithEventsTypeList);
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.validate();
 
         assertThat(errors, contains(
@@ -225,9 +256,11 @@ public class EventDataOcChecksTests {
 
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
 
 
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectWithEventsTypeList);
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.validate();
 
         assertThat(errors, contains(allOf(
@@ -242,9 +275,11 @@ public class EventDataOcChecksTests {
         event.setStudy(studyName);
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
 
 
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectWithEventsTypeList);
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.validate();
 
         assertThat(errors, contains(allOf(
@@ -259,8 +294,10 @@ public class EventDataOcChecksTests {
         event.setSite(siteName);
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
 
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectWithEventsTypeList);
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.validate();
 
         assertThat(errors, contains(allOf(
@@ -278,8 +315,10 @@ public class EventDataOcChecksTests {
 
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
 
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectWithEventsTypeList);
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.validate();
 
         assertThat(errors, contains(allOf(
@@ -296,8 +335,10 @@ public class EventDataOcChecksTests {
 
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
 
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectWithEventsTypeList);
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.validate();
 
         assertThat(errors, contains(allOf(
@@ -314,7 +355,10 @@ public class EventDataOcChecksTests {
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
 
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectWithEventsTypeList);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
+
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.validate();
 
         assertThat(errors, contains(allOf(
@@ -329,8 +373,10 @@ public class EventDataOcChecksTests {
         event.setEndDate(wrongStartDate);
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
 
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectWithEventsTypeList);
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.validate();
 
         assertThat(errors, contains(allOf(
@@ -346,8 +392,10 @@ public class EventDataOcChecksTests {
 
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
 
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectWithEventsTypeList);
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.validate();
 
         assertThat(errors, contains(allOf(
@@ -363,8 +411,10 @@ public class EventDataOcChecksTests {
 
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
 
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectWithEventsTypeList);
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.validate();
 
         assertThat(errors, contains(allOf(
@@ -381,7 +431,10 @@ public class EventDataOcChecksTests {
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
 
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectWithEventsTypeList);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
+
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.validate();
 
         assertThat(errors, contains(allOf(
@@ -396,8 +449,10 @@ public class EventDataOcChecksTests {
         event.setEndTime(wrongEndTime);
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
 
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectWithEventsTypeList);
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.validate();
 
         assertThat(errors, contains(allOf(
@@ -412,8 +467,10 @@ public class EventDataOcChecksTests {
         event.setEndTime(invalidEndDate);
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
 
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectWithEventsTypeList);
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.validate();
 
         assertThat(errors, contains(allOf(
@@ -432,7 +489,10 @@ public class EventDataOcChecksTests {
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
 
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectWithEventsTypeList);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
+
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.validate();
 
         assertThat(errors, contains(allOf(
@@ -453,8 +513,10 @@ public class EventDataOcChecksTests {
 
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
 
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectWithEventsTypeList);
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.validate();
 
         assertThat(errors, contains(allOf(
@@ -469,8 +531,10 @@ public class EventDataOcChecksTests {
         event.setRepeatNumber(repeatNumber);
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
 
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectWithEventsTypeList);
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.validate();
 
         assertThat(errors, contains(
@@ -485,8 +549,10 @@ public class EventDataOcChecksTests {
         event.setRepeatNumber(repeatNumber);
         List<Event> eventList = new ArrayList<>();
         eventList.add(event);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
 
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectWithEventsTypeList);
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, eventList, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.validate();
 
         assertThat(errors, contains(
@@ -515,8 +581,11 @@ public class EventDataOcChecksTests {
         events.add(event1);
         events.add(event1);
 
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
 
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, events, subjectWithEventsTypeList);
+
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, events, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.getErrors();
 
         assertThat(errors, contains(
@@ -535,7 +604,9 @@ public class EventDataOcChecksTests {
         metadata.setLocationRequirementSetting(ProtocolFieldRequirementSetting.BANNED);
         List<Event> events = new ArrayList<>();
         events.add(event);
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, events, subjectWithEventsTypeList);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, events, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.getErrors();
         assertThat(errors, notNullValue());
         assertThat(errors, hasSize(1));
@@ -548,7 +619,9 @@ public class EventDataOcChecksTests {
         List<Event> events = new ArrayList<>();
         event.setLocation("");
         events.add(event);
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, events, subjectWithEventsTypeList);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, events, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.getErrors();
         assertThat(errors, notNullValue());
         assertThat(errors, hasSize(1));
@@ -561,7 +634,9 @@ public class EventDataOcChecksTests {
         List<Event> events = new ArrayList<>();
         event.setLocation("");
         events.add(event);
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, events, subjectWithEventsTypeList);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, events, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.getErrors();
         assertThat(errors, notNullValue());
         assertThat(errors, hasSize(0));
@@ -572,10 +647,11 @@ public class EventDataOcChecksTests {
         metadata.setLocationRequirementSetting(ProtocolFieldRequirementSetting.OPTIONAL);
         List<Event> events = new ArrayList<>();
         events.add(event);
-        EventDataOcChecks checks = new EventDataOcChecks(metadata, events, subjectWithEventsTypeList);
+        List<Subject> subjectList = new ArrayList<>();
+        subjectList.add(subject);
+        EventDataOcChecks checks = new EventDataOcChecks(metadata, events, subjectList, subjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = checks.getErrors();
         assertThat(errors, notNullValue());
         assertThat(errors, hasSize(0));
     }
-
 }

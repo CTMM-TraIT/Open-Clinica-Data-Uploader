@@ -47,7 +47,7 @@ function check_new_events() {
 
 
 function provide_event_template_download() {
-    var info = '<h4>&#9755; Unscheduled events are found in the dataset. These events should be scheduled with an "event scheduling template", which can be downloaded<button id="download-event-template-btn" class="btn btn-link btn-lg text-left" style="text-align: left">here</button></h4><div id="template-download-anchor"></div><hr>';
+    var info = '<h4>&#9755; Unscheduled events were found in the dataset. These events should be scheduled with an "event scheduling template", which can be downloaded<button id="download-event-template-btn" class="btn btn-link btn-lg text-left" style="text-align: left">here</button></h4><div id="template-download-anchor"></div><hr>';
     $(info).insertBefore('#event-back-btn');
 
     $('#download-event-template-btn').click(function () {

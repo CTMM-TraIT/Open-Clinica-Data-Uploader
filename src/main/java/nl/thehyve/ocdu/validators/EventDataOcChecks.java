@@ -3,6 +3,7 @@ package nl.thehyve.ocdu.validators;
 
 import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OCEntities.Event;
+import nl.thehyve.ocdu.models.OCEntities.Subject;
 import nl.thehyve.ocdu.models.OcDefinitions.*;
 import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
@@ -42,15 +43,17 @@ public class EventDataOcChecks {
     }
 
     private final List<Event> events;
+    private final List<Subject> subjects;
     private final MetaData metadata;
     private final List<StudySubjectWithEventsType> subjectWithEventsTypeList;
 
     private final Set<String> eventNames;
     private final Set<String> siteNames;
 
-    public EventDataOcChecks(MetaData metadata, List<Event> eventList, List<StudySubjectWithEventsType> subjectWithEventsTypeList) {
+    public EventDataOcChecks(MetaData metadata, List<Event> eventList, List<Subject> subjectList, List<StudySubjectWithEventsType> subjectWithEventsTypeList) {
         this.metadata = metadata;
         this.events = eventList;
+        this.subjects = subjectList;
         this.subjectWithEventsTypeList = subjectWithEventsTypeList;
 
 
@@ -354,6 +357,7 @@ public class EventDataOcChecks {
             String subjectID = event.getSsid();
             if (StringUtils.isBlank(subjectID)) {
                 validationErrorMessage.addOffendingValue("Unable to determine if an event has a gap because subjectID is missing in line " + event.getLineNumber());
+                event.addErrorClassification(ErrorClassification.BLOCK_EVENT);
                 eventHasError = true;
             }
             String ordinal = event.getRepeatNumber();
@@ -368,7 +372,7 @@ public class EventDataOcChecks {
         if (! eventHasError) {
             for (String subjectID : existingEventsForSubject.keySet()) {
                 SortedSet<String> subjectEventRepeats = existingEventsForSubject.get(subjectID);
-                int existingNumberOfRepeats = existingEventsForSubject.size();
+                int existingNumberOfRepeats = subjectEventRepeats.size();
                 int maxRepeat = 0;
                 for (String repeatOrdinal : subjectEventRepeats) {
                     Integer repeatOrdinalInt = null;
@@ -386,7 +390,12 @@ public class EventDataOcChecks {
                     if (existingEventsForSubject != null) {
                         addtionalMessage = ". Subject has " + existingNumberOfRepeats + " event repeats.";
                     }
-                    validationErrorMessage.addOffendingValue("Gap found in event ordinals found for subject " + subjectID + addtionalMessage);
+                    validationErrorMessage.addOffendingValue("Gap found in event ordinals for subject " + subjectID + addtionalMessage);
+                    Optional<Subject> subjectWithError =
+                            subjects.stream().filter(subject -> subject.getSsid().equalsIgnoreCase(subjectID)).findAny();
+                    if (subjectWithError.isPresent()) {
+                        subjectWithError.get().addErrorClassification(ErrorClassification.BLOCK_SUBJECT);
+                    }
                 }
             }
         }
