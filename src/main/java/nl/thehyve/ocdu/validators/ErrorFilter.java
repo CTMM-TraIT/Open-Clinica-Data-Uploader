@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -95,6 +96,23 @@ public class ErrorFilter {
             notificationsCollator.addNotification(message, MessageType.WARNING);
         }
         clinicalDataList.removeIf(clinicalData -> clinicalData.hasErrorOfType(ErrorClassification.BLOCK_SINGLE_ITEM));
+
+
+        List<ClinicalData> crfWithErrorList =
+                clinicalDataList.stream().filter(clinicalData1 -> clinicalData1.hasErrorOfType(ErrorClassification.BLOCK_ENTIRE_CRF)).collect(Collectors.toList());
+        Set<String> crfErrorMessageSet = new HashSet<>();
+        Set<String> subjectIDWithErrorSet = new HashSet<>();
+        for (ClinicalData clinicalData : crfWithErrorList) {
+            String message = "All data in CRF " + clinicalData.getCrfName() +
+                    ", version " + clinicalData.getCrfVersion() +
+                    " of subject " + clinicalData.getSsid() + " has been removed from upload because of a validation error";
+            crfErrorMessageSet.add(message);
+            subjectIDWithErrorSet.add(clinicalData.createEventKey());
+        }
+        for (String message : crfErrorMessageSet) {
+            notificationsCollator.addNotification(message, MessageType.WARNING);
+        }
+        clinicalDataList.removeIf(clinicalData -> subjectIDWithErrorSet.contains(clinicalData.createEventKey()));
 
 
         List<OcEntity> eventWithErrorList = returnListOfEntitiesWithError(eventList, ErrorClassification.BLOCK_EVENT);

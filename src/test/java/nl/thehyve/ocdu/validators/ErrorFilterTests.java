@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
@@ -38,7 +39,7 @@ public class ErrorFilterTests {
     private List<Event> eventList;
     private List<ClinicalData> clinicalDataList;
     private StringListNotificationsCollector notificationsCollector;
-    private List<StudySubjectWithEventsType> subjectWithEventsTypeList;
+
     private ErrorFilter errorFilter;
 
 
@@ -50,7 +51,7 @@ public class ErrorFilterTests {
         SOAPMessage mockedResponseGetMetadata = messageFactory.createMessage(null, in);//soapMessage;
         MetaData metaData = GetStudyMetadataResponseHandler.parseGetStudyMetadataResponse(mockedResponseGetMetadata);
 
-        subjectWithEventsTypeList = TestUtils.createStudySubjectWithEventList();
+        List<StudySubjectWithEventsType> subjectWithEventsTypeList = TestUtils.createStudySubjectWithEventList();
         Study study = new Study(STUDY_NAME, STUDY_OID, STUDY_NAME);
         subjectList = new ArrayList<>();
         eventList = new ArrayList<>();
@@ -210,6 +211,67 @@ public class ErrorFilterTests {
         Assert.assertTrue(subjectList.contains(subjectMissPiggy));
         Assert.assertTrue(eventList.contains(eventToRemain));
         Assert.assertEquals(1, clinicalDataList.size());
+    }
+
+    @Test
+    public void testBlockCRFWithError() {
+        // Test scenario: 2 subjects, 3 clinical data entry with one having a Block_entire_CRF error.
+        String kermit = "EV-00002";
+        String missPiggy = "EV-00006";
+        String theEventName = "REPEATINGEVENT";
+        Subject subjectKermit = new Subject();
+        subjectKermit.setStudy(STUDY_NAME);
+        subjectKermit.setSsid(kermit);
+        subjectList.add(subjectKermit);
+
+        Subject subjectMissPiggy = new Subject();
+        subjectMissPiggy.setStudy(STUDY_NAME);
+        subjectMissPiggy.setSsid(missPiggy);
+        subjectList.add(subjectMissPiggy);
+
+
+        Event event = new Event();
+        event.setStudy(STUDY_NAME);
+        event.setSsid(kermit);
+        event.setEventName(theEventName);
+        event.setRepeatNumber("1");
+        eventList.add(event);
+
+
+        ClinicalData clinicalData = new ClinicalData();
+        clinicalData.setStudy(STUDY_NAME);
+        clinicalData.setSsid(kermit);
+        clinicalData.setEventName(theEventName);
+        clinicalData.setEventRepeat("1");
+        clinicalData.setValue("Aap");
+        clinicalDataList.add(clinicalData);
+
+        clinicalData = new ClinicalData();
+        clinicalData.setStudy(STUDY_NAME);
+        clinicalData.setSsid(missPiggy);
+        clinicalData.setEventName(theEventName);
+        clinicalData.setEventRepeat("1");
+        clinicalData.setValue("Noot");
+        clinicalDataList.add(clinicalData);
+
+
+        clinicalData = new ClinicalData();
+        clinicalData.setStudy(STUDY_NAME);
+        clinicalData.setSsid(kermit);
+        clinicalData.setEventName(theEventName);
+        clinicalData.setEventRepeat("2");
+        clinicalData.setValue("Mies");
+        clinicalData.addErrorClassification(ErrorClassification.BLOCK_ENTIRE_CRF);
+        clinicalDataList.add(clinicalData);
+
+        errorFilter.filterDataWithErrors();
+        List<String> valueList =
+                clinicalDataList.stream().map(ClinicalData::getValue).collect(Collectors.toList());
+        Assert.assertEquals(2, subjectList.size());
+        Assert.assertTrue(subjectList.contains(subjectKermit));
+        Assert.assertTrue(subjectList.contains(subjectMissPiggy));
+        Assert.assertFalse(valueList.contains("Mies"));
+        Assert.assertEquals(2, clinicalDataList.size());
     }
 
 

@@ -66,7 +66,7 @@ public class MandatoryInCrfCrossCheck implements ClinicalDataCrossCheck {
             if (mandatory != null) {
                 for (String mandatoryItem : mandatory) {
                     if (!itemsUploadedForUser.contains(mandatoryItem)) {
-                        error.addOffendingValue("Subject: " + subject + " is missing mandatory item: " + mandatoryItem);
+                        error.addOffendingValue("Subject: " + subject + " misses mandatory item: " + mandatoryItem);
                         subjectIDSetWithError.add(subject);
                     }
                 }
