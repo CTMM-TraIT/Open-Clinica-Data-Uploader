@@ -220,6 +220,12 @@ public class UploadSessionController {
     public ResponseEntity<?> selectSession(@RequestParam(value = "sessionId") Long sessionId, HttpSession session) {
         try {
             UploadSession requested = uploadSessionRepository.findOne(sessionId);
+            UploadSession.Step previousStep = requested.getStep();
+            if ((previousStep == UploadSession.Step.ODM_UPLOAD) ||
+                    (previousStep == UploadSession.Step.FINAL) ||
+                    (previousStep == UploadSession.Step.PRE_ODM_UPLOAD)) {
+                requested.setStep(UploadSession.Step.ODM_UPLOAD);
+            }
             if (requested.getOwner().getId() == ocUserService.getCurrentOcUser(session).getId()) {
                 uploadSessionService.setCurrentUploadSession(session, requested);
                 return new ResponseEntity<>(OK);

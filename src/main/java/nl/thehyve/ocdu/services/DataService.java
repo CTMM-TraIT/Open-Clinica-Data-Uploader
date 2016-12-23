@@ -42,7 +42,7 @@ public class DataService {
     public FieldsDetermined getInfo(UploadSession submission) {
         List<ClinicalData> bySubmission = clinicalDataRepository.findBySubmission(submission);
         if (bySubmission.size() == 0) return null;
-        Set<String> usedStudies = bySubmission.stream().map(clinicalData -> clinicalData.getStudy()).collect(Collectors.toSet());
+        Set<String> usedStudies = bySubmission.stream().map(ClinicalData::getStudy).collect(Collectors.toSet());
         FieldsDetermined info = new FieldsDetermined();
         if (usedStudies.contains("")) info.setStudy("");
         else info.setStudy(usedStudies.stream().findFirst().get());
@@ -195,6 +195,7 @@ public class DataService {
         if (study == null) {
             return null;
         }
+        submission.setStudy(info.getStudy());
         return metaDataService.retrieveMetaData(metaDataProvider, owner, ocwsHash, submission);
     }
 
