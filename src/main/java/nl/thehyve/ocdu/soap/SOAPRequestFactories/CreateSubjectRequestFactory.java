@@ -3,6 +3,7 @@ package nl.thehyve.ocdu.soap.SOAPRequestFactories;
 import nl.thehyve.ocdu.models.OCEntities.Study;
 import nl.thehyve.ocdu.models.OCEntities.Subject;
 import nl.thehyve.ocdu.models.OcDefinitions.SiteDefinition;
+import org.apache.commons.lang3.StringUtils;
 import org.openclinica.ws.beans.*;
 import org.openclinica.ws.studysubject.v1.CreateRequest;
 
@@ -39,6 +40,9 @@ public class CreateSubjectRequestFactory {
     private static JAXBElement<CreateRequest> getCreateRequest(Subject subject, Study study, SiteDefinition site) throws DatatypeConfigurationException {
         CreateRequest request = new CreateRequest();
         StudySubjectType studySubject = createStudySubject(subject, study, site);
+        if (StringUtils.isNotEmpty(subject.getSecondaryId())) {
+            studySubject.setSecondaryLabel(subject.getSecondaryId());
+        }
         request.setStudySubject(studySubject);
         JAXBElement<CreateRequest> requestWrapped = new JAXBElement<>(createRequestQname, CreateRequest.class, null, request);
         return requestWrapped;
