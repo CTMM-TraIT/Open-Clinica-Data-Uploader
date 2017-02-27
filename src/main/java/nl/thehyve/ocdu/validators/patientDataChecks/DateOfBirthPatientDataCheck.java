@@ -84,6 +84,9 @@ public class DateOfBirthPatientDataCheck implements PatientDataCheck {
         if (StringUtils.isEmpty(dob)) {
             return "Date of birth is missing.";
         }
+        if (! UtilChecks.isDate(dob)) {
+            return "Birth date format is invalid. The date format should be dd-mm-yyyy; with leading zero's and four digits in the year. For example, 03-07-2012.";
+        }
         try {
             Date date = dateFormat.parse(dob);
             Date currentDate = new Date();
