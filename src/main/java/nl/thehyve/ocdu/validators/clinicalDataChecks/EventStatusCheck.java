@@ -48,7 +48,7 @@ public class EventStatusCheck implements ClinicalDataCrossCheck {
                 else {
                     subjectID = "Unknown";
                 }
-                if (hasValidEventStatus(eventStatus)) {
+                if (hasValidEventStatus(eventStatus, subjectEventStatus)) {
                     List<EventCrfInformationList> eventCrfInformationListList = eventResponseType.getEventCrfInformation();
                     eventCrfInformationListList.stream().forEach(eventCrfInformationList -> {
                         List<EventCrfType> eventCRFList = eventCrfInformationList.getEventCrf();
@@ -66,11 +66,13 @@ public class EventStatusCheck implements ClinicalDataCrossCheck {
                 }
                 else {
                     subjectIDSetWithError.add(subjectID);
-                    offenders.add("Subject " + ClinicalData.CD_SEP_PREFIX + subjectID + ClinicalData.CD_SEP_POSTEFIX
-                            + "Event " + ClinicalData.CD_SEP_PREFIX + eventOidToEventNameMap.get(eventResponseType.getEventDefinitionOID()) + ClinicalData.CD_SEP_POSTEFIX
-                            + "has status: " + ClinicalData.CD_SEP_PREFIX + subjectEventStatus + ClinicalData.CD_SEP_POSTEFIX);
-
-
+                    if (("removed".equals(eventStatus)) ||
+                        ("auto-removed".equals(eventStatus))) {
+                        subjectEventStatus = "removed";
+                    }
+                    offenders.add("Subject " + ClinicalData.CD_SEP_PREFIX + subjectID + ClinicalData.CD_SEP_POSTEFIX +
+                                   "contains an event-status or CRF-status which does not allow uploading; status : "
+                                    + subjectEventStatus);
                 }
             }
             else {
@@ -86,8 +88,11 @@ public class EventStatusCheck implements ClinicalDataCrossCheck {
             return null;
     }
 
-    private boolean hasValidEventStatus(String eventStatus) {
-        return eventStatus.equals("available");
+    private boolean hasValidEventStatus(String eventStatus, String subjectEventStatus) {
+        if ("signed".equals(subjectEventStatus)) {
+            return false;
+        }
+        return "available".equals(eventStatus);
     }
 
     private boolean isInvalidStatus(String status) {
