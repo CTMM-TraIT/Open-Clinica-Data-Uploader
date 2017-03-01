@@ -32,7 +32,7 @@ public class PatientDataFactory extends UserSubmittedDataFactory {
     public final static String DATE_OF_ENROLLMENT = "Date of Enrollment";
     public final static String PERSON_ID = "Person ID";
     public final static String SECONDARY_ID = "Secondary ID";
-    public final static String STUDY = "Study";
+    public final static String STUDY = "Unique Protocol ID";
     public final static String SITE = "Site (optional)";
     public final static String[] MANDATORY_HEADERS = {STUDY_SUBJECT_ID, STUDY, SITE};
     public static final String[] ONLY_YEAR_OF_BIRTH_ALL_PERMITTED_COLUMNS = {STUDY_SUBJECT_ID, STUDY, SITE, GENDER,
@@ -133,7 +133,7 @@ public class PatientDataFactory extends UserSubmittedDataFactory {
                 if (metadata.getPersonIDUsage() != ProtocolFieldRequirementSetting.BANNED) line.add("");//person ID
                 line.add("");//date of enrollment
                 line.add("");//secondary id
-                line.add(metadata.getStudyName());//study
+                line.add(metadata.getProtocolName());//study
                 if (registerSite) {
                     String siteValue = subjectSiteSet.get(ssid);
                     if (siteValue == null) {

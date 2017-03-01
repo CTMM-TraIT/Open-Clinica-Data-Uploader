@@ -1,4 +1,4 @@
-StudySubjectID	Study	Site	EventName	CRFName	CRFVersion	EventRepeat	MyInt
+StudySubjectID	Unique Protocol ID	Site	EventName	CRFName	CRFVersion	EventRepeat	MyInt
 EV-01234	Eventful		Repeating Event	SuperSimpleCRF	0.1	1	101
 EV-01234	Eventful		Repeating Event	SuperSimpleCRF	0.1	2	201
 EV-01234	Eventful		Repeating Event	SuperSimpleCRF	0.1	5	301

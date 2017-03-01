@@ -26,7 +26,7 @@ public class ClinicalDataFactory extends UserSubmittedDataFactory {
 
     public final static String STUDY_SUBJECT_ID = "StudySubjectID";
     public final static String PERSON_ID = "PersonID";
-    public final static String STUDY = "Study";
+    public final static String STUDY = "Unique Protocol ID";
     public final static String EventName = "EventName";
     public final static String EventRepeat = "EventRepeat";
     public final static String CRFName = "CRFName";

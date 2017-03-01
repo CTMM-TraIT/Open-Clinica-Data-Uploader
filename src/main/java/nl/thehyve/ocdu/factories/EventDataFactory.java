@@ -32,7 +32,7 @@ public class EventDataFactory extends UserSubmittedDataFactory {
 
     public static final String STUDY_SUBJECT_ID = "Study Subject ID";
     public static final String EVENT_NAME = "Event Name";
-    public static final String STUDY = "Study";
+    public static final String STUDY = "Unique Protocol ID";
     public static final String SITE = "Site";
     public static final String LOCATION = "Location";
     public static final String START_DATE = "Start Date";
@@ -120,25 +120,25 @@ public class EventDataFactory extends UserSubmittedDataFactory {
         List<String> result = new ArrayList<>();
         String delimiter = "\t";
         List<String> header = new ArrayList<>();
-        header.add("Study Subject ID");
-        header.add("Event Name");
-        header.add("Study");
-        header.add("Site");
+        header.add(STUDY_SUBJECT_ID);
+        header.add(EVENT_NAME);
+        header.add(STUDY);
+        header.add(SITE);
         if (isLocationInTemplate(metaData)) {
-            header.add("Location");
+            header.add(LOCATION);
         }
-        header.add("Start Date");
-        header.add("Start Time");
-        header.add("End Date");
-        header.add("End Time");
-        header.add("Repeat Number");
+        header.add(START_DATE);
+        header.add(START_TIME);
+        header.add(END_DATE);
+        header.add(END_TIME);
+        header.add(REPEAT_NUMBER);
         result.add(String.join(delimiter, header) + "\n");
 
         for (Event eventToSchedule : eventToScheduleList) {
                 List<String> row = new ArrayList<>();
                 row.add(eventToSchedule.getSsid());//study subject id
                 row.add(eventToSchedule.getEventName());//event name
-                row.add(metaData.getStudyName());//study
+                row.add(metaData.getProtocolName());//study
                 row.add(eventToSchedule.getSite());
                 if (isLocationInTemplate(metaData)) {
                     row.add("");//location

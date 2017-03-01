@@ -42,7 +42,7 @@ public class EventDataFactoryTests {
         HashMap<String, Integer> columnsIndes = new HashMap<>();
         columnsIndes.put("Study Subject ID", 0);
         columnsIndes.put("Event Name", 1);
-        columnsIndes.put("Study", 2);
+        columnsIndes.put("Unique Protocol ID", 2);
         columnsIndes.put("Start Date", 3);
         columnsIndes.put("Repeat Number", 4);
         String[] row = new String[]{"Ssid0", "Event Name", "Study", "11-Jun-2014", "5"};
@@ -65,7 +65,7 @@ public class EventDataFactoryTests {
         HashMap<String, Integer> columnsIndes = new HashMap<>();
         columnsIndes.put("Study Subject ID", 0);
         columnsIndes.put("Event Name", 1);
-        columnsIndes.put("Study", 2);
+        columnsIndes.put("Unique Protocol ID", 2);
         columnsIndes.put("Site", 3);
         columnsIndes.put("Location", 4);
         columnsIndes.put("Start Date", 5);
