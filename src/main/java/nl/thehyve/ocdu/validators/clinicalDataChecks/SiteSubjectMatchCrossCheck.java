@@ -29,6 +29,7 @@ public class SiteSubjectMatchCrossCheck implements ClinicalDataCrossCheck {
 
         List<ClinicalData> violators = data.stream()
                 .filter(clinicalData -> (((! SitesExistCrossCheck.EMPTY_SITE_DENOTATION.equals(clinicalData.getSite()) &&
+                                        (clinicalData.getSite() != null) &&
                                         (subjectSiteCombinationsPresentInStudy.containsKey(clinicalData.getSsid()))) &&
                                         (!(subjectSiteCombinationsPresentInStudy.get(clinicalData.getSsid()).equals(clinicalData.getSite()))))))
                 .collect(Collectors.toList());

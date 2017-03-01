@@ -28,7 +28,7 @@ public class SitesExistCrossCheck implements ClinicalDataCrossCheck {
         siteUniqueIDsPresentInStudy.add(EMPTY_SITE_DENOTATION);
         metaData.getSiteDefinitions().stream().forEach(siteDefinition -> siteUniqueIDsPresentInStudy.add(siteDefinition.getUniqueID()));
         List<ClinicalData> violators = data.stream()
-                .filter(clinicalData -> !siteUniqueIDsPresentInStudy.contains(clinicalData.getSite()))
+                .filter(clinicalData -> (!siteUniqueIDsPresentInStudy.contains(clinicalData.getSite())) && (clinicalData.getSite() != null))
                 .collect(Collectors.toList());
         if (violators.size() > 0) {
             ValidationErrorMessage error =
