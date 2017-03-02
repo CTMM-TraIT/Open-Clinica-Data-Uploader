@@ -26,6 +26,7 @@ public class EventStatusWarning implements ClinicalDataCrossCheck {
         ValidationErrorMessage error = new EventStatusWarningForOverwrite();
         error.setMessageType(MessageType.WARNING);
         Set<String> subjectsInData = data.stream().map(clinicalData -> clinicalData.getSsid()).collect(Collectors.toSet());
+        Set<String> crfNamesInData = data.stream().map(clinicalData -> clinicalData.getCrfName()).collect(Collectors.toSet());
         Set<String> offenders = new HashSet<>();
         Set<String> eventsInData = eventMap.keySet();
         Map<String, String> eventOidToEventNameMap = eventOIDsInData(metaData, eventsInData);
@@ -40,12 +41,14 @@ public class EventStatusWarning implements ClinicalDataCrossCheck {
                         eventCrfInformationListList.stream().forEach(eventCrfInformationList -> {
                             List<EventCrfType> eventCRFList = eventCrfInformationList.getEventCrf();
                             eventCRFList.stream().forEach(eventCrfType -> {
-                                String status = eventCrfType.getStatus();
-                                if (hasStatusToWarnFor(status)) {
-                                    offenders.add("Subject " + ClinicalData.CD_SEP_PREFIX + studySubjectWithEventsType.getLabel() + ClinicalData.CD_SEP_POSTEFIX
-                                            + "Event " + ClinicalData.CD_SEP_PREFIX + eventOidToEventNameMap.get(eventResponseType.getEventDefinitionOID()) + ClinicalData.CD_SEP_POSTEFIX
-                                            + "CRF " + ClinicalData.CD_SEP_PREFIX + eventCrfType.getName() + ClinicalData.CD_SEP_POSTEFIX
-                                            + "has status: " + ClinicalData.CD_SEP_PREFIX + status + ClinicalData.CD_SEP_POSTEFIX);
+                                if (crfNamesInData.contains(eventCrfType.getName())) {
+                                    String status = eventCrfType.getStatus();
+                                    if (hasStatusToWarnFor(status)) {
+                                        offenders.add("Subject " + ClinicalData.CD_SEP_PREFIX + studySubjectWithEventsType.getLabel() + ClinicalData.CD_SEP_POSTEFIX
+                                                + "Event " + ClinicalData.CD_SEP_PREFIX + eventOidToEventNameMap.get(eventResponseType.getEventDefinitionOID()) + ClinicalData.CD_SEP_POSTEFIX
+                                                + "CRF " + ClinicalData.CD_SEP_PREFIX + eventCrfType.getName() + ClinicalData.CD_SEP_POSTEFIX
+                                                + "has status: " + ClinicalData.CD_SEP_PREFIX + status + ClinicalData.CD_SEP_POSTEFIX);
+                                    }
                                 }
                             });
                         });

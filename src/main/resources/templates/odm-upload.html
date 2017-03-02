@@ -10,7 +10,9 @@
             <h2 id="step-title">Upload data</h2>
         </div>
         <div id="progression-section"><span class="loader"></span><div class="progress-text">Uploading data to OpenClinica ...</div></div>
-        <div id="upload-result"></div>
+        <div id="upload-result">
+            <div id="contact-information" class="alert-danger" style="display: none;" th:text="#{application.contact.for.errors}"></div>
+        </div>
         <div id="odm-upload-div" class="jumbotron container-fluid reducedPadding">
 
             <h4>Options</h4>

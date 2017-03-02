@@ -30,7 +30,7 @@ public class ODMService {
 
     private static final String CRF_OID_PARAM = "${CRF_OID}";
 
-    private static final String ITEM_GROUP_PARAM = "${ITEM_GROUP_PARAM}";
+    private static final String ITEM_GROUP_OID_PARAM = "${ITEM_GROUP_OID_PARAM}";
 
     private static final String ITEM_DATA_PARAM = "${ITEM_DATA_PARAM}";
 
@@ -38,7 +38,11 @@ public class ODMService {
 
     private static final String ITEM_VALUE_PARAM = "${ITEM_VALUE_PARAM}";
 
+    private static final String ITEM_GROUP_REPEAT_KEY_PARAM = "${ITEM_GROUP_REPEAT_KEY_PARAM}";
+
     private static final String STATUS_AFTER_UPLOAD_PARAM = "${STATUS_AFTER_UPLOAD_PARAM}";
+
+    private static final String ITEM_GROUP_SECTION_ANCHOR = "${ITEM_GROUP_SECTION_ANCHOR}";
 
     /**
      * Template for the subjects section in an ODM-file
@@ -47,9 +51,7 @@ public class ODMService {
             "<SubjectData SubjectKey=\"" + STUDY_SUBJECT_PARAM + "\">"
           + "<StudyEventData StudyEventOID=\""+ STUDY_EVENT_DATA_PARAM + "\" StudyEventRepeatKey=\"" + STUDY_EVENT_REPEAT_ORDINAL_PARAM + "\">"
           + "<FormData FormOID=\"" + CRF_OID_PARAM + "\" OpenClinica:Status=\"" + STATUS_AFTER_UPLOAD_PARAM + "\">"
-          + "<ItemGroupData ItemGroupOID=\"" + ITEM_GROUP_PARAM + "\" TransactionType=\"Insert\" >"
-          + ITEM_DATA_PARAM
-          + "</ItemGroupData>"
+          + ITEM_GROUP_SECTION_ANCHOR
           + "</FormData>"
           + "</StudyEventData>"
           + "</SubjectData>";
@@ -59,6 +61,11 @@ public class ODMService {
      */
     private static final String ODM_ITEM_SECTION =
             "<ItemData ItemOID=\"" + ITEM_OID_PARAM + "\" Value=\"" + ITEM_VALUE_PARAM + "\"/>";
+
+    private static final String ITEM_GROUP_SECTION =
+            "<ItemGroupData ItemGroupOID=\"" + ITEM_GROUP_OID_PARAM + "\" ItemGroupRepeatKey=\"" + ITEM_GROUP_REPEAT_KEY_PARAM + "\" TransactionType=\"Insert\" >"
+            + ITEM_DATA_PARAM
+            + "</ItemGroupData>";
 
     private static final Logger log = LoggerFactory.getLogger(ODMService.class);
 
@@ -143,21 +150,59 @@ public class ODMService {
         builder.replaceAll(STUDY_EVENT_REPEAT_ORDINAL_PARAM, eventRepeatOrdinal);
         builder.replaceAll(CRF_OID_PARAM, crfOID);
         builder.replaceAll(STATUS_AFTER_UPLOAD_PARAM, statusAfterUpload);
-        StrBuilder itemDataBuilder = new StrBuilder();
 
-        builder.replaceAll(ITEM_GROUP_PARAM, itemGroupOID);
 
-        for (ClinicalData clinicalData : clinicalDataList) {
+        Map<Integer, List<ClinicalData>> clinicalDataPerGroupRepeatMap
+                = createClinicalDataPerGroupRepeatMap(clinicalDataList);
 
-            StrBuilder itemBuilder = new StrBuilder(ODM_ITEM_SECTION);
-            itemBuilder.replaceAll(ITEM_OID_PARAM, StringEscapeUtils.escapeXml(itemNameOIDMap.get(clinicalData.getItem())));
-            itemBuilder.replaceAll(ITEM_VALUE_PARAM, StringEscapeUtils.escapeXml(clinicalData.getValue()));
-            itemDataBuilder.append(itemBuilder);
 
+
+        StringBuilder itemGroupCollator = new StringBuilder();
+        for (Integer itemGroupRepeatNumber : clinicalDataPerGroupRepeatMap.keySet()) {
+            StrBuilder itemGroupBuilder = new StrBuilder(ITEM_GROUP_SECTION);
+            itemGroupBuilder.replaceAll(ITEM_GROUP_OID_PARAM, itemGroupOID);
+            itemGroupBuilder.replaceFirst(ITEM_GROUP_REPEAT_KEY_PARAM, itemGroupRepeatNumber == null ? "1" : itemGroupRepeatNumber.toString());
+            List<ClinicalData> itemGroupDataList = clinicalDataPerGroupRepeatMap.get(itemGroupRepeatNumber);
+            StrBuilder itemDataBuilder = new StrBuilder();
+            for (ClinicalData clinicalData : itemGroupDataList) {
+                StrBuilder itemBuilder = new StrBuilder(ODM_ITEM_SECTION);
+                itemBuilder.replaceAll(ITEM_OID_PARAM, StringEscapeUtils.escapeXml(itemNameOIDMap.get(clinicalData.getItem())));
+                itemBuilder.replaceAll(ITEM_VALUE_PARAM, StringEscapeUtils.escapeXml(clinicalData.getValue()));
+                itemDataBuilder.append(itemBuilder);
+
+            }
+            itemGroupBuilder.replaceAll(ITEM_DATA_PARAM, itemDataBuilder.toString());
+            itemGroupCollator.append(itemGroupBuilder.toString());
         }
-        builder.replaceAll(ITEM_DATA_PARAM, itemDataBuilder.toString());
+
+
+        builder.replaceAll(ITEM_GROUP_SECTION_ANCHOR, itemGroupCollator.toString());
 
         odmData.append(builder.toStringBuffer());
+    }
+
+
+    /**
+     * Converts the clinical data list to a map with the item group repeat number as a key and a list of all the items
+     * belonging to that repeat number
+     * @param clinicalDataList the input clinical data list
+     * @return a map with the clinicaldata list per group repeat
+     */
+    private Map<Integer, List<ClinicalData>> createClinicalDataPerGroupRepeatMap(List<ClinicalData> clinicalDataList) {
+        Map<Integer, List<ClinicalData>> ret = new HashMap<>();
+        for (ClinicalData clinicalData : clinicalDataList) {
+            Integer groupRepeatNumber = clinicalData.getGroupRepeat();
+            List<ClinicalData> targetList;
+            if (! ret.containsKey(groupRepeatNumber)) {
+                targetList = new ArrayList<>(50);
+                ret.put(groupRepeatNumber, targetList);
+            }
+            else {
+                targetList = ret.get(groupRepeatNumber);
+            }
+            targetList.add(clinicalData);
+        }
+        return ret;
     }
 
     private void addItemGroupOID(List<ClinicalData> clinicalDataList, MetaData metaData) {

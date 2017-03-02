@@ -6,6 +6,7 @@
 
 $(document).ready(function () {
     makeProgressSectionVisible(false);
+    document.getElementById('contact-information').style.display = 'none';
 });
 
 function makeProgressSectionVisible(visible) {
@@ -90,8 +91,9 @@ function performODMUpload() {
         error: function (jqXHR, textStatus, errorThrown) {
             makeProgressSectionVisible(false);
             console.log(jqXHR.status + " " + textStatus + " " + errorThrown);
-            var html = '<div class="alert alert-danger">ODM Upload failed:' + textStatus + ' </div>';
-            $(html).insertBefore('#odm-upload-back-btn');
+            document.getElementById('contact-information').style.display = 'inline';
+            var html = '<div class="alert alert-danger">ODM Upload failed: ' + textStatus + ' </div>';
+            $('#upload-result').append(html);
         }
 
     });
