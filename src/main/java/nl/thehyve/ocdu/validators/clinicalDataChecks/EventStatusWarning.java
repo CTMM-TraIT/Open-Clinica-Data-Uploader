@@ -68,7 +68,7 @@ public class EventStatusWarning implements ClinicalDataCrossCheck {
     }
 
     private boolean hasStatusToWarnFor(String status) {
-        if (status.equals("data entry started") || status.equals("data entry complete")) {
+        if (status.equals("initial data entry") || status.equals("data entry complete")) {
             return true;
         }
         return false;
