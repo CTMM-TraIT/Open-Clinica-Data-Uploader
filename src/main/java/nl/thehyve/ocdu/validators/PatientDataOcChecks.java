@@ -37,6 +37,7 @@ public class PatientDataOcChecks {
         checks.add(new GenderPatientDataCheck());
         checks.add(new DateOfBirthPatientDataCheck());
         checks.add(new PersonIdPatientDataCheck());
+        checks.add(new PersonIdPresentWarning());
         checks.add(new DuplicatePersonIdDataCheck());
         checks.add(new DateOfEnrollmentPatientDataCheck());
         checks.add(new SecondaryIdPatientDataCheck());
