@@ -69,12 +69,12 @@ idea.module {
 }
 
 war {
-    baseName = 'ocdu'
+    baseName = 'ocdi'
     version = project.property('application.version.stamp') + "-" + "${project.property('dateStamp')}"
 }
 
 jar {
-    baseName = 'ocdu'
+    baseName = 'ocdi'
     version = '0.0.1-SNAPSHOT'
 }
 sourceCompatibility = 1.8

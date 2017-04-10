@@ -1,4 +1,4 @@
-var baseApp = "/ocdu";
+var baseApp = "/ocdi";
 var USERNAME = "";
 var _SESSIONS = [];
 var _CURRENT_SESSION_NAME = "";
