@@ -3,7 +3,6 @@ package nl.thehyve.ocdu.autonomous;
 import nl.thehyve.ocdu.validators.autonomous.AutonomousValidator;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,8 +11,10 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.GregorianCalendar;
+import java.util.List;
 
 /**
  * Class which is responsible for file copying for the autonomous upload
@@ -64,24 +65,26 @@ public class FileCopyService {
 
     public void failedFile(Path path) throws Exception {
         String parentDirectoryName = path.getParent().getFileName().toString();
-        Path newFilePath = addTimeStampToDestinationPath(path, failedFilesDirectory, parentDirectoryName);
+        Path newFilePath = addTimeStampToDestinationPath(path, failedFilesDirectory);
         FileUtils.moveFile(path.toFile(), newFilePath.toFile());
         log.info("Failed file '" + path + "' moved to failed files directory");
     }
 
     public void successfulFile(Path path) throws Exception {
         String parentDirectoryName = path.getParent().getFileName().toString();
-        Path newFilePath = addTimeStampToDestinationPath(path, completedFilesDirectory, parentDirectoryName);
+        Path newFilePath = addTimeStampToDestinationPath(path, completedFilesDirectory);
         FileUtils.moveFile(path.toFile(), newFilePath.toFile());
         log.info("Successfully completed file '" + path + "', moved to completed files directory");
     }
 
-    private static Path addTimeStampToDestinationPath(Path aPath, String aDestinationDirectory, String parentDirectoryName) {
+    public Path addTimeStampToDestinationPath(Path aPath, String aDestinationDirectory) {
+        Path parentDirectoryName = new File(sourceDirectory).toPath().relativize(aPath);
         Path fileName = aPath.getFileName();
         String newFileName = DateFormatUtils.format(GregorianCalendar.getInstance(), "yyyyMMddHHmmssSSS") + "-" + fileName.toString();
-        Path ret = new File(aDestinationDirectory).toPath();
-        ret = ret.resolve(parentDirectoryName);
-        return ret.resolve(newFileName);
+        if (parentDirectoryName.getParent() != null) {
+            return new File(aDestinationDirectory).toPath().resolve(parentDirectoryName.getParent()).resolve(newFileName);
+        }
+        return new File(aDestinationDirectory).toPath().resolve(newFileName);
     }
 
     public void setSourceDirectory(String sourceDirectory) {
@@ -94,6 +97,18 @@ public class FileCopyService {
 
     public void setCompletedFilesDirectory(String completedFilesDirectory) {
         this.completedFilesDirectory = completedFilesDirectory;
+    }
+
+    public String getSourceDirectory() {
+        return sourceDirectory;
+    }
+
+    public String getFailedFilesDirectory() {
+        return failedFilesDirectory;
+    }
+
+    public String getCompletedFilesDirectory() {
+        return completedFilesDirectory;
     }
 
     private void checkReadWriteAccess() throws Exception {
