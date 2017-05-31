@@ -64,14 +64,12 @@ public class FileCopyService {
     }
 
     public void failedFile(Path path) throws Exception {
-        String parentDirectoryName = path.getParent().getFileName().toString();
         Path newFilePath = addTimeStampToDestinationPath(path, failedFilesDirectory);
         FileUtils.moveFile(path.toFile(), newFilePath.toFile());
         log.info("Failed file '" + path + "' moved to failed files directory");
     }
 
     public void successfulFile(Path path) throws Exception {
-        String parentDirectoryName = path.getParent().getFileName().toString();
         Path newFilePath = addTimeStampToDestinationPath(path, completedFilesDirectory);
         FileUtils.moveFile(path.toFile(), newFilePath.toFile());
         log.info("Successfully completed file '" + path + "', moved to completed files directory");
