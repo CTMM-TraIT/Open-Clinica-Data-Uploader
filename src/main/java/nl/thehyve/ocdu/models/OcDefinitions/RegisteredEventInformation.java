@@ -190,6 +190,9 @@ public class RegisteredEventInformation {
             String eventSiteCombination = StringUtils.substringBeforeLast(eventName, "#");
             eventName = StringUtils.substringAfterLast(eventSiteCombination, "#");
             String site = StringUtils.substringBefore(eventSiteCombination, "#");
+            if ("null".equals(site)) {
+                site = "";
+            }
             Event eventToSchedule = new Event();
             eventToSchedule.setSite(site);
             eventToSchedule.setRepeatNumber(eventRepeatNumber);
