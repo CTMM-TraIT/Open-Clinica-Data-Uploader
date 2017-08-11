@@ -99,6 +99,7 @@ function feedbackNext() {
     $.ajax({
         url: baseApp + "/submission/update",
         type: "POST",
+        timeout: 0,
         data: {step: "events"},
         success: function () {
             //handle subject file upload
@@ -136,6 +137,7 @@ $(document).ready(function () {
         $.ajax({
             url: baseApp + "/validate/patients",
             type: "GET",
+            timeout: 0,
             success: displayMessages,
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log(jqXHR.status + " " + textStatus + " " + errorThrown);

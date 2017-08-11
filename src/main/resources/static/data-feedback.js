@@ -102,6 +102,7 @@ function feedbackDataNext() {
     $.ajax({
         url: baseApp + "/submission/update",
         type: "POST",
+        timeout: 0,
         data: {step: "subjects"},
         success: function () {
             window.location.href = baseApp + "/views/subjects";
@@ -134,6 +135,7 @@ makeProgressSectionVisible(true);
 $.ajax({
     url: baseApp+"/validate/data",
     type: "GET",
+    timeout: 0,
     cache: false,
     success: displayMessages,
     error: function (jqXHR, textStatus, errorThrown) {

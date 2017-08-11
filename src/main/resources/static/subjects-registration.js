@@ -47,6 +47,7 @@ function check_new_patients(toRegisterSite) {
     $.ajax({
         url: baseApp + "/template/get-subject-template",
         type: "GET",
+        timeout: 0,
         data: {registerSite: toRegisterSite},
         success: function (template) {
             makeProgressSectionVisible(false);
@@ -117,6 +118,7 @@ function upload_subjects() {
     $.ajax({
         url: baseApp + "/upload/subjects",
         type: "POST",
+        timeout: 0,
         data: new FormData($("#upload-subject-template-form")[0]),
         enctype: 'multipart/form-data',
         processData: false,
@@ -145,6 +147,7 @@ function update_submission() {
     $.ajax({
         url: baseApp + "/submission/update",
         type: "POST",
+        timeout: 0,
         data: {step: "feedback-subjects"},
         success: function () {
             makeProgressSectionVisible(false);

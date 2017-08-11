@@ -42,6 +42,7 @@ function check_new_events() {
     $.ajax({
         url: baseApp + "/template/get-event-template",
         type: "GET",
+        timeout: 0,
         success: function (template) {
             makeProgressSectionVisible(false);
             template_arr = template;
@@ -117,6 +118,7 @@ function update_submission() {
     $.ajax({
         url: baseApp + "/submission/update",
         type: "POST",
+        timeout: 0,
         data: {step: "feedback-events"},
         success: function () {
             console.log("Update submission called successfully");
@@ -140,6 +142,7 @@ function upload_event_data() {
     $.ajax({
         url: baseApp + "/upload/events",
         type: "POST",
+        timeout: 0,
         data: new FormData($("#upload-event-template-form")[0]),
         enctype: 'multipart/form-data',
         processData: false,

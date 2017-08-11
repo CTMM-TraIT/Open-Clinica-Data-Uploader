@@ -98,6 +98,7 @@ function feedbackNext() {
     $.ajax({
         url: baseApp + "/submission/update",
         type: "POST",
+        timeout: 0,
         data: {step: "odm-upload"},
         success: function () {
             window.location.href = baseApp + "/views/odm-upload";
@@ -130,6 +131,7 @@ makeProgressSectionVisible(true);
 $.ajax({
     url: baseApp + "/odm/pre-odm-upload-overview",
     type: "GET",
+    timeout: 0,
     success: displayMessages,
     error: function (jqXHR, textStatus, errorThrown) {
         console.log(jqXHR.status + " " + textStatus + " " + errorThrown);

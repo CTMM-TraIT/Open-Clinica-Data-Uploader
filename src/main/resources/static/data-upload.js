@@ -28,6 +28,7 @@ var _deleteCurrentSubmission = function() {
     $.ajax({
         url: baseApp + "/submission/delete",
         type: "post",
+        timeout: 0,
         data: {},
         success: function () {
             console.log('submission deleted');
@@ -129,6 +130,7 @@ function uploadFile() {
         $.ajax({
             url: baseApp + "/upload/data",
             type: "POST",
+            timeout: 0,
             data: new FormData($("#upload-file-form")[0]),
             enctype: 'multipart/form-data',
             processData: false,
@@ -170,6 +172,7 @@ function uploadFile() {
             url: baseApp + "/submission/create",
             enctype: 'multipart/form-data',
             type: "POST",
+            timeout: 0,
             data: {name: _CURRENT_SESSION_NAME},
             success: dataFileUpload,
             error: displayError
@@ -213,6 +216,7 @@ function retrieveSessions() {
     $.ajax({
         url: baseApp + "/submission/all",
         type: "get",
+        timeout: 0,
         success: handle_session_retrieval_all,
         error: function (jqXHR, textStatus, errorThrown) {
             console.log(jqXHR.status + " " + textStatus + " " + errorThrown);
@@ -271,6 +275,7 @@ function handle_session_retrieval(sessionID) {
     $.ajax({
         url: baseApp + "/submission/select",
         type: "get",
+        timeout: 0,
         data: {sessionId: sessionID},
         success: function (data) {
             var page;
@@ -319,6 +324,7 @@ function handle_session_removal(sessionID) {
     $.ajax({
         url: baseApp + "/submission/deleteSession",
         type: "POST",
+        timeout: 0,
         data: {id: sessionID},
         success: function (data) {
             console.log('deleted session ' + sessionID);
@@ -343,6 +349,7 @@ $(document).ready(function () {
     $.ajax({
         url: baseApp + "/submission/username",
         type: "get",
+        timeout: 0,
         success: function (data) {
             USERNAME = data;
         },

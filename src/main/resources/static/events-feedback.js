@@ -57,6 +57,7 @@ function feedbackNext() {
     $.ajax({
         url: baseApp + "/submission/update",
         type: "POST",
+        timeout: 0,
         data: {step: "pre-odm-upload"},
         success: function () {
             window.location.href = baseApp + "/views/pre-odm-upload";
@@ -96,6 +97,7 @@ $(document).ready(function () {
         $.ajax({
             url: baseApp+"/validate/events",
             type: "GET",
+            timeout: 0,
             success: displayMessages,
             cache: false,
             error: function (jqXHR, textStatus, errorThrown) {

@@ -93,6 +93,7 @@ function backBtnHandler() {
 $.ajax({
     url: baseApp + "/view/final",
     type: "GET",
+    timeout: 0,
     success: displayMessages,
     error: function (jqXHR, textStatus, errorThrown) {
         console.log(jqXHR.status + " " + textStatus + " " + errorThrown);

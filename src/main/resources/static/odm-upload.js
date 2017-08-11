@@ -41,6 +41,7 @@ function update_submission() {
     $.ajax({
         url: baseApp + "/submission/update",
         type: "POST",
+        timeout: 0,
         data: {step: "final"},
         success: function () {
             makeProgressSectionVisible(false);
@@ -66,6 +67,7 @@ function performODMUpload() {
     $.ajax({
         url: baseApp + "/odm/upload",
         type: "POST",
+        timeout: 0,
         data: dataString,
         enctype: 'application/x-www-form-urlencoded',
         success: function (msg) {

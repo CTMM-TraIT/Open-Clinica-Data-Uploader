@@ -105,7 +105,7 @@ public class ValidationServiceTests {
         eventList.clear();
         validationErrorMessage =
                 validationService.checkForMissingEventsInEventDataAndOpenClinica(metaData, studySubjectWithEventsTypeList, eventList, clinicalDataList);
-        assertThat(validationErrorMessage.getMessage(), containsString("Event in the event scheduling file does not match the event in the data file"));
+        assertEquals(null, validationErrorMessage);
     }
 
     @Test
@@ -139,6 +139,6 @@ public class ValidationServiceTests {
         eventList.clear();
         validationErrorMessage =
                 validationService.checkForMissingEventsInEventDataAndOpenClinica(metaData, studySubjectWithEventsTypeList, eventList, clinicalDataList);
-        assertThat(validationErrorMessage.getMessage(), containsString("Event in the event scheduling file does not match the event in the data file"));
+        assertEquals(null, validationErrorMessage);
     }
 }

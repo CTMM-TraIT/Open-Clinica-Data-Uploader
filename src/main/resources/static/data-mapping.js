@@ -88,6 +88,7 @@ function build_mapping() {
     $.ajax({
         url: baseApp + "/submission/current-mapping",
         type: "GET",
+        timeout: 0,
         success: function (_mapping) {
             for (var oc_label in _mapping) {
                 var usr_label = _mapping[oc_label];
@@ -328,6 +329,7 @@ function update_submission() {
     $.ajax({
         url: baseApp + "/submission/update",
         type: "POST",
+        timeout: 0,
         data: {step: "feedback-data"},
         success: function () {
             window.location.href = baseApp + "/views/feedback-data";
@@ -348,6 +350,7 @@ function upload_mapping() {
             },
             url: baseApp + "/upload/mapping",
             type: "POST",
+            timeout: 0,
             dataType: 'json',
             data: JSON.stringify(output),
             success: function () {
@@ -408,6 +411,7 @@ function build_usr_list() {
         $.ajax({
             url: baseApp + "/submission/user-items",
             type: "GET",
+            timeout: 0,
             success: callback_build_usr_list,
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log(jqXHR.status + " " + textStatus + " " + errorThrown);
@@ -479,6 +483,7 @@ function build_oc_list() {
         $.ajax({
             url: baseApp + "/metadata/targetedCrf",
             type: "GET",
+            timeout: 0,
             success: callback_build_oc_list,
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log(jqXHR.status + " " + textStatus + " " + errorThrown);
