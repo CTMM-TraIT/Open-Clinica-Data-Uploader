@@ -39,6 +39,7 @@ import org.openclinica.ws.beans.StudySubjectWithEventsType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -70,14 +71,16 @@ import static nl.thehyve.ocdu.soap.ResponseHandlers.RegisterSubjectsResponseHand
 @Service
 public class OpenClinicaService {
     /**
-     * connection time out (15 seconds)
+     * Connection time out (15 seconds). Value set in the application.properties file
      */
-    private static final int CONNECTION_TIMEOUT = 15000;
+    @Value("${soap.connection.timeout.in.milliseconds}")
+    private Integer CONNECTION_TIMEOUT;
 
     /**
      * The read-time out = 30 minutes
      */
-    private static final int READ_TIMEOUT = 30 * 60 * 1000;
+    @Value("${soap.read.timeout.in.milliseconds}")
+    private Integer READ_TIMEOUT;
 
 
     @Autowired
@@ -119,8 +122,7 @@ public class OpenClinicaService {
         SOAPMessage message = requestFactory.createListStudiesRequest(username, passwordHash);
         SOAPMessage soapResponse = soapConnection.call(message, createEndPoint(url + "/ws/study/v1"));  // Add SOAP endopint to OCWS URL.
         soapConnection.close();
-        List<Study> studies = ListStudiesResponseHandler.parseListStudiesResponse(soapResponse);
-        return studies;
+        return ListStudiesResponseHandler.parseListStudiesResponse(soapResponse);
     }
 
     public Map<String, String> createMapSubjectLabelToSubjectOID(String username,
@@ -161,9 +163,7 @@ public class OpenClinicaService {
         SOAPMessage message = requestFactory.createGetStudyMetadataRequest(username, passwordHash, study);
         SOAPMessage soapResponse = soapConnection.call(message, createEndPoint(url + "/ws/study/v1"));  // Add SOAP endopint to OCWS URL.
         soapConnection.close();
-        MetaData metaData = GetStudyMetadataResponseHandler.parseGetStudyMetadataResponse(soapResponse);
-
-        return metaData;
+        return GetStudyMetadataResponseHandler.parseGetStudyMetadataResponse(soapResponse);
     }
 
     /**
@@ -377,9 +377,7 @@ public class OpenClinicaService {
 
         SOAPMessage soapResponse = soapConnection.call(soapMessage, createEndPoint(url + "/ws/studySubject/v1"));  // Add SOAP endopint to OCWS URL.
         soapConnection.close();
-        List<StudySubjectWithEventsType> subjectsTypeList =
-                ListAllByStudyResponseHandler.retrieveStudySubjectsType(soapResponse);
-        return subjectsTypeList;
+        return ListAllByStudyResponseHandler.retrieveStudySubjectsType(soapResponse);
     }
 
 
