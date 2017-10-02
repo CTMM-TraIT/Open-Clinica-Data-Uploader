@@ -49,6 +49,11 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.soap.SOAPConnection;
 import javax.xml.soap.SOAPConnectionFactory;
 import javax.xml.soap.SOAPMessage;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -64,6 +69,16 @@ import static nl.thehyve.ocdu.soap.ResponseHandlers.RegisterSubjectsResponseHand
 
 @Service
 public class OpenClinicaService {
+    /**
+     * connection time out (15 seconds)
+     */
+    private static final int CONNECTION_TIMEOUT = 15000;
+
+    /**
+     * The read-time out = 30 minutes
+     */
+    private static final int READ_TIMEOUT = 30 * 60 * 1000;
+
 
     @Autowired
     ODMService odmService;
@@ -80,7 +95,8 @@ public class OpenClinicaService {
 //        log.info(SoapUtils.soapMessageToString(soapMessage));
         SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
         SOAPConnection soapConnection = soapConnectionFactory.createConnection();
-        SOAPMessage soapResponse = soapConnection.call(soapMessage, url + "/ws/studySubject/v1");
+        SOAPMessage soapResponse = soapConnection.call(soapMessage, createEndPoint(url + "/ws/studySubject/v1"));
+        soapConnection.close();
         String error = parseRegisterSubjectsResponse(soapResponse);
         if (error != null) {
             String detailedErrorMessage = "Creating subject " + subject.getSsid() + " against instance " + url + " failed, OC error: " + error;
@@ -101,9 +117,9 @@ public class OpenClinicaService {
         SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
         SOAPConnection soapConnection = soapConnectionFactory.createConnection();
         SOAPMessage message = requestFactory.createListStudiesRequest(username, passwordHash);
-        SOAPMessage soapResponse = soapConnection.call(message, url + "/ws/study/v1");  // Add SOAP endopint to OCWS URL.
-        List<Study> studies = ListStudiesResponseHandler.parseListStudiesResponse(soapResponse);
+        SOAPMessage soapResponse = soapConnection.call(message, createEndPoint(url + "/ws/study/v1"));  // Add SOAP endopint to OCWS URL.
         soapConnection.close();
+        List<Study> studies = ListStudiesResponseHandler.parseListStudiesResponse(soapResponse);
         return studies;
     }
 
@@ -128,13 +144,13 @@ public class OpenClinicaService {
     }
 
 
-    public MetaData getMetadata(String username, String passwordHash, String url, Study study) throws Exception {
+    public MetaData getMetadata(String username, String passwordHash, String url, Study study, Set<String> sitesPresentInData) throws Exception {
         log.info("Get metadata initiated by: " + username + " on: " + url + " study: " + study);
         if (study == null || username == null || passwordHash == null || url == null) {
             return null;
         }
         MetaData metaData = getMetadataSoapCall(username, passwordHash, url, study);
-        addSiteDefinitions(metaData, username, passwordHash, url, study);
+        addSiteDefinitions(metaData, username, passwordHash, url, study, sitesPresentInData);
         addSiteInformationToMetaData(metaData, study);
         return metaData;
     }
@@ -143,9 +159,10 @@ public class OpenClinicaService {
         SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
         SOAPConnection soapConnection = soapConnectionFactory.createConnection();
         SOAPMessage message = requestFactory.createGetStudyMetadataRequest(username, passwordHash, study);
-        SOAPMessage soapResponse = soapConnection.call(message, url + "/ws/study/v1");  // Add SOAP endopint to OCWS URL.
-        MetaData metaData = GetStudyMetadataResponseHandler.parseGetStudyMetadataResponse(soapResponse);
+        SOAPMessage soapResponse = soapConnection.call(message, createEndPoint(url + "/ws/study/v1"));  // Add SOAP endopint to OCWS URL.
         soapConnection.close();
+        MetaData metaData = GetStudyMetadataResponseHandler.parseGetStudyMetadataResponse(soapResponse);
+
         return metaData;
     }
 
@@ -202,20 +219,24 @@ public class OpenClinicaService {
         return resultList;
     }
 
-    private void addSiteDefinitions(MetaData metaData, String username, String passwordHash, String url, Study study) throws Exception {
-        List<SiteDefinition> siteDefs = new ArrayList<>();
+    private void addSiteDefinitions(MetaData metaData, String username, String passwordHash, String url, Study study,
+                                    Set<String> sitesPresentInData) throws Exception {
+        List<SiteDefinition> siteDefinitions = new ArrayList<>();
         for (Site site : study.getSiteList()) {
-            Study siteAsAStudy = new Study(site.getIdentifier(), site.getOid(), site.getName());
-            MetaData siteMetadata = getMetadataSoapCall(username, passwordHash, url, siteAsAStudy);
-            SiteDefinition siteDef = new SiteDefinition();
-            siteDef.setSiteOID(site.getOid());
-            siteDef.setName(site.getName());
-            siteDef.setUniqueID(site.getIdentifier());
-            siteDef.setBirthdateRequired(siteMetadata.getBirthdateRequired());
-            siteDef.setGenderRequired(siteMetadata.isGenderRequired());
-            siteDefs.add(siteDef);
+            String siteID = site.getIdentifier();
+            if (sitesPresentInData.contains(siteID)) {
+                Study siteAsAStudy = new Study(site.getIdentifier(), site.getOid(), site.getName());
+                MetaData siteMetadata = getMetadataSoapCall(username, passwordHash, url, siteAsAStudy);
+                SiteDefinition siteDef = new SiteDefinition();
+                siteDef.setSiteOID(site.getOid());
+                siteDef.setName(site.getName());
+                siteDef.setUniqueID(site.getIdentifier());
+                siteDef.setBirthdateRequired(siteMetadata.getBirthdateRequired());
+                siteDef.setGenderRequired(siteMetadata.isGenderRequired());
+                siteDefinitions.add(siteDef);
+            }
         }
-        metaData.setSiteDefinitions(siteDefs);
+        metaData.setSiteDefinitions(siteDefinitions);
     }
 
     /**
@@ -234,7 +255,8 @@ public class OpenClinicaService {
         SOAPConnection soapConnection = soapConnectionFactory.createConnection();
         SOAPMessage soapMessage = requestFactory.createDataUploadRequest(username, passwordHash, odm);
         log.debug("SOAP -->\n" + SoapUtils.soapMessageToString(soapMessage));
-        SOAPMessage soapResponse = soapConnection.call(soapMessage, url + "/ws/data/v1");  // Add SOAP endopint to OCWS URL.
+        SOAPMessage soapResponse = soapConnection.call(soapMessage, createEndPoint(url + "/ws/data/v1"));  // Add SOAP endopint to OCWS URL.
+        soapConnection.close();
         String responseError = SOAPResponseHandler.parseOpenClinicaResponse(soapResponse, "//importDataResponse");
         if (responseError != null) {
             log.error("ImportData request failed: " + responseError);
@@ -317,7 +339,7 @@ public class OpenClinicaService {
         for (EventType eventType : eventTypeList) {
             SOAPMessage soapMessage = requestFactory.createScheduleEventRequest(username, passwordHash, eventType);
 //            log.info("SOAP -->\n" + SoapUtils.soapMessageToString(soapMessage));
-            SOAPMessage soapResponse = soapConnection.call(soapMessage, url + "/ws/event/v1");
+            SOAPMessage soapResponse = soapConnection.call(soapMessage, createEndPoint(url + "/ws/event/v1"));
             String responseError = SOAPResponseHandler.parseOpenClinicaResponse(soapResponse, "//scheduleResponse");
             String eventName = eventOIDToNameMap.get(eventType.getEventDefinitionOID());
             if (responseError != null) {
@@ -336,24 +358,42 @@ public class OpenClinicaService {
                 ret.add(submissionResult);
             }
         }
+        soapConnection.close();
         return ret;
     }
 
 
     public List<StudySubjectWithEventsType> getStudySubjectsType(String username, String passwordHash, String url, String studyIdentifier, String siteIdentifier) throws Exception {
-        log.info("Get listAllByStudy by: " + username + " on: " + url + " study: " + siteIdentifier + " site: " + siteIdentifier);
+        log.info("Get listAllByStudy by: " + username + " on: " + url + " study: " + studyIdentifier + " site: " + siteIdentifier);
         if (studyIdentifier == null || username == null || passwordHash == null || url == null) {
             return null;
         }
         SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
         SOAPConnection soapConnection = soapConnectionFactory.createConnection();
+
+
+
         SOAPMessage soapMessage = requestFactory.createListAllByStudy(username, passwordHash, studyIdentifier, siteIdentifier);
-        SOAPMessage soapResponse = soapConnection.call(soapMessage, url + "/ws/studySubject/v1");  // Add SOAP endopint to OCWS URL.
+
+        SOAPMessage soapResponse = soapConnection.call(soapMessage, createEndPoint(url + "/ws/studySubject/v1"));  // Add SOAP endopint to OCWS URL.
+        soapConnection.close();
         List<StudySubjectWithEventsType> subjectsTypeList =
                 ListAllByStudyResponseHandler.retrieveStudySubjectsType(soapResponse);
-
-        soapConnection.close();
         return subjectsTypeList;
+    }
+
+
+    private URL createEndPoint(String url) throws MalformedURLException {
+        URL endPoint = new URL (null, url, new URLStreamHandler() {
+            protected URLConnection openConnection (URL url) throws IOException {
+                // The url is the parent of this stream handler, so must create clone
+                URL clone = new URL (url.toString ());
+                URLConnection connection = clone.openConnection ();
+                connection.setConnectTimeout (CONNECTION_TIMEOUT);
+                connection.setReadTimeout (READ_TIMEOUT);
+                return connection;
+            }});
+        return endPoint;
     }
 
 
@@ -361,8 +401,8 @@ public class OpenClinicaService {
         SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
         SOAPConnection soapConnection = soapConnectionFactory.createConnection();
         SOAPMessage message = requestFactory.createListStudiesRequest(username, passwordHash);
-        SOAPMessage soapResponse = soapConnection.call(message, url + "/ws/study/v1");  // Add SOAP endopint to OCWS URL.
-
+        SOAPMessage soapResponse = soapConnection.call(message, createEndPoint(url + "/ws/study/v1"));  // Add SOAP endopint to OCWS URL.
+        soapConnection.close();
         ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
         HttpSession session = attr.getRequest().getSession(false);
         MetaDataProvider provider = new HttpSessionMetaDataProvider(session);
@@ -372,7 +412,7 @@ public class OpenClinicaService {
             provider.storeOpenClinicaSessionID(jSessionID);
         }
         Document responseXml = SoapUtils.toDocument(soapResponse);
-        soapConnection.close();
+
         return StringUtils.isEmpty(OCResponseHandler.isAuthFailure(responseXml));
     }
 
@@ -399,7 +439,8 @@ public class OpenClinicaService {
         SOAPMessage message =
                 requestFactory.createIsStudySubjectRequest(username, passwordHash, studyLabel, siteLabel, subjectLabel);
 
-        SOAPMessage soapResponse = soapConnection.call(message, url + "/ws/studySubject/v1");  // Add SOAP endopint to OCWS URL.
+        SOAPMessage soapResponse = soapConnection.call(message, createEndPoint(url + "/ws/studySubject/v1"));  // Add SOAP endopint to OCWS URL.
+        soapConnection.close();
         return IsStudySubjectResponseHandler.parseIsStudySubjectResponse(soapResponse);
     }
 

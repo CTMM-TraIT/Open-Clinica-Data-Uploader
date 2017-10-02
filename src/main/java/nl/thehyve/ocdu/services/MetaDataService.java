@@ -19,14 +19,18 @@
 
 package nl.thehyve.ocdu.services;
 
+import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
 import nl.thehyve.ocdu.models.OCEntities.Study;
 import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.OcUser;
 import nl.thehyve.ocdu.models.UploadSession;
+import nl.thehyve.ocdu.repositories.ClinicalDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpSession;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Retrieves the current studies {@link MetaData} using the {@link HttpSession}.
@@ -47,6 +51,10 @@ public class MetaDataService {
     @Autowired
     DataService dataService;
 
+    @Autowired
+    ClinicalDataRepository clinicalDataRepository;
+
+
 
     public MetaData retrieveMetaData(MetaDataProvider metaDataProvider, OcUser user, String pwdHash, UploadSession uploadSession) throws Exception {
         // The exception is thrown on because this class is only used by other services. It's their task to
@@ -57,7 +65,10 @@ public class MetaDataService {
         metaData = metaDataProvider.provide();
         if (metaData == null) {
             String url = user.getOcEnvironment();
-            metaData = openClinicaService.getMetadata(username, pwdHash, url, study);
+            List<ClinicalData> clinicalDataList = clinicalDataRepository.findBySubmission(uploadSession);
+            Set<String> sitesPresentInData =
+                    clinicalDataList.stream().map(ClinicalData::getSite).collect(Collectors.toCollection(HashSet::new));
+            metaData = openClinicaService.getMetadata(username, pwdHash, url, study, sitesPresentInData);
             metaDataProvider.store(metaData);
         }
         return metaData;

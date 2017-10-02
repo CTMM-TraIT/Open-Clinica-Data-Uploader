@@ -13,9 +13,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.core.AllOf.allOf;
@@ -68,9 +66,12 @@ public class OcIntegration {
     @Ignore("Too expensive for frequent checks")
     @Test
     public void getMetaDataTest() throws Exception {
-        Study study = new Study("Study 1", "", ""); // Only Identifier should be used for this call
-        MetaData metadat = openClinicaService.getMetadata(user, sha1hexDigest, ocUrl, study);
-        assertThat(metadat, is(notNullValue()));
+        String studyID = "Study 1";
+        Study study = new Study(studyID, "", ""); // Only Identifier should be used for this call
+        Set<String> sitesPresentInData = new HashSet<>();
+        sitesPresentInData.add(studyID);
+        MetaData metadata = openClinicaService.getMetadata(user, sha1hexDigest, ocUrl, study, sitesPresentInData);
+        assertThat(metadata, is(notNullValue()));
     }
 
     @Ignore("Not idempotent operation - OC database needs to be rolled-back after")
