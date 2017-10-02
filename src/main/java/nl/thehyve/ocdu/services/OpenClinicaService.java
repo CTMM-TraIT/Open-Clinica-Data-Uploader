@@ -43,6 +43,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.ws.soap.SoapMessage;
 import org.w3c.dom.Document;
 
 import javax.servlet.http.HttpSession;
@@ -96,10 +97,8 @@ public class OpenClinicaService {
         AbstractMessage returnMessage;
         SOAPMessage soapMessage = requestFactory.createCreateSubject(username, passwordHash, subject);
 //        log.info(SoapUtils.soapMessageToString(soapMessage));
-        SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
-        SOAPConnection soapConnection = soapConnectionFactory.createConnection();
-        SOAPMessage soapResponse = soapConnection.call(soapMessage, createEndPoint(url + "/ws/studySubject/v1"));
-        soapConnection.close();
+        SOAPMessage soapResponse = safeCallSoap(soapMessage, url + "/ws/studySubject/v1");
+
         String error = parseRegisterSubjectsResponse(soapResponse);
         if (error != null) {
             String detailedErrorMessage = "Creating subject " + subject.getSsid() + " against instance " + url + " failed, OC error: " + error;
@@ -117,11 +116,8 @@ public class OpenClinicaService {
 
     public List<Study> listStudies(String username, String passwordHash, String url) throws Exception { //TODO: handle exceptions
         log.info("List studies initiated by: " + username + " on: " + url);
-        SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
-        SOAPConnection soapConnection = soapConnectionFactory.createConnection();
         SOAPMessage message = requestFactory.createListStudiesRequest(username, passwordHash);
-        SOAPMessage soapResponse = soapConnection.call(message, createEndPoint(url + "/ws/study/v1"));  // Add SOAP endopint to OCWS URL.
-        soapConnection.close();
+        SOAPMessage soapResponse = safeCallSoap(message, url + "/ws/study/v1");
         return ListStudiesResponseHandler.parseListStudiesResponse(soapResponse);
     }
 
@@ -158,13 +154,11 @@ public class OpenClinicaService {
     }
 
     private MetaData getMetadataSoapCall(String username, String passwordHash, String url, Study study) throws Exception {
-        SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
-        SOAPConnection soapConnection = soapConnectionFactory.createConnection();
         SOAPMessage message = requestFactory.createGetStudyMetadataRequest(username, passwordHash, study);
-        SOAPMessage soapResponse = soapConnection.call(message, createEndPoint(url + "/ws/study/v1"));  // Add SOAP endopint to OCWS URL.
-        soapConnection.close();
+        SOAPMessage soapResponse  = safeCallSoap(message, url + "/ws/study/v1");
         return GetStudyMetadataResponseHandler.parseGetStudyMetadataResponse(soapResponse);
     }
+
 
     /**
      * Performs the actual upload to OpenClinica of the data in the clinicalDataList.
@@ -249,14 +243,9 @@ public class OpenClinicaService {
      * @throws Exception in case of a technical error
      */
     private String uploadODMString(String username, String passwordHash, String url, String odm) throws Exception {
-
-
-        SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
-        SOAPConnection soapConnection = soapConnectionFactory.createConnection();
         SOAPMessage soapMessage = requestFactory.createDataUploadRequest(username, passwordHash, odm);
         log.debug("SOAP -->\n" + SoapUtils.soapMessageToString(soapMessage));
-        SOAPMessage soapResponse = soapConnection.call(soapMessage, createEndPoint(url + "/ws/data/v1"));  // Add SOAP endopint to OCWS URL.
-        soapConnection.close();
+        SOAPMessage soapResponse = safeCallSoap(soapMessage, url + "/ws/data/v1");
         String responseError = SOAPResponseHandler.parseOpenClinicaResponse(soapResponse, "//importDataResponse");
         if (responseError != null) {
             log.error("ImportData request failed: " + responseError);
@@ -332,14 +321,9 @@ public class OpenClinicaService {
             }
         }
 
-        SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
-        SOAPConnection soapConnection = soapConnectionFactory.createConnection();
-
-
         for (EventType eventType : eventTypeList) {
             SOAPMessage soapMessage = requestFactory.createScheduleEventRequest(username, passwordHash, eventType);
-//            log.info("SOAP -->\n" + SoapUtils.soapMessageToString(soapMessage));
-            SOAPMessage soapResponse = soapConnection.call(soapMessage, createEndPoint(url + "/ws/event/v1"));
+            SOAPMessage soapResponse = safeCallSoap(soapMessage, url + "/ws/event/v1");
             String responseError = SOAPResponseHandler.parseOpenClinicaResponse(soapResponse, "//scheduleResponse");
             String eventName = eventOIDToNameMap.get(eventType.getEventDefinitionOID());
             if (responseError != null) {
@@ -358,7 +342,6 @@ public class OpenClinicaService {
                 ret.add(submissionResult);
             }
         }
-        soapConnection.close();
         return ret;
     }
 
@@ -368,15 +351,8 @@ public class OpenClinicaService {
         if (studyIdentifier == null || username == null || passwordHash == null || url == null) {
             return null;
         }
-        SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
-        SOAPConnection soapConnection = soapConnectionFactory.createConnection();
-
-
-
         SOAPMessage soapMessage = requestFactory.createListAllByStudy(username, passwordHash, studyIdentifier, siteIdentifier);
-
-        SOAPMessage soapResponse = soapConnection.call(soapMessage, createEndPoint(url + "/ws/studySubject/v1"));  // Add SOAP endopint to OCWS URL.
-        soapConnection.close();
+        SOAPMessage soapResponse = safeCallSoap(soapMessage, url + "/ws/studySubject/v1");
         return ListAllByStudyResponseHandler.retrieveStudySubjectsType(soapResponse);
     }
 
@@ -394,13 +370,31 @@ public class OpenClinicaService {
         return endPoint;
     }
 
+    private SOAPMessage safeCallSoap(SOAPMessage requestMessage, String URL) throws Exception {
+        SOAPConnection soapConnection = null;
+        SOAPMessage soapResponse = null;
+        try {
+            SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
+            soapConnection = soapConnectionFactory.createConnection();
+            soapResponse = soapConnection.call(requestMessage, createEndPoint(URL));
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            // rethrow e to avoid breaking existing behaviour
+            throw e;
+        }
+        finally {
+            if (soapConnection != null) {
+                soapConnection.close();
+            }
+        }
+        return soapResponse;
+    }
+
 
     public boolean isAuthenticated(String username, String /* hexdigest of sha1 password */ passwordHash, String url) throws Exception {
-        SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
-        SOAPConnection soapConnection = soapConnectionFactory.createConnection();
         SOAPMessage message = requestFactory.createListStudiesRequest(username, passwordHash);
-        SOAPMessage soapResponse = soapConnection.call(message, createEndPoint(url + "/ws/study/v1"));  // Add SOAP endopint to OCWS URL.
-        soapConnection.close();
+        SOAPMessage soapResponse = safeCallSoap(message, url + "/ws/study/v1");
         ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
         HttpSession session = attr.getRequest().getSession(false);
         MetaDataProvider provider = new HttpSessionMetaDataProvider(session);
@@ -432,13 +426,10 @@ public class OpenClinicaService {
         if (studyLabel == null || username == null || passwordHash == null || url == null || subjectLabel == null) {
             return null;
         }
-        SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
-        SOAPConnection soapConnection = soapConnectionFactory.createConnection();
+
         SOAPMessage message =
                 requestFactory.createIsStudySubjectRequest(username, passwordHash, studyLabel, siteLabel, subjectLabel);
-
-        SOAPMessage soapResponse = soapConnection.call(message, createEndPoint(url + "/ws/studySubject/v1"));  // Add SOAP endopint to OCWS URL.
-        soapConnection.close();
+        SOAPMessage soapResponse = safeCallSoap(message, url + "/ws/studySubject/v1");
         return IsStudySubjectResponseHandler.parseIsStudySubjectResponse(soapResponse);
     }
 
