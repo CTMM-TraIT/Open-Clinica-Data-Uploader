@@ -373,13 +373,14 @@ public class OpenClinicaService {
     private SOAPMessage safeCallSoap(SOAPMessage requestMessage, String URL) throws Exception {
         SOAPConnection soapConnection = null;
         SOAPMessage soapResponse = null;
+        long startTime = System.currentTimeMillis();
         try {
             SOAPConnectionFactory soapConnectionFactory = SOAPConnectionFactory.newInstance();
             soapConnection = soapConnectionFactory.createConnection();
             soapResponse = soapConnection.call(requestMessage, createEndPoint(URL));
         }
         catch (Exception e) {
-            e.printStackTrace();
+            log.error("Exception occured during sending of SOAP-message: " + e.getMessage());
             // rethrow e to avoid breaking existing behaviour
             throw e;
         }
@@ -388,6 +389,8 @@ public class OpenClinicaService {
                 soapConnection.close();
             }
         }
+        long duration = System.currentTimeMillis() - startTime;
+        log.info("Duration SOAP-call: " + duration + ", request: " + requestMessage.getSOAPBody().getFirstChild());
         return soapResponse;
     }
 
