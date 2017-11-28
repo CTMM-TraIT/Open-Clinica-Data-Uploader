@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -261,6 +262,7 @@ public class UploadSessionController {
         try {
             UploadSession currentUploadSession = uploadSessionService.getCurrentUploadSession(session);
             List<String> userItems = dataService.getUserItems(currentUploadSession);
+            Collections.sort(userItems);
             return new ResponseEntity<>(userItems, OK);
         } catch (UploadSessionNotFoundException e) {
             e.printStackTrace();

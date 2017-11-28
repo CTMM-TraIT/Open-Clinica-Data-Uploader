@@ -34,6 +34,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpSession;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import static org.springframework.http.HttpStatus.OK;
 
@@ -94,6 +96,7 @@ public class MetadataController {
             String pwd = ocUserService.getOcwsHash(session);
             MetaDataProvider metaDataProvider = new HttpSessionMetaDataProvider(session);
             Collection<String> targetPaths = dataService.getTargetCrf(currentUploadSession, pwd, metaDataProvider);
+            Collections.sort((List<String>) targetPaths);
             return new ResponseEntity<>(targetPaths, HttpStatus.OK);
         } catch (UploadSessionNotFoundException e) {
             e.printStackTrace();
