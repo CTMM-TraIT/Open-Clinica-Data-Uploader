@@ -160,13 +160,13 @@ public class ClinicalDataChecksRunner {
         Map<ClinicalData, Boolean> shownMap = new HashMap<>();
         data.forEach(clinicalData1 -> {
             ItemDefinition definition = defMap.get(clinicalData1);
-            boolean shown = determineShown(clinicalData1, data, definition);
+            boolean shown = determineShown(clinicalData1, data, definition, defMap);
             shownMap.put(clinicalData1, shown);
         });
         return shownMap;
     }
 
-    private boolean determineShown(ClinicalData clinicalData1, Collection<ClinicalData> data, ItemDefinition definition) {
+    private boolean determineShown(ClinicalData clinicalData1, Collection<ClinicalData> data, ItemDefinition definition, Map<ClinicalData, ItemDefinition> defMap) {
         if (definition == null) {
             return true; // This case is covered by separate checks
         }
@@ -177,19 +177,32 @@ public class ClinicalDataChecksRunner {
             String crfVersion = clinicalData1.getCrfVersion();
             String crfOID = metadata.findFormOID(crfName, crfVersion);
             if (displayRule.getAppliesInCrf().equals(crfOID)) {
-                satisfied = isDisplayRuleSatisfied(displayRule, data, clinicalData1.getSsid());
+                satisfied = isDisplayRuleSatisfied(displayRule, data, clinicalData1.getSsid(), defMap);
             }
         }
         return satisfied;
     }
 
-    private boolean isDisplayRuleSatisfied(DisplayRule displayRule, Collection<ClinicalData> data, String subjectId) {
+    /**
+     * Determines if a display rule is satisfied based on the value of the clinical data and the item definition.
+     * @param displayRule the display rule to check
+     * @param data the current clinical data values
+     * @param subjectId the subject's identifier
+     * @param defMap a map of the ClinicalData and the definitions of the data
+     * @return <code>true</code> if the display rule is satisfied, i.e. the item is displayed in a CRF
+     */
+    private boolean isDisplayRuleSatisfied(DisplayRule displayRule, Collection<ClinicalData> data, String subjectId, Map<ClinicalData, ItemDefinition> defMap) {
         String controlItemName = displayRule.getControlItemName();
         String optionValue = displayRule.getOptionValue();// This value has to equal value of the controlItemName for given subject
         for (ClinicalData clinicalData1 : data) {
             boolean controlItem = clinicalData1.getItem().equals(controlItemName)
                     && clinicalData1.getSsid().equals(subjectId);
             if (controlItem) {
+                ItemDefinition itemDefinition = defMap.get(clinicalData1);
+                if (itemDefinition.isMultiselect()) {
+                    List<String> values = clinicalData1.getValues(true);
+                    return values.contains(optionValue);
+                }
                 return clinicalData1.getValue().equals(optionValue);
             }
         }
