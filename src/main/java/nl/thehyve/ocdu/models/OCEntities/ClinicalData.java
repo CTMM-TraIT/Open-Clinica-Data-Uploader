@@ -85,6 +85,20 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
     private String value;
     private String studyProtocolName;
 
+    /**
+     * Stores the level of the associated show/hide. 0 is the root level.
+     * E.g. an item is visible if item A and item C is visible.
+     * <pre>
+     *   ROOT  : 0
+     *    /\
+     *   A  B  : 1
+     *  / \
+     * C   D   : 2
+     *  </pre>
+     */
+    @Transient
+    private long showHideLevel;
+
     private long lineNumber;
 
     @ElementCollection(targetClass=ErrorClassification.class)
@@ -468,4 +482,24 @@ public class ClinicalData implements OcEntity, UserSubmitted, EventReference {
         this.originalItem = originalItem;
     }
 
+    public long getShowHideLevel() {
+        return showHideLevel;
+    }
+
+    public void setShowHideLevel(long showHideLevel) {
+        this.showHideLevel = showHideLevel;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (! (other instanceof ClinicalData)) {
+            return false;
+        }
+        ClinicalData that = (ClinicalData) other;
+        return ((this.lineNumber == that.lineNumber) &&
+                (this.item == null ? that.item == null : this.item.equals(that.item)));
+    }
 }

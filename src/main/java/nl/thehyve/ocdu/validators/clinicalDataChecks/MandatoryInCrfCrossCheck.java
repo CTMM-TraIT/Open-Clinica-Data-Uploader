@@ -68,10 +68,12 @@ public class MandatoryInCrfCrossCheck implements ClinicalDataCrossCheck {
             String crfId = clinicalData.getCrfName() + clinicalData.getCrfVersion();
             Set<String> mandatoryItems = mandatoryMap.get(crfId);
             if (!userItems.containsKey(clinicalData.getSsid())) {
-                boolean shown = shownMap.get(clinicalData);
-                if (shown) {
-                    userItems.put(clinicalData.getSsid(), new HashSet<>());
-                    mandatoryForSubject.put(clinicalData.getSsid(), mandatoryItems);
+                if (shownMap.containsKey(clinicalData)) {
+                    boolean shown = shownMap.get(clinicalData);
+                    if (shown) {
+                        userItems.put(clinicalData.getSsid(), new HashSet<>());
+                        mandatoryForSubject.put(clinicalData.getSsid(), mandatoryItems);
+                    }
                 }
             }
             Set<String> items = userItems.get(clinicalData.getSsid());

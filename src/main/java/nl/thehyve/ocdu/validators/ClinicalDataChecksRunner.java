@@ -20,10 +20,7 @@
 package nl.thehyve.ocdu.validators;
 
 import nl.thehyve.ocdu.models.OCEntities.ClinicalData;
-import nl.thehyve.ocdu.models.OcDefinitions.CRFDefinition;
-import nl.thehyve.ocdu.models.OcDefinitions.DisplayRule;
-import nl.thehyve.ocdu.models.OcDefinitions.ItemDefinition;
-import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
+import nl.thehyve.ocdu.models.OcDefinitions.*;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
 import nl.thehyve.ocdu.validators.clinicalDataChecks.ClinicalDataCrossCheck;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
@@ -32,8 +29,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Responsibe for executing cross checks on clinical data submitted by the user.
- * in order to set which checks are to be run use setCheks, passing instances of ClinicalDataCrossCheck.
+ * Responsible for executing cross checks on clinical data submitted by the user.
+ * in order to set which checks are to be run use setChecks, passing instances
+ * of ClinicalDataCrossCheck.
  *
  * Created by piotrzakrzewski on 22/06/16.
  */
@@ -66,7 +64,7 @@ public class ClinicalDataChecksRunner {
     public List<ValidationErrorMessage> getErrors() {
         List<ValidationErrorMessage> errors = new ArrayList<>();
         Map<ClinicalData, ItemDefinition> defMap = buildItemDefMap(clinicalData, metadata);
-        Map<ClinicalData, Boolean> showMap = buildShownMap(clinicalData, defMap);
+        Map<ClinicalData, Boolean> showMap = buildShownMap(defMap);
         Map<String, Set<CRFDefinition>> eventMap = buildEventMap(metadata);
         for (ClinicalDataCrossCheck clinicalDataCrossCheck : checks) {
             ValidationErrorMessage error = clinicalDataCrossCheck.getCorrespondingError(clinicalData, metadata,
@@ -152,60 +150,40 @@ public class ClinicalDataChecksRunner {
     }
 
     /*
-    * shown/hidden status is context dependant - it is valid only in context of other data-points for given patient.
-    * This is why hidden/shown is not a field of ClinicalData.
-    * */
-    private Map<ClinicalData, Boolean> buildShownMap(Collection<ClinicalData> data,
-                                                     Map<ClinicalData, ItemDefinition> defMap) {
+     * Shown/hidden status is context dependant - it is valid only in context of other data-points for given patient.
+     * This is why hidden/shown is not a field of ClinicalData.
+     * */
+    private Map<ClinicalData, Boolean> buildShownMap(Map<ClinicalData, ItemDefinition> definitionMap) {
         Map<ClinicalData, Boolean> shownMap = new HashMap<>();
-        data.forEach(clinicalData1 -> {
-            ItemDefinition definition = defMap.get(clinicalData1);
-            boolean shown = determineShown(clinicalData1, data, definition, defMap);
-            shownMap.put(clinicalData1, shown);
-        });
+        Set<ClinicalData> clinicalDataList = definitionMap.keySet();
+        Map<Long, List<ClinicalData>> splitPerLineMap = splitDataPerLine(clinicalDataList);
+        for (List<ClinicalData> listPerLine : splitPerLineMap.values()) {
+            VisibleStateDeterminator visibleStateDeterminator =
+                    new VisibleStateDeterminator(listPerLine, definitionMap);
+            listPerLine.forEach(clinicalDataToCheck -> {
+                boolean shown = visibleStateDeterminator.determineShown(clinicalDataToCheck, metadata);
+                shownMap.put(clinicalDataToCheck, shown);
+            });
+        }
         return shownMap;
     }
 
-    private boolean determineShown(ClinicalData clinicalData1, Collection<ClinicalData> data, ItemDefinition definition, Map<ClinicalData, ItemDefinition> defMap) {
-        if (definition == null) {
-            return true; // This case is covered by separate checks
-        }
-        List<DisplayRule> displayRules = definition.getDisplayRules();
-        boolean satisfied = true;
-        for (DisplayRule displayRule : displayRules) {
-            String crfName = clinicalData1.getCrfName();
-            String crfVersion = clinicalData1.getCrfVersion();
-            String crfOID = metadata.findFormOID(crfName, crfVersion);
-            if (displayRule.getAppliesInCrf().equals(crfOID)) {
-                satisfied = isDisplayRuleSatisfied(displayRule, data, clinicalData1.getSsid(), defMap);
-            }
-        }
-        return satisfied;
-    }
-
     /**
-     * Determines if a display rule is satisfied based on the value of the clinical data and the item definition.
-     * @param displayRule the display rule to check
-     * @param data the current clinical data values
-     * @param subjectId the subject's identifier
-     * @param defMap a map of the ClinicalData and the definitions of the data
-     * @return <code>true</code> if the display rule is satisfied, i.e. the item is displayed in a CRF
+     * Splits a {@link List} of {@link ClinicalData} into separate lists, one per line.
+     * Required because the scope of show/hide functionality is always per line.
+     * @param data the total list spanning multiple subjects / rows
+     * @return a map per line with the line number as key
      */
-    private boolean isDisplayRuleSatisfied(DisplayRule displayRule, Collection<ClinicalData> data, String subjectId, Map<ClinicalData, ItemDefinition> defMap) {
-        String controlItemName = displayRule.getControlItemName();
-        String optionValue = displayRule.getOptionValue();// This value has to equal value of the controlItemName for given subject
-        for (ClinicalData clinicalData1 : data) {
-            boolean controlItem = clinicalData1.getItem().equals(controlItemName)
-                    && clinicalData1.getSsid().equals(subjectId);
-            if (controlItem) {
-                ItemDefinition itemDefinition = defMap.get(clinicalData1);
-                if (itemDefinition.isMultiselect()) {
-                    List<String> values = clinicalData1.getValues(true);
-                    return values.contains(optionValue);
-                }
-                return clinicalData1.getValue().equals(optionValue);
+    private Map<Long, List<ClinicalData>> splitDataPerLine(Collection<ClinicalData> data) {
+        Map<Long, List<ClinicalData>> ret = new HashMap<>();
+        for (ClinicalData clinicalData : data) {
+            List<ClinicalData> splitList = ret.get(clinicalData.getLineNumber());
+            if (splitList == null) {
+                splitList = new ArrayList<>();
+                ret.put(clinicalData.getLineNumber(), splitList);
             }
+            splitList.add(clinicalData);
         }
-        return true;  // controlItemName does not exist is a separate check - therefore we let it pass here
+        return ret;
     }
 }

@@ -392,7 +392,6 @@ public class ClinicalDataOcChecksTests {
         assertThat(errors, notNullValue());
         assertThat(errors, hasSize(1));
         assertThat(errors, hasItem(isA(ToggleVarForDisplayRuleAbsent.class)));
-  //      assertThat(errors, hasItem(isA(MandatoryItemInCrfMissing.class)));
     }
 
     @Test
@@ -403,7 +402,6 @@ public class ClinicalDataOcChecksTests {
         assertThat(errors, notNullValue());
         assertThat(errors, hasSize(1));
         assertThat(errors, hasItem(isA(HiddenValueError.class)));
-//        assertThat(errors, hasItem(isA(MandatoryItemInCrfMissing.class)));
     }
 
     @Test

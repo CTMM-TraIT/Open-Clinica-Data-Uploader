@@ -608,11 +608,13 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
     }
 
     private static DisplayRule getDisplayRule(Node itemPresentInFormNode) throws XPathExpressionException {
-        Node formOIDNode = itemPresentInFormNode.getAttributes().getNamedItem("FormOID");
-        Node showItemNode = itemPresentInFormNode.getAttributes().getNamedItem("ShowItem");
-        assert formOIDNode != null;
-        assert showItemNode != null;
-
+        Node openClinicaItemDetailsNode =
+                (Node) xpath.evaluate(".//*[local-name()='ItemPresentInForm'][1]", itemPresentInFormNode, XPathConstants.NODE);
+        Node formOIDNode = openClinicaItemDetailsNode.getAttributes().getNamedItem("FormOID");
+        Node showItemNode = openClinicaItemDetailsNode.getAttributes().getNamedItem("ShowItem");
+        if ((formOIDNode == null) || (showItemNode == null)) {
+            return null;
+        }
         DisplayRule rule = new DisplayRule();
         String crfOID = formOIDNode.getTextContent();
         boolean show = true;
@@ -658,7 +660,7 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
         boolean isMultiSelect = isMultiSelect(itemDefinitionNode);
         ResponseType responseType = determineResponseType(itemDefinitionNode);
         String codeListRef = determineCodeListRef(itemDefinitionNode);
-        List<DisplayRule> displayRules = getDisplayRules(itemDefinitionNode);
+        DisplayRule displayRule = getDisplayRule(itemDefinitionNode);
         List<ItemPresentInForm> itemPresentInFormList = createPresentInCRFList(itemDefinitionNode);
         ItemDefinition itemDef = new ItemDefinition();
         itemDef.setResponseType(responseType);
@@ -671,7 +673,7 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
         itemDef.setSignificantDigits(Integer.parseInt(significantDigitsText));
         itemDef.setMultiselect(isMultiSelect);
         itemDef.setCodeListRef(codeListRef);
-        itemDef.setDisplayRules(displayRules);
+        itemDef.setDisplayRule(displayRule);
         return itemDef;
     }
 

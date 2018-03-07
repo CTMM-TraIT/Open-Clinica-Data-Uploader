@@ -43,8 +43,8 @@ public class ItemDefinition implements ODMElement {
     private String codeListRef;
     private ResponseType responseType;
 
-    @OneToMany(targetEntity = RangeCheck.class)
-    private List<DisplayRule> displayRules = new ArrayList<>();
+    @OneToOne(targetEntity = DisplayRule.class)
+    private DisplayRule displayRule = new DisplayRule();
 
     @OneToMany(targetEntity = ItemPresentInForm.class)
     private List<ItemPresentInForm> itemPresentInFormList = new ArrayList<>();
@@ -69,7 +69,7 @@ public class ItemDefinition implements ODMElement {
         this.significantDigits = prototype.getSignificantDigits();
         this.isMultiselect = prototype.isMultiselect();
         this.codeListRef = prototype.getCodeListRef();
-        this.displayRules = prototype.getDisplayRules();
+        this.displayRule = prototype.getDisplayRule();
         this.group = prototype.getGroup();
         this.responseType = prototype.getResponseType();
     }
@@ -90,12 +90,12 @@ public class ItemDefinition implements ODMElement {
         this.responseType = responseType;
     }
 
-    public List<DisplayRule> getDisplayRules() {
-        return displayRules;
+    public DisplayRule getDisplayRule() {
+        return displayRule;
     }
 
-    public void setDisplayRules(List<DisplayRule> displayRules) {
-        this.displayRules = displayRules;
+    public void setDisplayRule(DisplayRule displayRule) {
+        this.displayRule = displayRule;
     }
 
     public String getCodeListRef() {

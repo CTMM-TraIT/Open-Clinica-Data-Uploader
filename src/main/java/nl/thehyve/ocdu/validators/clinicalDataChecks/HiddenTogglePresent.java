@@ -45,8 +45,8 @@ public class HiddenTogglePresent implements ClinicalDataCrossCheck {
         Set<String> errors = new HashSet<>();
         Set<String> offenderSubjectIDs = new HashSet<>();
         for (ClinicalData clinicalData : itemDefMap.keySet()) {
-            List<DisplayRule> displayRules = itemDefMap.get(clinicalData).getDisplayRules();
-            for (DisplayRule displayRule : displayRules) {
+            DisplayRule displayRule = itemDefMap.get(clinicalData).getDisplayRule();
+            if (displayRule != null) {
                 boolean exists = itemExists(data, displayRule.getControlItemName());
                 if (!exists) {
                     error.addOffendingValue(clinicalData.toOffenderString() + " requires: " + displayRule.getControlItemName());

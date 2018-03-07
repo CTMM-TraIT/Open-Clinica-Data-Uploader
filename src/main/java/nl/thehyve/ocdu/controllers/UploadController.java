@@ -107,7 +107,7 @@ public class UploadController {
             allErrors.addAll(fileFormatErrors);
             return new ResponseEntity<>(allErrors, HttpStatus.OK);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            log.error("Error uploading file", e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
@@ -126,7 +126,7 @@ public class UploadController {
                     .depositEventsDataFile(locallySavedDataFile, user, currentUploadSession);
             return new ResponseEntity<>(fileFormatErrors, HttpStatus.OK);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            log.error("Error uploading event file", e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
@@ -197,7 +197,7 @@ public class UploadController {
             Collection<ValidationErrorMessage> fileFormatErrors = fileService.depositPatientFile(locallySavedDataFile, user, currentUploadSession, onlyYearOfBirthUsed);
             return new ResponseEntity<>(fileFormatErrors, HttpStatus.OK);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            log.error("Error uploading patient file", e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 

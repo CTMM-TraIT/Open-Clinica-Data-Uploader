@@ -117,7 +117,7 @@ public class Tree<T> {
         return printTree(0);
     }
 
-    private static final int indent = 5;
+    private static final int indent = 10;
 
     private String printTree(int increment) {
         String s = "";

@@ -42,11 +42,13 @@ public class HiddenValueEmptyCheck implements ClinicalDataCrossCheck {
         HiddenValueError error = new HiddenValueError();
         data.stream().forEach(clinicalData -> {
             boolean nonEmpty = !clinicalData.getValue().equals("");
-            boolean isHidden = !shownMap.get(clinicalData);
-            if (nonEmpty && isHidden) {
-                error.addOffendingValue(clinicalData.toOffenderString() +
-                        " Is hidden, it is not allowed to provide any value for it.");
-                clinicalData.addErrorClassification(ErrorClassification.BLOCK_ENTIRE_CRF);
+            if (shownMap.containsKey(clinicalData)) {
+                boolean isHidden = !shownMap.get(clinicalData);
+                if (nonEmpty && isHidden) {
+                    error.addOffendingValue(clinicalData.toOffenderString() +
+                            " Is hidden, it is not allowed to provide any value for it.");
+                    clinicalData.addErrorClassification(ErrorClassification.BLOCK_ENTIRE_CRF);
+                }
             }
         });
         if (error.getOffendingValues().size() > 0) {
