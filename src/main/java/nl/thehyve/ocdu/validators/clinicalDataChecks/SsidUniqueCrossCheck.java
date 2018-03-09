@@ -82,9 +82,9 @@ public class SsidUniqueCrossCheck implements ClinicalDataCrossCheck {
 
     private String toRowIdString(ClinicalData clinicalData) {
         String gRepeat = clinicalData.getGroupRepeat() != null ? clinicalData.getGroupRepeat().toString() : "";
-        return clinicalData.getSsid() + "in: "
+        return clinicalData.getSsid() + " in: "
                 + clinicalData.getEventName() + " "
-                + clinicalData.getEventRepeat() + " "
+                + clinicalData.getEventRepeat() + ", "
                 + clinicalData.getCrfName() + " "
                 + gRepeat + " "
                 + clinicalData.getCrfVersion();

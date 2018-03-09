@@ -39,12 +39,23 @@ public class ClinicalDataChecksRunner {
 
     private Collection<ClinicalDataCrossCheck> checks = new ArrayList<>();
 
+    private Collection<ClinicalDataCrossCheck> checksOverSubjects = new ArrayList<>();
+
     public Collection<ClinicalDataCrossCheck> getChecks() {
         return checks;
     }
 
     public void setChecks(Collection<ClinicalDataCrossCheck> checks) {
         this.checks = checks;
+    }
+
+
+    public Collection<ClinicalDataCrossCheck> getChecksOverSubjects() {
+        return checksOverSubjects;
+    }
+
+    public void setChecksOverSubjects(Collection<ClinicalDataCrossCheck> checksOverSubjects) {
+        this.checksOverSubjects = checksOverSubjects;
     }
 
     private final List<ClinicalData> clinicalData;
@@ -62,25 +73,33 @@ public class ClinicalDataChecksRunner {
     }
 
     public List<ValidationErrorMessage> getErrors() {
-        List<ValidationErrorMessage> errors = new ArrayList<>();
-        Map<ClinicalData, ItemDefinition> defMap = buildItemDefMap(clinicalData, metadata);
-        Map<ClinicalData, Boolean> showMap = buildShownMap(defMap);
-        Map<String, Set<CRFDefinition>> eventMap = buildEventMap(metadata);
-        for (ClinicalDataCrossCheck clinicalDataCrossCheck : checks) {
-            ValidationErrorMessage error = clinicalDataCrossCheck.getCorrespondingError(clinicalData, metadata,
-                    defMap, subjectWithEventsTypeList, showMap, eventMap);
-            if (error != null) {
-                errors.add(error);
+        // Map to combine all the error messages over subjects into one message per error type.
+        // The key is the class name of the error.
+        Map<String, ValidationErrorMessage> classErrorMessageMap = new HashMap<>();
+        Map<Long, List<ClinicalData>> splitDataPerLine = splitDataPerLine(clinicalData);
+        for (List<ClinicalData> clinicalDataPerSubjectEvent : splitDataPerLine.values()) {
+            List<ValidationErrorMessage> errorList = performValidation(clinicalDataPerSubjectEvent, checks);
+            for (ValidationErrorMessage error : errorList) {
+                String className = error.getClass().getName();
+                ValidationErrorMessage combinedValidationErrorMessage = null;
+                if (classErrorMessageMap.containsKey(className)) {
+                    combinedValidationErrorMessage = classErrorMessageMap.get(className);
+                    for (String message : error.getOffendingValues()) {
+                        combinedValidationErrorMessage.addOffendingValue(message);
+                    }
+                }
+                else {
+                    combinedValidationErrorMessage = error;
+                    classErrorMessageMap.put(className, combinedValidationErrorMessage);
+                }
             }
         }
-        /*checks.stream().forEach(
-                check -> {
-                    ValidationErrorMessage error = check.getCorrespondingError(clinicalData, metadata,
-                            defMap, subjectWithEventsTypeList, showMap, eventMap);
-                    if (error != null) errors.add(error);
-                }
-        );*/
-        return errors;
+        // The scope of certain validations (e.g. SsidUniqueCrossCheck) is over the entire data set. A separate
+        // list is needed following the requirement that the show/hide functionality only works on a single
+        // Subject/Event row. This corresponds to a single line in the source data-file.
+        List<ValidationErrorMessage> errorListOverSubjects = performValidation(clinicalData, checksOverSubjects);
+        errorListOverSubjects.addAll(classErrorMessageMap.values());
+        return errorListOverSubjects;
     }
 
     public List<ClinicalData> getClinicalData() {
@@ -104,6 +123,22 @@ public class ClinicalDataChecksRunner {
             }
         });
         return itemDefMap;
+    }
+
+    private List<ValidationErrorMessage> performValidation(List<ClinicalData> clinicalDataToValidate,
+                                                           Collection<ClinicalDataCrossCheck> crossCheckList) {
+        List<ValidationErrorMessage> errorList = new ArrayList<>();
+        Map<ClinicalData, ItemDefinition> defMap = buildItemDefMap(clinicalDataToValidate, metadata);
+        Map<ClinicalData, Boolean> showMap = buildShownMap(defMap);
+        Map<String, Set<CRFDefinition>> eventMap = buildEventMap(metadata);
+        for (ClinicalDataCrossCheck clinicalDataCrossCheck : crossCheckList) {
+            ValidationErrorMessage error = clinicalDataCrossCheck.getCorrespondingError(clinicalDataToValidate, metadata,
+                    defMap, subjectWithEventsTypeList, showMap, eventMap);
+            if (error != null) {
+                errorList.add(error);
+            }
+        }
+        return errorList;
     }
 
     private CRFDefinition getMatchingCrf(String eventName, String CRFName, String CRfVersion, MetaData metaData) {

@@ -26,6 +26,7 @@ import nl.thehyve.ocdu.models.OcDefinitions.MetaData;
 import nl.thehyve.ocdu.models.errors.ErrorClassification;
 import nl.thehyve.ocdu.models.errors.HiddenValueError;
 import nl.thehyve.ocdu.models.errors.ValidationErrorMessage;
+import org.apache.commons.lang3.StringUtils;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
 import java.util.List;
@@ -41,10 +42,10 @@ public class HiddenValueEmptyCheck implements ClinicalDataCrossCheck {
     public ValidationErrorMessage getCorrespondingError(List<ClinicalData> data, MetaData metaData, Map<ClinicalData, ItemDefinition> itemDefMap, List<StudySubjectWithEventsType> studySubjectWithEventsTypeList, Map<ClinicalData, Boolean> shownMap, Map<String, Set<CRFDefinition>> eventMap) {
         HiddenValueError error = new HiddenValueError();
         data.stream().forEach(clinicalData -> {
-            boolean nonEmpty = !clinicalData.getValue().equals("");
+            boolean nonEmpty = ! StringUtils.isBlank(clinicalData.getValue());
             if (shownMap.containsKey(clinicalData)) {
-                boolean isHidden = !shownMap.get(clinicalData);
-                if (nonEmpty && isHidden) {
+                boolean isShown = shownMap.get(clinicalData);
+                if (nonEmpty && !isShown) {
                     error.addOffendingValue(clinicalData.toOffenderString() +
                             " Is hidden, it is not allowed to provide any value for it.");
                     clinicalData.addErrorClassification(ErrorClassification.BLOCK_ENTIRE_CRF);

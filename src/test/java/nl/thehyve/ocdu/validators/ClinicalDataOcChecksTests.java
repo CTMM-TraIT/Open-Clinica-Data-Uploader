@@ -9,11 +9,11 @@ import nl.thehyve.ocdu.models.UploadSession;
 import nl.thehyve.ocdu.models.errors.*;
 import nl.thehyve.ocdu.soap.ResponseHandlers.GetStudyMetadataResponseHandler;
 import nl.thehyve.ocdu.validators.clinicalDataChecks.ClinicalDataCrossCheck;
-import nl.thehyve.ocdu.validators.clinicalDataChecks.EventStatusWarning;
 import nl.thehyve.ocdu.validators.clinicalDataChecks.MultipleCrfCrossCheck;
 import nl.thehyve.ocdu.validators.clinicalDataChecks.StudyStatusAvailable;
 import nl.thehyve.ocdu.validators.fileValidators.DataPreMappingValidator;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openclinica.ws.beans.StudySubjectWithEventsType;
 
@@ -49,13 +49,12 @@ public class ClinicalDataOcChecksTests {
      */
     private static MetaData metaDataEventfulStudy;
     private static List<StudySubjectWithEventsType> testSubjectWithEventsTypeList;
-    private static OcUser testUser;
-    private static UploadSession testSubmission;
+
     private static ClinicalDataFactory factory;
     private static Path testFileCorrect;
     private static Path testFileEmptyNonMandatoryMultiSelect;
     private static Path testFileCRFStatusWarning;
-    private static Path testFileInCorrectSsidLength;
+    private static Path testFileInCorrectSSIDLength;
     private static Path testFileEventGapWithinData;
     private static Path testFileNonExistentEvent;
     private static Path testFileNonExistentCRF;
@@ -65,8 +64,8 @@ public class ClinicalDataOcChecksTests {
     private static Path testFileRangeCheckViolation;
     private static Path testFileTooManyValues;
     private static Path testFileTooManySignificantDigits;
-    private static Path testFileDupSsid;
-    private static Path testFileRepeatInNonrepeatingEvent;
+    private static Path testFileDupSSID;
+    private static Path testFileRepeatInNonRepeatingEvent;
     private static Path testFileMismatchingCRFVersion;
     private static Path testFileGroupRepeatError;
     private static Path testWrongStudyStatus;
@@ -78,15 +77,15 @@ public class ClinicalDataOcChecksTests {
     @BeforeClass
     public static void setUp() throws Exception {
         try {
-            testUser = new OcUser();
+            OcUser testUser = new OcUser();
             testUser.setUsername("tester");
             testSubjectWithEventsTypeList = TestUtils.createStudySubjectWithEventList();
-            testSubmission = new UploadSession("submission1", UploadSession.Step.MAPPING, new Date(), testUser);
+            UploadSession testSubmission = new UploadSession("submission1", UploadSession.Step.MAPPING, new Date(), testUser);
             factory = new ClinicalDataFactory(testUser, testSubmission);
 
             testFileEmptyNonMandatoryMultiSelect = Paths.get("docs/exampleFiles/emptyNonMandatoryMultiSelect.txt");
             testFileCorrect = Paths.get("docs/exampleFiles/data.txt");
-            testFileInCorrectSsidLength = Paths.get("docs/exampleFiles/tooLongSSID.txt");
+            testFileInCorrectSSIDLength = Paths.get("docs/exampleFiles/tooLongSSID.txt");
             testFileCRFStatusWarning = Paths.get("docs/exampleFiles/crfStatusWarning.txt");
             testFileEventGapWithinData = Paths.get("docs/exampleFiles/eventGapInData.txt");
             testFileNonExistentEvent = Paths.get("docs/exampleFiles/nonExistentEvent.txt");
@@ -97,8 +96,8 @@ public class ClinicalDataOcChecksTests {
             testFileRangeCheckViolation = Paths.get("docs/exampleFiles/rangeCheckViolation.txt");
             testFileTooManyValues = Paths.get("docs/exampleFiles/tooManyValues.txt");
             testFileTooManySignificantDigits = Paths.get("docs/exampleFiles/tooManySignificantDigits.txt");
-            testFileDupSsid = Paths.get("docs/exampleFiles/dupSSID.txt");
-            testFileRepeatInNonrepeatingEvent = Paths.get("docs/exampleFiles/event_repeat.txt");
+            testFileDupSSID = Paths.get("docs/exampleFiles/dupSSID.txt");
+            testFileRepeatInNonRepeatingEvent = Paths.get("docs/exampleFiles/event_repeat.txt");
             testFileMismatchingCRFVersion = Paths.get("docs/exampleFiles/mismatchingCrfVersionID.txt");
             testFileGroupRepeatError = Paths.get("docs/exampleFiles/group_repeat_error.txt");
             emptyMandatory = Paths.get("docs/exampleFiles/emptyMandatory.txt");
@@ -134,7 +133,7 @@ public class ClinicalDataOcChecksTests {
 
     @Test
     public void tooLongSSID() throws Exception {
-        List<ClinicalData> incorrectClinicalData = factory.createClinicalData(testFileInCorrectSsidLength);
+        List<ClinicalData> incorrectClinicalData = factory.createClinicalData(testFileInCorrectSSIDLength);
         clinicalDataOcChecks = new ClinicalDataOcChecks(metaData, incorrectClinicalData, testSubjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = clinicalDataOcChecks.getErrors();
         assertEquals(1, errors.size());
@@ -215,7 +214,6 @@ public class ClinicalDataOcChecksTests {
         List<ValidationErrorMessage> errors = clinicalDataOcChecks.getErrors();
         assertEquals(1, errors.size());
         assertThat(errors, hasItem(isA(RangeCheckViolation.class)));
-//        assertThat(errors, hasItem(isA(MandatoryItemInCrfMissing.class)));
         ValidationErrorMessage errorMessage = errors.get(0);
         assertThat(errorMessage.getOffendingValues(), hasSize(3));
     }
@@ -252,7 +250,7 @@ public class ClinicalDataOcChecksTests {
 
     @Test
     public void duplicatedSsid() throws Exception {
-        List<ClinicalData> incorrectClinicalData = factory.createClinicalData(testFileDupSsid);
+        List<ClinicalData> incorrectClinicalData = factory.createClinicalData(testFileDupSSID);
         clinicalDataOcChecks = new ClinicalDataOcChecks(metaData, incorrectClinicalData, testSubjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = clinicalDataOcChecks.getErrors();
         assertEquals(1, errors.size());
@@ -260,8 +258,8 @@ public class ClinicalDataOcChecksTests {
     }
 
     @Test
-    public void repeatInNonrepeatingEvent() throws Exception {
-        List<ClinicalData> incorrectClinicalData = factory.createClinicalData(testFileRepeatInNonrepeatingEvent);
+    public void repeatInNonRepeatingEvent() throws Exception {
+        List<ClinicalData> incorrectClinicalData = factory.createClinicalData(testFileRepeatInNonRepeatingEvent);
         clinicalDataOcChecks = new ClinicalDataOcChecks(metaData, incorrectClinicalData, testSubjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = clinicalDataOcChecks.getErrors();
         assertEquals(1, errors.size());
@@ -274,8 +272,9 @@ public class ClinicalDataOcChecksTests {
         List<ClinicalData> incorrectClinicalData = factory.createClinicalData(testFileInvalidEventRepeat);
         clinicalDataOcChecks = new ClinicalDataOcChecks(metaDataEventfulStudy, incorrectClinicalData, testSubjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = clinicalDataOcChecks.getErrors();
-        assertEquals(1, errors.size());
+        assertEquals(2, errors.size());
         assertThat(errors, hasItem(isA(EventRepeatFormatError.class)));
+        assertThat(errors, hasItem(isA(RepeatInNonrepeatingEvent.class)));
     }
 
 
@@ -289,7 +288,7 @@ public class ClinicalDataOcChecksTests {
     }
 
     @Test
-    public void repeatInNonrepeatingGroup() throws Exception {
+    public void repeatInNonRepeatingGroup() throws Exception {
         List<ClinicalData> incorrectClinicalData = factory.createClinicalData(testFileGroupRepeatError);
         clinicalDataOcChecks = new ClinicalDataOcChecks(metaData, incorrectClinicalData, testSubjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = clinicalDataOcChecks.getErrors();
@@ -354,8 +353,8 @@ public class ClinicalDataOcChecksTests {
 
     @Test
     public void dateValidation() throws Exception {
-        String legitmatedate = "22-06-2000";
-        assertThat(UtilChecks.isDate(legitmatedate), is(true));
+        String legitmateDate = "22-06-2000";
+        assertThat(UtilChecks.isDate(legitmateDate), is(true));
         String invalid = "32-12-2000";
         assertThat(UtilChecks.isDate(invalid), is(false));
         String invalid2 = "20-Oct-2000";
@@ -390,7 +389,7 @@ public class ClinicalDataOcChecksTests {
         clinicalDataOcChecks = new ClinicalDataOcChecks(metaData, incorrectClinicalData, testSubjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = clinicalDataOcChecks.getErrors();
         assertThat(errors, notNullValue());
-        assertThat(errors, hasSize(1));
+        assertThat(errors, hasSize(2));
         assertThat(errors, hasItem(isA(ToggleVarForDisplayRuleAbsent.class)));
     }
 
@@ -422,13 +421,14 @@ public class ClinicalDataOcChecksTests {
 
     @Test
     public void checkGetters() throws Exception {
-        // get 100% covarage.
+        // get 100% coverage.
         MetaData metaData = new MetaData();
         List<ClinicalData> clinicalDataList = new ArrayList<>();
         List<StudySubjectWithEventsType> subjectWithEventsTypes = new ArrayList<>();
         ClinicalDataChecksRunner clinicalDataChecksRunner =
                 new ClinicalDataChecksRunner(metaData, clinicalDataList, subjectWithEventsTypes);
         assertThat(clinicalDataChecksRunner.getChecks(), notNullValue());
+        assertThat(clinicalDataChecksRunner.getChecksOverSubjects(), notNullValue());
         assertThat(clinicalDataChecksRunner.getMetadata(), notNullValue());
         assertThat(clinicalDataChecksRunner.getClinicalData(), notNullValue());
         assertThat(clinicalDataChecksRunner.getSubjectWithEventsTypeList(), notNullValue());

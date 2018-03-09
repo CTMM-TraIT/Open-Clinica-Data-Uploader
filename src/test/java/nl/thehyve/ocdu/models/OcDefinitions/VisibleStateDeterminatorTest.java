@@ -14,7 +14,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with OCDI. If not, see <http://www.gnu.org/licenses/>.
+ * along with OCDI. If note, see <http://www.gnu.org/licenses/>.
  */
 
 package nl.thehyve.ocdu.models.OcDefinitions;
@@ -227,7 +227,7 @@ public class VisibleStateDeterminatorTest {
 
         String appliesInCrfOID =
                 metaData.findFormOID(controlClinicalData.getCrfName(), controlClinicalData.getCrfVersion());
-        controlClinicalData.setValue("ValueWhichHidesA");
+        controlClinicalData.setValue("ValueToTriggerDisplayRule");
         itemDefinition = definitionMap.get(controlClinicalData);
         itemDefinition.getDisplayRule().setAppliesInCrf(appliesInCrfOID);
 
@@ -241,12 +241,12 @@ public class VisibleStateDeterminatorTest {
         itemDefinition = definitionMap.get(clinicalDataToTest);
         itemDefinition.getDisplayRule().setControlItemName("G");
         itemDefinition.getDisplayRule().setShow(false);
-        itemDefinition.getDisplayRule().setOptionValue("ValueWhichHidesA");
+        itemDefinition.getDisplayRule().setOptionValue("ValueToTriggerDisplayRule");
         itemDefinition.getDisplayRule().setAppliesInCrf(appliesInCrfOID);
 
         boolean visible =
                 visibleStateDeterminator.determineShown(clinicalDataToTest, metaData);
-        assertFalse(visible);
+        assertTrue(visible);
 
         controlClinicalData.setValue("ValueWhichIsNotCoveredByTheDisplayRule");
         visible =
@@ -288,18 +288,17 @@ public class VisibleStateDeterminatorTest {
            /
           C+
         *******/
-        ClinicalData clinicalData = buildClinicalData("C", "A");
-        ItemDefinition itemDefinition = definitionMap.get(clinicalData);
-        itemDefinition.getDisplayRule().setOptionValue("-");
-        clinicalDataList.add(clinicalData);
-
-        clinicalData = buildClinicalData("B", null);
-        clinicalDataList.add(clinicalData);
-
         ClinicalData controlClinicalData = buildClinicalData("A", null);
         controlClinicalData.setValue("ValueWhichHidesC");
         clinicalDataList.add(controlClinicalData);
 
+        ClinicalData clinicalData = buildClinicalData("B", null);
+        clinicalDataList.add(clinicalData);
+
+        clinicalData =
+                buildClinicalData("C", "A");
+
+        clinicalDataList.add(clinicalData);
 
         MetaData metaData = new MetaData();
 
@@ -314,6 +313,8 @@ public class VisibleStateDeterminatorTest {
                 metaData.findFormOID(clinicalData.getCrfName(), clinicalData.getCrfVersion());
 
 
+        ItemDefinition itemDefinition = definitionMap.get(clinicalData);
+        itemDefinition.getDisplayRule().setOptionValue("-");
         itemDefinition.setMultiselect(true);
         clinicalData.setValue("Value_of_C");
         itemDefinition = definitionMap.get(clinicalData);
@@ -321,7 +322,7 @@ public class VisibleStateDeterminatorTest {
         itemDefinition.getDisplayRule().setControlItemName("A");
         itemDefinition.getDisplayRule().setOptionValue("ValueWhichShowsC");
         itemDefinition.getDisplayRule().setAppliesInCrf(appliesInCrfOID);
-
+        definitionMap.replace(clinicalData, itemDefinition);
 
         boolean visible =
                 visibleStateDeterminator.determineShown(clinicalData, metaData);
@@ -381,7 +382,7 @@ public class VisibleStateDeterminatorTest {
         assertTrue(visible);
 
         // missing itemDefinition
-        definitionMap.remove(clinicalData);
+        definitionMap.replace(clinicalData, null);
         visible =
                 visibleStateDeterminator.determineShown(clinicalData, metaData);
         assertTrue(visible);

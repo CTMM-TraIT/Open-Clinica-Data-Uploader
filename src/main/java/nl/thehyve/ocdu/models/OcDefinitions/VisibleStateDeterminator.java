@@ -35,7 +35,6 @@ public class VisibleStateDeterminator {
 
     private Tree<ClinicalData> tree;
 
-    private ClinicalData rootNode;
 
     /**
      * Create an new instance from a map of {@link ClinicalData} and {@link ItemDefinition} elements which should be
@@ -60,7 +59,7 @@ public class VisibleStateDeterminator {
         }
 
 
-        rootNode = new ClinicalData();
+        ClinicalData rootNode = new ClinicalData();
         tree = new Tree<>(rootNode);
         determineShowHideDepth(clinicalDataList);
         long maxLevel = 0;
@@ -117,16 +116,16 @@ public class VisibleStateDeterminator {
         List<ClinicalData> visitedList = new ArrayList<>();
         for (ClinicalData clinicalData : clinicalDataList) {
             long level = 0;
-            ClinicalData searchClinicalData = findControlItem(clinicalDataList, clinicalData);
+            ClinicalData controlClinicalData = findControlItem(clinicalDataList, clinicalData);
             visitedList.add(clinicalData);
-            while (searchClinicalData != null) {
+            while (controlClinicalData != null) {
                 level++;
-                if (! visitedList.contains(searchClinicalData)) {
-                    visitedList.add(searchClinicalData);
-                    searchClinicalData = findControlItem(clinicalDataList, searchClinicalData);
+                if (! visitedList.contains(controlClinicalData)) {
+                    visitedList.add(controlClinicalData);
+                    controlClinicalData = findControlItem(clinicalDataList, controlClinicalData);
                 }
                 else {
-                    searchClinicalData = null;
+                    controlClinicalData = null;
                 }
             }
             if (clinicalData.getShowHideLevel() == 0) {
@@ -140,20 +139,22 @@ public class VisibleStateDeterminator {
     }
 
     public boolean determineShown(ClinicalData clinicalDataToCheck, MetaData metaData) {
-        ItemDefinition definition = definitionMap.get(clinicalDataToCheck);
-        if (definition == null) {
+        ItemDefinition itemDefinition = definitionMap.get(clinicalDataToCheck);
+        if (itemDefinition == null) {
             return true;
         }
-
         Tree<ClinicalData> treeNode = tree.getTree(clinicalDataToCheck);
+        if ((treeNode == null) || (treeNode.getParent() == null)) {
+            return true;
+        }
         boolean shown = true;
-        while (treeNode.getParent().getParent() != null) {
+        while (treeNode.getParent() != null) {
             ClinicalData controlClinicalData = treeNode.getParent().getHead();
-            ItemDefinition itemDefinition = definitionMap.get(clinicalDataToCheck);
-            DisplayRule displayRule = definition.getDisplayRule();
+            itemDefinition = definitionMap.get(clinicalDataToCheck);
+            DisplayRule displayRule = itemDefinition.getDisplayRule();
             if ((displayRule == null) ||
                     (StringUtils.isBlank(displayRule.getControlItemName()))) {
-                return true;
+                return shown;
             }
             String crfOID =
                     metaData.findFormOID(clinicalDataToCheck.getCrfName(), clinicalDataToCheck.getCrfVersion());
@@ -168,9 +169,6 @@ public class VisibleStateDeterminator {
 
     private Boolean isDisplayRuleSatisfied(ItemDefinition itemDefinition, ClinicalData clinicalData) {
         DisplayRule displayRule = itemDefinition.getDisplayRule();
-        if (displayRule == null) {
-            return true;
-        }
         String optionValue = displayRule.getOptionValue();
         if (StringUtils.isBlank(optionValue)) {
             return true;
@@ -178,14 +176,12 @@ public class VisibleStateDeterminator {
         if (itemDefinition.isMultiselect()) {
             List<String> values = clinicalData.getValues(true);
             if (values.contains(optionValue)) {
-                return displayRule.isShow();
+                return true;
             }
+            return false;
         }
         else {
-            if (optionValue.equals(clinicalData.getValue())) {
-                return displayRule.isShow();
-            }
+            return optionValue.equals(clinicalData.getValue());
         }
-        return false;
     }
 }

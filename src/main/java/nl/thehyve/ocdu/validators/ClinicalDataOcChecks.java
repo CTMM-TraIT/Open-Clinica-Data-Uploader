@@ -35,6 +35,7 @@ public class ClinicalDataOcChecks extends ClinicalDataChecksRunner{
     public ClinicalDataOcChecks(MetaData metadata, List<ClinicalData> clinicalData, List<StudySubjectWithEventsType> subjectWithEventsTypes) {
         super(metadata, clinicalData, subjectWithEventsTypes);
         Collection<ClinicalDataCrossCheck> crossChecks = new ArrayList<>();
+        Collection<ClinicalDataCrossCheck> checksOverSubjects = new ArrayList<>();
 
         crossChecks.add(new EventExistsCrossCheck());
         crossChecks.add(new DataFieldWidthCrossCheck());
@@ -50,7 +51,7 @@ public class ClinicalDataOcChecks extends ClinicalDataChecksRunner{
         crossChecks.add(new ValuesNumberCrossCheck());
         crossChecks.add(new RangeChecks());
         crossChecks.add(new SignificanceCrossCheck());
-        crossChecks.add(new SsidUniqueCrossCheck());
+        checksOverSubjects.add(new SsidUniqueCrossCheck());
         crossChecks.add(new EventRepeatCrossCheck());
         crossChecks.add(new CodeListCrossCheck());
         crossChecks.add(new HiddenValueEmptyCheck());
@@ -58,14 +59,11 @@ public class ClinicalDataOcChecks extends ClinicalDataChecksRunner{
         crossChecks.add(new ItemGroupRepeat());
         crossChecks.add(new DataFieldWidthCheck());
         crossChecks.add(new EventStatusCheck());
-        crossChecks.add(new EventGapCrossCheck());
+        checksOverSubjects.add(new EventGapCrossCheck());
         crossChecks.add(new EventRepeatFormatCheck());
         crossChecks.add(new EventStatusWarning());
 
         this.setChecks(crossChecks);
+        this.setChecksOverSubjects(checksOverSubjects);
     }
-
-
-
-
 }

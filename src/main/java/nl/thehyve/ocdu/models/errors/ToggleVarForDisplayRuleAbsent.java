@@ -24,6 +24,6 @@ package nl.thehyve.ocdu.models.errors;
  */
 public class ToggleVarForDisplayRuleAbsent extends ValidationErrorMessage {
     public ToggleVarForDisplayRuleAbsent() {
-        super("One or more items in your submission has associated Display Rule which requires other item for validation but the item is absent.");
+        super("One or more items in your submission has an associated Display Rule which requires another item for validation but the item is absent.");
     }
 }
