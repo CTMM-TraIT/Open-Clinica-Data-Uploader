@@ -28,6 +28,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Optional;
 
 /**
  * Filter required to pass on user selected OcEnvironment during login.
@@ -38,21 +39,29 @@ public class ExUsernamePasswordAuthenticationFilter extends UsernamePasswordAuth
 
     private static final Logger log = LoggerFactory.getLogger(ExUsernamePasswordAuthenticationFilter.class);
 
+    private OCEnvironmentsConfig ocEnvironmentsConfig;
+
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        final String ocEnvironment = request.getParameter(OCEnvironmentsConfig.OC_ENV_ATTRIBUTE_NAME);
-        log.info("Attempted authentication against: " + ocEnvironment);
+        final String ocEnvironmentName = request.getParameter(OCEnvironmentsConfig.OC_ENV_ATTRIBUTE_NAME);
+        Optional<OCEnvironmentsConfig.OCEnvironment> ocEnvironment =
+                ocEnvironmentsConfig.getOcEnvironments()
+                        .stream()
+                        .filter( ocEnvironment1 -> ocEnvironment1.getName().equals(ocEnvironmentName))
+                        .findFirst();
+        String targetURL = ocEnvironment.get().getUrl();
+        log.info("Attempted authentication against: " + ocEnvironment.get().getName());
         String password = request.getParameter("password");
         CustomPasswordEncoder encoder = new CustomPasswordEncoder();
         password = encoder.encode(password);
         request.getSession().setAttribute("ocwsHash", password);
-        request.getSession().setAttribute(OCEnvironmentsConfig.OC_ENV_ATTRIBUTE_NAME, ocEnvironment);
+        request.getSession().setAttribute(OCEnvironmentsConfig.OC_ENV_ATTRIBUTE_NAME, targetURL);
 
         return super.attemptAuthentication(request, response);
     }
 
-    public ExUsernamePasswordAuthenticationFilter() {
+    public ExUsernamePasswordAuthenticationFilter(OCEnvironmentsConfig ocEnvironmentsConfig) {
         super.setPostOnly(true);  //TODO: should be defined as a Bean
+        this.ocEnvironmentsConfig = ocEnvironmentsConfig;
     }
-
 }

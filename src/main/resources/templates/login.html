@@ -21,7 +21,7 @@
                         <input type="text" name="username" class="form-control" placeholder="Username" required/>
                         <input type="password" name="password" class="form-control" placeholder="Password" required/>
                         OpenClinica Environment: <select name="ocEnvironment" class="oc-environment-list" required>
-                             <option th:each="ocenv : ${environments}" th:value="${ocenv.url}"  th:text="${ocenv.name}"></option>
+                             <option th:each="ocenv : ${environments}" th:value="${ocenv.name}"  th:text="${ocenv.name}"></option>
                         </select>
                         <button type="submit" class="btn btn-lg btn-primary btn-block log-in-button">Log in</button>
                     </div>
