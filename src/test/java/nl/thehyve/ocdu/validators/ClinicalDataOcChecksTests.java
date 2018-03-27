@@ -389,7 +389,7 @@ public class ClinicalDataOcChecksTests {
         clinicalDataOcChecks = new ClinicalDataOcChecks(metaData, incorrectClinicalData, testSubjectWithEventsTypeList);
         List<ValidationErrorMessage> errors = clinicalDataOcChecks.getErrors();
         assertThat(errors, notNullValue());
-        assertThat(errors, hasSize(2));
+        assertThat(errors, hasSize(1));
         assertThat(errors, hasItem(isA(ToggleVarForDisplayRuleAbsent.class)));
     }
 

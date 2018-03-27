@@ -159,7 +159,8 @@ public class VisibleStateDeterminator {
             String crfOID =
                     metaData.findFormOID(clinicalDataToCheck.getCrfName(), clinicalDataToCheck.getCrfVersion());
             if (crfOID.equals(displayRule.getAppliesInCrf())) {
-                shown = shown & isDisplayRuleSatisfied(itemDefinition, controlClinicalData);
+                ItemDefinition controlItemDefinition = definitionMap.get(controlClinicalData);
+                shown = shown && isDisplayRuleSatisfied(itemDefinition, controlItemDefinition, controlClinicalData);
             }
             clinicalDataToCheck = controlClinicalData;
             treeNode = tree.getTree(controlClinicalData);
@@ -167,13 +168,18 @@ public class VisibleStateDeterminator {
         return shown;
     }
 
-    private Boolean isDisplayRuleSatisfied(ItemDefinition itemDefinition, ClinicalData clinicalData) {
+    private Boolean isDisplayRuleSatisfied(ItemDefinition itemDefinition, ItemDefinition controlItemDefinition, ClinicalData clinicalData) {
         DisplayRule displayRule = itemDefinition.getDisplayRule();
+        if ((displayRule == null) ||
+                (controlItemDefinition == null)) {
+            // i.e. no display-rule defined for the item, then it is per definition visible
+            return true;
+        }
         String optionValue = displayRule.getOptionValue();
         if (StringUtils.isBlank(optionValue)) {
             return true;
         }
-        if (itemDefinition.isMultiselect()) {
+        if (controlItemDefinition.isMultiselect()) {
             List<String> values = clinicalData.getValues(true);
             if (values.contains(optionValue)) {
                 return true;
