@@ -8,6 +8,11 @@ This document contains the end-user and technical manuals of the OCDU-applicatio
 ## Releases
 The compiled and released versions of OCDU will be made available for downloads from the CTMM-TraIT Github repository from the master branch. It can be found at: [https://github.com/CTMM-TraIT/Open-Clinica-Data-Uploader](https://github.com/CTMM-TraIT/Open-Clinica-Data-Uploader). Each release will have a set of accompanying configuration-files and manuals.
 
+The table below contains an overview of the releases.
+1. Version 2.0.2_RC04
+	- Change of the token to indicate a repeating item in the column names of data files. Change to a hash-mark (#); was an underscore (_). Issue ID: TraIT1808 016.
+
+
 ## User administration
 Users can use OCDU with the same user-ID and password as the OpenClinica instance to which they want to upload data. To use ODCU, users must be authorized to use SOAP web-services in OpenClinica. Refer to the instructions in the [OpenClinica User Administration](https://docs.openclinica.com/3.1/administer-users#content-title-2979) manual on how to do this.
 
