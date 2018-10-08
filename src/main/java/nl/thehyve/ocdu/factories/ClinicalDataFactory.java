@@ -24,7 +24,6 @@ import nl.thehyve.ocdu.models.OcUser;
 import nl.thehyve.ocdu.models.UploadSession;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -34,7 +33,7 @@ import java.util.stream.Stream;
 
 /**
  * The only way ClinicalData objects should be created outside tests.
- * This factory is responsible for deserializing ClinicalData points from user text file.
+ * This factory is responsible for deserialising ClinicalData points from user text file.
  * It does not save anything to the database nor does any validation - FileValidator needs to check text file
  * before ClinicalDataFactory can process it.
  *
@@ -42,7 +41,10 @@ import java.util.stream.Stream;
  */
 public class ClinicalDataFactory extends UserSubmittedDataFactory {
 
-
+    /**
+     * Token used to indicate item repeats in column names: e.g. <i>bloodpressure#2</i>.
+     */
+    public final static String COLUMN_NAME_ITEM_REPEAT_TOKEN = "#";
     public final static String STUDY_SUBJECT_ID = "StudySubjectID";
     public final static String PERSON_ID = "PersonID";
     public final static String STUDY = "Unique Protocol ID";
@@ -147,7 +149,7 @@ public class ClinicalDataFactory extends UserSubmittedDataFactory {
     }
 
     private String parseItem(String columnToken) {
-        int last = columnToken.lastIndexOf("_");
+        int last = columnToken.lastIndexOf(COLUMN_NAME_ITEM_REPEAT_TOKEN);
         if (last > 0) {
             return columnToken.substring(0, last);
         } else {
@@ -156,12 +158,12 @@ public class ClinicalDataFactory extends UserSubmittedDataFactory {
     }
 
     private Integer parseGroupRepeat(String columnToken) {
-        String[] splt = columnToken.split("_");
+        String[] splitArray = columnToken.split(COLUMN_NAME_ITEM_REPEAT_TOKEN);
         Integer gRep = null;
-        if (splt.length > 1) {
+        if (splitArray.length > 1) {
             try {
-                int lastPart = splt.length - 1;
-                gRep = Integer.parseInt(splt[lastPart]);
+                int lastPart = splitArray.length - 1;
+                gRep = Integer.parseInt(splitArray[lastPart]);
             } catch (NumberFormatException e) {
                 gRep = null; // Do nothing
             }
