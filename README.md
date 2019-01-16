@@ -8,9 +8,14 @@ This document contains the end-user and technical manuals of the OCDU-applicatio
 ## Releases
 The compiled and released versions of OCDU will be made available for downloads from the CTMM-TraIT Github repository from the master branch. It can be found at: [https://github.com/CTMM-TraIT/Open-Clinica-Data-Uploader](https://github.com/CTMM-TraIT/Open-Clinica-Data-Uploader). Each release will have a set of accompanying configuration-files and manuals.
 
-The table below contains an overview of the releases.
-1. Version 2.0.2_RC04
-	- Change of the token to indicate a repeating item in the column names of data files. Change to a hash-mark (#); was an underscore (_). Issue ID: TraIT1808 016.
+The table below contains an overview of the releases. 
+#####Version 2.0.2; 16-01-2018
+- Upgrade of version for upcoming OpenClinica stack upgrade currently being performed on the stack test environment.
+- Fix of problem found with nested hidden items. Issue ID: TraIT1803 193.
+- Fix of problem with the mapping of variable in the CRF and the datafile. Issue ID: TraIT1801 202.
+
+#####Version 2.0.2_RC04; 08-10-2018
+- Change of the token to indicate a repeating item in the column names of data files. Change to a hash-mark (#); was an underscore (_). Issue ID: TraIT1808 016.
 
 
 ## User administration
