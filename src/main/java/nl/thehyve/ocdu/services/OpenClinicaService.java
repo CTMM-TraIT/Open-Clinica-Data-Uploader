@@ -147,7 +147,7 @@ public class OpenClinicaService {
             return null;
         }
         MetaData metaData = getMetadataSoapCall(username, passwordHash, url, study);
-        addSiteDefinitions(metaData, study, sitesPresentInData);
+        addSiteDefinitions(metaData, username, passwordHash, url, study, sitesPresentInData);
         addSiteInformationToMetaData(metaData, study);
         return metaData;
     }
@@ -212,18 +212,20 @@ public class OpenClinicaService {
         return resultList;
     }
 
-    private void addSiteDefinitions(MetaData metaData, Study study,
+    private void addSiteDefinitions(MetaData metaData, String username, String passwordHash, String url, Study study,
                                     Set<String> sitesPresentInData) throws Exception {
         List<SiteDefinition> siteDefinitions = new ArrayList<>();
         for (Site site : study.getSiteList()) {
             String siteID = site.getIdentifier();
             if (sitesPresentInData.contains(siteID)) {
+                Study siteAsAStudy = new Study(site.getIdentifier(), site.getOid(), site.getName());
+                MetaData siteMetadata = getMetadataSoapCall(username, passwordHash, url, siteAsAStudy);
                 SiteDefinition siteDef = new SiteDefinition();
                 siteDef.setSiteOID(site.getOid());
                 siteDef.setName(site.getName());
                 siteDef.setUniqueID(site.getIdentifier());
-                siteDef.setBirthdateRequired(metaData.getBirthdateRequired());
-                siteDef.setGenderRequired(metaData.isGenderRequired());
+                siteDef.setBirthdateRequired(siteMetadata.getBirthdateRequired());
+                siteDef.setGenderRequired(siteMetadata.isGenderRequired());
                 siteDefinitions.add(siteDef);
             }
         }
