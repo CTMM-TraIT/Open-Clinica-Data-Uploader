@@ -32,8 +32,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
+import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
@@ -68,21 +70,18 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
     public static final String SUBJECT_ID_GENERATOR_SELECTOR = "//StudyParameterListRef[@StudyParameterListID='SPL_subjectIdGeneration']]";
 
 
-    private static XPathProcessor xPathProcessor = new XPathProcessor();
-
-
     public static MetaData parseGetStudyMetadataResponse(SOAPMessage response) throws Exception { //TODO: handle exception
         Document odm = getOdm(response);
         if (odm == null) {
             return null;
         }
 
-        Node studyNode = (Node) xPathProcessor.process(STUDY_SELECTOR, odm, XPathConstants.NODE);
-        NodeList crfDefsNodes = (NodeList) xPathProcessor.process(crfDefSelector, odm, XPathConstants.NODESET);
-        NodeList eventDefsNodes = (NodeList) xPathProcessor.process(eventDefSelector, odm, XPathConstants.NODESET);
-        NodeList itemGroupDefNodes = (NodeList) xPathProcessor.process(itemGroupDefSelector, odm, XPathConstants.NODESET);
-        NodeList itemDefNodes = (NodeList) xPathProcessor.process(ITEM_DEFINITION_SELECTOR, odm, XPathConstants.NODESET);
-        Node studyDescNode = (Node) xPathProcessor.process(STUDY_DESCRIPTION_SELECTOR, studyNode, XPathConstants.NODE);
+        Node studyNode = (Node) xpath.evaluate(STUDY_SELECTOR, odm, XPathConstants.NODE);
+        NodeList crfDefsNodes = (NodeList) xpath.evaluate(crfDefSelector, odm, XPathConstants.NODESET);
+        NodeList eventDefsNodes = (NodeList) xpath.evaluate(eventDefSelector, odm, XPathConstants.NODESET);
+        NodeList itemGroupDefNodes = (NodeList) xpath.evaluate(itemGroupDefSelector, odm, XPathConstants.NODESET);
+        NodeList itemDefNodes = (NodeList) xpath.evaluate(ITEM_DEFINITION_SELECTOR, odm, XPathConstants.NODESET);
+        Node studyDescNode = (Node) xpath.evaluate(STUDY_DESCRIPTION_SELECTOR, studyNode, XPathConstants.NODE);
 
         Map eventMap = parseEvents(eventDefsNodes);
         List<CRFDefinition> crfDefs = parseCrfs(crfDefsNodes, eventMap);
@@ -119,14 +118,14 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
         metaData.setPersonIDUsage(parsePersonIDNotUsed(odm, studyRequirementPath));
         metaData.setBirthdateRequired(parseDateOfBirthRequired(odm, studyRequirementPath));
         metaData.setStatus(studyStatus);
-        Node studyRequirements = (Node) xPathProcessor.process(studyRequirementPath , odm, XPathConstants.NODE);
+        Node studyRequirements = (Node) xpath.evaluate(studyRequirementPath , odm, XPathConstants.NODE);
         metaData.setLocationRequirementSetting(getLocationRequirements(studyRequirements));
         metaData.setSubjectIDGeneration(parseSubjectIDGeneration(studyRequirements, SUBJECT_ID_GENERATOR_SELECTOR));
         return metaData;
     }
 
     private static ProtocolFieldRequirementSetting getLocationRequirements(Node studyRequirements) throws XPathExpressionException {
-        NodeList stdyParams = (NodeList) xPathProcessor.process(".//*[local-name()='StudyParameterListRef']",
+        NodeList stdyParams = (NodeList) xpath.evaluate(".//*[local-name()='StudyParameterListRef']",
                 studyRequirements, XPathConstants.NODESET);
             for (int j = 0; j < stdyParams.getLength(); j++) {
                 Node config_child = stdyParams.item(j);
@@ -152,7 +151,7 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
     private static String parseStudyStatus(Node studyDescNode) throws XPathExpressionException {
         String unspecified = "UNSPECIFIED";
         if (studyDescNode == null) return unspecified;
-        Node statusNode = (Node) xPathProcessor.process(STUDY_STATUS_SELECTOR,
+        Node statusNode = (Node) xpath.evaluate(STUDY_STATUS_SELECTOR,
                 studyDescNode, XPathConstants.NODE);
         if (statusNode == null) return unspecified;
         return statusNode.getTextContent();
@@ -207,7 +206,7 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
 
     private static boolean parseGenderRequired(Document odm, String mypath) throws XPathExpressionException {
         boolean isGenderRequired = false;
-        Node n = (Node) xPathProcessor.process(mypath, odm, XPathConstants.NODE);
+        Node n = (Node) xpath.evaluate(mypath, odm, XPathConstants.NODE);
         Node study_details_node = null;
         NodeList children = n.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
@@ -255,7 +254,7 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
 
     private static SubjectIDGeneration parseSubjectIDGeneration(Node studyRequirements, String mypath) throws XPathExpressionException {
         NodeList subjectIDGenerationNodeList =
-                (NodeList) xPathProcessor.process(".//*[local-name()='StudyParameterListRef'][@*[local-name()='StudyParameterListID' and .='SPL_subjectIdGeneration']]",
+                (NodeList) xpath.evaluate(".//*[local-name()='StudyParameterListRef'][@*[local-name()='StudyParameterListID' and .='SPL_subjectIdGeneration']]",
                         studyRequirements, XPathConstants.NODESET);
         Node subjectIDGenerationNode = subjectIDGenerationNodeList.item(0);
         String subjectIDGeneration = subjectIDGenerationNode.getAttributes().getNamedItem("Value").getTextContent();
@@ -263,7 +262,7 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
     }
 
     private static ProtocolFieldRequirementSetting parsePersonIDNotUsed(Document odm, String mypath) throws XPathExpressionException {
-        Node n = (Node) xPathProcessor.process(mypath, odm, XPathConstants.NODE);
+        Node n = (Node) xpath.evaluate(mypath, odm, XPathConstants.NODE);
         Node study_details_node = null;
         NodeList children = n.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
@@ -317,7 +316,7 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
          * 3. not required
          */
         int isDOBRequired = 3;
-        Node n = (Node) xPathProcessor.process(mypath, odm, XPathConstants.NODE);
+        Node n = (Node) xpath.evaluate(mypath, odm, XPathConstants.NODE);
         Node study_details_node = null;
         NodeList children = n.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
@@ -364,8 +363,8 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
     }
 
     private static List<CodeListDefinition> parseCodeListDefinitions(Document odm) throws XPathExpressionException {
-        NodeList codeListNodes = (NodeList) xPathProcessor.process(CODELIST_DEFINITION_SELECTOR, odm, XPathConstants.NODESET);
-        NodeList multipleSelectNodes = (NodeList) xPathProcessor.process(MULTIPLE_SELECT_DEFINITION_SELECTOR, odm,
+        NodeList codeListNodes = (NodeList) xpath.evaluate(CODELIST_DEFINITION_SELECTOR, odm, XPathConstants.NODESET);
+        NodeList multipleSelectNodes = (NodeList) xpath.evaluate(MULTIPLE_SELECT_DEFINITION_SELECTOR, odm,
                 XPathConstants.NODESET);
 
         return parseCodeListDefinitions(codeListNodes, multipleSelectNodes);
@@ -381,7 +380,7 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
         List<CodeListDefinition> codeLists = new ArrayList<>();
         for (int i = 0; i < codeListNodes.getLength(); i++) {
             Node codeListDefNode = codeListNodes.item(i).cloneNode(true);
-            NodeList codes = (NodeList) xPathProcessor.process(xpathSelector, codeListDefNode, XPathConstants.NODESET);
+            NodeList codes = (NodeList) xpath.evaluate(xpathSelector, codeListDefNode, XPathConstants.NODESET);
             CodeListDefinition codeList = new CodeListDefinition();
             codeList.setOcid(codeListDefNode.getAttributes().getNamedItem(idAttribute).getTextContent());
             List<CodeListItemDefinition> codeDefList = new ArrayList<>();
@@ -431,7 +430,7 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
         for (int i = 0; i < eventDefsNodes.getLength(); i++) {
             Node item = eventDefsNodes.item(i);
             String oid = item.getAttributes().getNamedItem("OID").getTextContent();
-            NodeList formRefs = (NodeList) xPathProcessor.process("./FormRef", item, XPathConstants.NODESET);
+            NodeList formRefs = (NodeList) xpath.evaluate("./FormRef", item, XPathConstants.NODESET);
             for (int j = 0; j < formRefs.getLength(); j++) {
                 Node formRef = formRefs.item(j);
                 String formOID = formRef.getAttributes().getNamedItem("FormOID").getTextContent();
@@ -458,7 +457,7 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
         if (!StringUtils.isEmpty(result)) {
             throw new AuthenticationCredentialsNotFoundException("Problem calling OpenClinica web-services: " + result);
         }
-        Node odmCDATANode = (Node) xPathProcessor.process(odmSelector, document, XPathConstants.NODE);
+        Node odmCDATANode = (Node) xpath.evaluate(odmSelector, document, XPathConstants.NODE);
         if (odmCDATANode == null) {
             return null;
         }
@@ -520,10 +519,10 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
     }
 
     private static List<String> getMandatory(Node node, String xpathSelector, String attributeName) throws XPathExpressionException {
-        NodeList itemRefs = (NodeList) xPathProcessor.process(xpathSelector, node, XPathConstants.NODESET);
+        NodeList itemRefs = (NodeList) xpath.evaluate(xpathSelector, node, XPathConstants.NODESET);
         List<String> mandatoryGroups = new ArrayList<>();
         for (int i = 0; i < itemRefs.getLength(); i++) {
-            Node ref = itemRefs.item(i);
+            Node ref = itemRefs.item(i).cloneNode(true);
             String itemOID = ref.getAttributes().getNamedItem(attributeName).getTextContent();
             String mandatoryText = ref.getAttributes().getNamedItem("Mandatory").getTextContent();
             if (mandatoryText.equals("Yes")) {
@@ -534,10 +533,10 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
     }
 
     private static List<String> getItems(Node node, String xpathSelector, String attributeName) throws XPathExpressionException {
-        NodeList itemRefs = (NodeList) xPathProcessor.process(xpathSelector, node, XPathConstants.NODESET);
+        NodeList itemRefs = (NodeList) xpath.evaluate(xpathSelector, node, XPathConstants.NODESET);
         List<String> items = new ArrayList<>();
         for (int i = 0; i < itemRefs.getLength(); i++) {
-            Node ref = itemRefs.item(i);
+            Node ref = itemRefs.item(i).cloneNode(true);
             String itemOID = ref.getAttributes().getNamedItem(attributeName).getTextContent();
             items.add(itemOID);
         }
@@ -556,7 +555,7 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
 
     private static List<DisplayRule> getDisplayRules(Node itemDefNode) throws XPathExpressionException {
         List<DisplayRule> displayRules = new ArrayList<>();
-        NodeList itemPresentInFormNode = (NodeList) xPathProcessor.process(ITEM_PRESENT_IN_FORM_SELECTOR, itemDefNode, XPathConstants.NODESET);
+        NodeList itemPresentInFormNode = (NodeList) xpath.evaluate(ITEM_PRESENT_IN_FORM_SELECTOR, itemDefNode, XPathConstants.NODESET);
         for (int i = 0; i < itemPresentInFormNode.getLength(); i++) {
             Node item = itemPresentInFormNode.item(i);
             DisplayRule displayRule = getDisplayRule(item);
@@ -567,9 +566,9 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
 
     public static List<ItemPresentInForm> createPresentInCRFList(Node itemDefNode) throws XPathExpressionException {
         List<ItemPresentInForm> itemPresentInFormList = new ArrayList<>();
-        NodeList itemPresentInFormNode = (NodeList) xPathProcessor.process(ITEM_PRESENT_IN_FORM_SELECTOR, itemDefNode, XPathConstants.NODESET);
+        NodeList itemPresentInFormNode = (NodeList) xpath.evaluate(ITEM_PRESENT_IN_FORM_SELECTOR, itemDefNode, XPathConstants.NODESET);
         for (int i = 0; i < itemPresentInFormNode.getLength(); i++) {
-            Node item = itemPresentInFormNode.item(i);
+            Node item = itemPresentInFormNode.item(i).cloneNode(true);
             ItemPresentInForm itemPresentInForm = new ItemPresentInForm();
             NamedNodeMap namedNodeMap = item.getAttributes();
             Node attributeValue = namedNodeMap.getNamedItem("FormOID");
@@ -610,7 +609,7 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
 
     private static DisplayRule getDisplayRule(Node itemPresentInFormNode) throws XPathExpressionException {
         Node openClinicaItemDetailsNode =
-                (Node) xPathProcessor.process(".//*[local-name()='ItemPresentInForm'][1]", itemPresentInFormNode, XPathConstants.NODE);
+                (Node) xpath.evaluate(".//*[local-name()='ItemPresentInForm'][1]", itemPresentInFormNode, XPathConstants.NODE);
         Node formOIDNode = openClinicaItemDetailsNode.getAttributes().getNamedItem("FormOID");
         Node showItemNode = openClinicaItemDetailsNode.getAttributes().getNamedItem("ShowItem");
         if ((formOIDNode == null) || (showItemNode == null)) {
@@ -622,13 +621,13 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
         if (showItemNode.getTextContent().equals("No")) {
             show = false;
         }
-        Node ctrlItem = (Node) xPathProcessor.process(".//*[local-name()='ControlItemName'][1]", itemPresentInFormNode, XPathConstants.NODE);
+        Node ctrlItem = (Node) xpath.evaluate(".//*[local-name()='ControlItemName'][1]", itemPresentInFormNode, XPathConstants.NODE);
         if (ctrlItem != null) {
             rule.setControlItemName(ctrlItem.getTextContent());
         } else {
             return null;
         }
-        Node optionsValue = (Node) xPathProcessor.process(".//*[local-name()='OptionValue'][1]", itemPresentInFormNode, XPathConstants.NODE);
+        Node optionsValue = (Node) xpath.evaluate(".//*[local-name()='OptionValue'][1]", itemPresentInFormNode, XPathConstants.NODE);
         if (optionsValue  != null) {
             rule.setOptionValue(optionsValue.getTextContent());
         } else {
@@ -679,8 +678,8 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
     }
 
     private static String determineCodeListRef(Node item) throws XPathExpressionException {
-        Node refCodeList = (Node) xPathProcessor.process(".//CodeListRef", item, XPathConstants.NODE);
-        Node refMultiSelect = (Node) xPathProcessor.process(".//*[local-name()='MultiSelectListRef']", item, XPathConstants.NODE);
+        Node refCodeList = (Node) xpath.evaluate(".//CodeListRef", item, XPathConstants.NODE);
+        Node refMultiSelect = (Node) xpath.evaluate(".//*[local-name()='MultiSelectListRef']", item, XPathConstants.NODE);
         if (refCodeList != null) {
             return refCodeList.getAttributes().getNamedItem("CodeListOID").getTextContent();
         }
@@ -691,7 +690,7 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
     }
 
     private static ResponseType determineResponseType(Node itemDefinitionNode) throws XPathExpressionException {
-        Node itemResponseNode = (Node) xPathProcessor.process(".//*[local-name()='ItemResponse']", itemDefinitionNode, XPathConstants.NODE);
+        Node itemResponseNode = (Node) xpath.evaluate(".//*[local-name()='ItemResponse']", itemDefinitionNode, XPathConstants.NODE);
         if (itemResponseNode != null) {
             String textValue = itemResponseNode.getAttributes().getNamedItem("ResponseType").getTextContent();
             return ResponseType.lookupByDescription(textValue);
@@ -700,7 +699,7 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
     }
 
     private static boolean isMultiSelect(Node item) throws XPathExpressionException {
-        NodeList codeListRefs = (NodeList) xPathProcessor.process(".//*[local-name()='MultiSelectListRef']", item, XPathConstants.NODESET);//TODO: make it into a constant at class level
+        NodeList codeListRefs = (NodeList) xpath.evaluate(".//*[local-name()='MultiSelectListRef']", item, XPathConstants.NODESET);//TODO: make it into a constant at class level
         if (codeListRefs.getLength() > 0) {
             return true;
         } else
@@ -708,12 +707,12 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
     }
 
     private static List<RangeCheck> parseRangeChecks(Node item) throws XPathExpressionException {
-        NodeList rangeChekNodes = (NodeList) xPathProcessor.process(rangeChecksSelector, item, XPathConstants.NODESET);
+        NodeList rangeChekNodes = (NodeList) xpath.evaluate(rangeChecksSelector, item, XPathConstants.NODESET);
         List<RangeCheck> rangeChecks = new ArrayList<>();
         for (int i = 0; i < rangeChekNodes.getLength(); i++) {
-            Node rangeChecKnode = rangeChekNodes.item(i);
+            Node rangeChecKnode = rangeChekNodes.item(i).cloneNode(true);
             String comparator = rangeChecKnode.getAttributes().getNamedItem("Comparator").getTextContent();
-            Node valueNode = (Node) xPathProcessor.process(".//CheckValue", rangeChecKnode, XPathConstants.NODE);
+            Node valueNode = (Node) xpath.evaluate(".//CheckValue", rangeChecKnode, XPathConstants.NODE);
             String value = valueNode.getTextContent();
             RangeCheck rangeCheck = new RangeCheck();
             RangeCheck.COMPARATOR comparatorEnum = RangeCheck.COMPARATOR.valueOf(comparator);
@@ -731,7 +730,7 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
             throws XPathExpressionException {
         List<ItemGroupDefinition> itemGroupDefs = new ArrayList<>();
         for (int i = 0; i < itemGroupDefNodes.getLength(); i++) {
-            Node itemGroupDefNode = itemGroupDefNodes.item(i);
+            Node itemGroupDefNode = itemGroupDefNodes.item(i).cloneNode(true);
             String oid = itemGroupDefNode.getAttributes().getNamedItem("OID").getTextContent();
             String name = itemGroupDefNode.getAttributes().getNamedItem("Name").getTextContent();
             String repeatingText = itemGroupDefNode.getAttributes().getNamedItem("Repeating").getTextContent();
@@ -774,10 +773,10 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
                                                                ItemGroupDefinition prototype,
                                                                List<CRFDefinition> crfs) throws XPathExpressionException {
         ArrayList<ItemGroupDefinition> itemGroupDefs = new ArrayList<>();
-        NodeList itemGroupNodes = (NodeList) xPathProcessor.process(presentInCrfsSelector,
+        NodeList itemGroupNodes = (NodeList) xpath.evaluate(presentInCrfsSelector,
                 itemGroupDefNode, XPathConstants.NODESET);
         for (int i = 0; i < itemGroupNodes.getLength(); i++) {
-            Node node = itemGroupNodes.item(i);
+            Node node = itemGroupNodes.item(i).cloneNode(true);
             String formOID = node.getAttributes().getNamedItem("FormOID").getTextContent();
             crfs.stream()
                     .filter(crfDefinition -> crfDefinition.getOid().equals(formOID))
@@ -809,10 +808,10 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
     private static List<CRFDefinition> getCrfsInEvent(Node crfNode, CRFDefinition prototype, Map<String, EventDefinition> events) {
         ArrayList<CRFDefinition> crfs = new ArrayList<>();
         try {
-            NodeList crfNodes = (NodeList) xPathProcessor.process(presentInEventSelector,
+            NodeList crfNodes = (NodeList) xpath.evaluate(presentInEventSelector,
                     crfNode, XPathConstants.NODESET);
             for (int i = 0; i < crfNodes.getLength(); i++) {
-                Node node = crfNodes.item(i);
+                Node node = crfNodes.item(i).cloneNode(true);
                 CRFDefinition crf = new CRFDefinition(prototype);
                 String studyEventOID = node.getAttributes().getNamedItem("StudyEventOID").getTextContent();
                 crf.setEvent(events.get(studyEventOID));
@@ -829,4 +828,8 @@ public class GetStudyMetadataResponseHandler extends OCResponseHandler {
         }
         return crfs;
     }
+
+    private static XPath xpath = XPathFactory.newInstance().newXPath();
+
+
 }
